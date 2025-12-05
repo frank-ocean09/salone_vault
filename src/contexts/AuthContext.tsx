@@ -1,0 +1,151 @@
+import { createContext, useContext, useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
+import type { User, Session, AuthError } from '@supabase/supabase-js';
+import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { logActivity } from '../lib/shareApi';
+
+interface AuthContextType {
+    user: User | null;
+    session: Session | null;
+    loading: boolean;
+    signUp: (email: string, password: string, fullName: string, phone: string) => Promise<{ error: AuthError | null }>;
+    signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
+    signOut: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+    const [user, setUser] = useState<User | null>(null);
+    const [session, setSession] = useState<Session | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        // If Supabase isn't configured, avoid any network calls and run in demo/local mode.
+        if (!isSupabaseConfigured) {
+            console.warn('⚠️ Supabase not configured. Running in demo mode. No network calls will be made.');
+            setLoading(false);
+            return;
+        }
+
+        // Get initial session
+        supabase.auth.getSession()
+            .then(({ data: { session } }) => {
+                setSession(session);
+                setUser(session?.user ?? null);
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.error('Error getting session:', error);
+                setLoading(false);
+            });
+
+        // Listen for auth changes
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+            setSession(session);
+            setUser(session?.user ?? null);
+            setLoading(false);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
+
+    const signUp = async (email: string, password: string, fullName: string, phone: string) => {
+        if (!isSupabaseConfigured) {
+            console.warn('Attempted signUp while Supabase is not configured. Aborting network call.');
+            return { error: { message: 'Supabase not configured', name: 'ConfigurationError' } as any };
+        }
+
+        try {
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        full_name: fullName,
+                        phone: phone,
+                    },
+                },
+            });
+
+            // Create profile if signup successful
+            if (data.user && !error) {
+                await supabase.from('profiles').insert({
+                    id: data.user.id,
+                    email: email,
+                    full_name: fullName,
+                    phone: phone,
+                });
+            }
+
+            return { error };
+        } catch (err: any) {
+            return { error: err };
+        }
+    };
+
+    const signIn = async (email: string, password: string) => {
+        if (!isSupabaseConfigured) {
+            console.warn('Attempted signIn while Supabase is not configured. Aborting network call.');
+            return { error: { message: 'Supabase not configured', name: 'ConfigurationError' } as any };
+        }
+
+        try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
+
+            // Log successful login
+            if (!error && data.user) {
+                await logActivity(data.user.id, 'user_login', undefined, undefined, {
+                    email,
+                    login_method: 'password',
+                });
+            }
+
+            return { error };
+        } catch (err: any) {
+            return { error: err };
+        }
+    };
+
+    const signOut = async () => {
+        if (!isSupabaseConfigured) {
+            console.warn('Attempted signOut while Supabase is not configured. Nothing to do.');
+            return;
+        }
+
+        try {
+            // Log logout before signing out
+            if (user) {
+                await logActivity(user.id, 'user_logout');
+            }
+
+            await supabase.auth.signOut();
+        } catch (error) {
+            console.error('Error signing out:', error);
+        }
+    };
+
+    const value = {
+        user,
+        session,
+        loading,
+        signUp,
+        signIn,
+        signOut,
+    };
+
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+export function useAuth() {
+    const context = useContext(AuthContext);
+    if (context === undefined) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
+}
