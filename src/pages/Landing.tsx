@@ -236,11 +236,11 @@ export function Landing() {
                     <div className="grid md:grid-cols-4 gap-12 mb-12">
                         <div className="col-span-1 md:col-span-2">
                             <div className="flex items-center gap-3 mb-6">
-                                <img src="/nddv-logo.png" alt="NDDV Logo" className="h-14 w-14" />
-                                <span className="font-bold text-2xl">NDDV</span>
+                                <img src="/nddv-logo.png" alt="Salone Vault Logo" className="h-14 w-14" />
+                                <span className="font-bold text-2xl">Salone Vault</span>
                             </div>
                             <p className="text-lg opacity-80 max-w-sm leading-relaxed mb-6">
-                                The official National Digital Document Vault of Sierra Leone.
+                                The official Salone Vault of Sierra Leone.
                                 Securing your future through digital identity.
                             </p>
                             <div className="flex gap-4">
@@ -269,7 +269,7 @@ export function Landing() {
                         </div>
                     </div>
                     <div className="border-t pt-8 text-center opacity-70" style={{ borderColor: '#00A859' }}>
-                        © 2024 National Digital Document Vault. All rights reserved.
+                        © 2024 Salone Vault. All rights reserved.
                     </div>
                 </div>
             </footer>

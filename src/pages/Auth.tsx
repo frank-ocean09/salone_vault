@@ -68,7 +68,7 @@ export function Auth() {
                     <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
                         {/* Header */}
                         <div className="bg-primary-green p-8 text-center">
-                            <img src="/nddv-logo.png" alt="NDDV Logo" className="h-16 w-16 mx-auto mb-4" />
+                            <img src="/nddv-logo.png" alt="Salone Vault Logo" className="h-16 w-16 mx-auto mb-4" />
                             <h1 className="text-2xl font-bold text-white">
                                 {isLogin ? 'Welcome Back' : 'Create Your Account'}
                             </h1>

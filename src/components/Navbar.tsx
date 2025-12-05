@@ -43,10 +43,10 @@ export function Navbar() {
                         <Link to="/" className="flex items-center gap-2">
                             <img src="/nddv-logo.png" alt="NDDV Logo" className="h-10 w-10" />
                             <span className="font-heading font-bold text-xl text-primary-green hidden sm:block">
-                                National Digital Document Vault
+                                Salone Vault
                             </span>
                             <span className="font-heading font-bold text-xl text-primary-green sm:hidden">
-                                NDDV
+                                Salone Vault
                             </span>
                         </Link>
                     </div>

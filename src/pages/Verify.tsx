@@ -83,7 +83,7 @@ export function Verify() {
             <main className="flex-grow flex items-center justify-center p-4">
                 <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
                     <div className="bg-primary-green p-8 text-center">
-                        <img src="/nddv-logo.png" alt="NDDV Logo" className="h-16 w-16 mx-auto mb-4" />
+                        <img src="/nddv-logo.png" alt="Salone Vault Logo" className="h-16 w-16 mx-auto mb-4" />
                         <h1 className="text-2xl font-bold text-white">Document Verification</h1>
                         <p className="text-blue-200 mt-2">Enter the verification token to verify document authenticity.</p>
                     </div>
