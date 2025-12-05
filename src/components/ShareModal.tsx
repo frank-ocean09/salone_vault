@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { X, Copy, Mail, MessageCircle, Share2, Ban, CheckCircle, AlertCircle } from 'lucide-react';
 import QRCode from 'qrcode';
 import { Button } from './Button';
+import { Toast } from './Toast';
 import { createShareToken, revokeShareToken, logActivity } from '../lib/shareApi';
 import type { Document } from '../lib/supabase';
 
@@ -22,6 +23,16 @@ export function ShareModal({ document, isOpen, onClose, userId }: ShareModalProp
     const [success, setSuccess] = useState<string | null>(null);
     const [isRevoked, setIsRevoked] = useState(false);
     const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info'; isVisible: boolean }>({
+        message: '',
+        type: 'success',
+        isVisible: false,
+    });
+
+    const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+        setToast({ message, type, isVisible: true });
+    };
 
     // Generate share token when modal opens - removed auto-generation
     // User should select expiry first, then click generate
@@ -59,9 +70,8 @@ export function ShareModal({ document, isOpen, onClose, userId }: ShareModalProp
     const handleCopyLink = async () => {
         try {
             await navigator.clipboard.writeText(token);
-            setSuccess('Token copied to clipboard!');
+            showToast('You have copied the token!', 'success');
             await logActivity(userId, 'share_copied', document.id, token);
-            setTimeout(() => setSuccess(null), 3000);
         } catch (err) {
             setError('Failed to copy token');
         }
@@ -126,6 +136,12 @@ export function ShareModal({ document, isOpen, onClose, userId }: ShareModalProp
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-2 sm:p-4">
+            <Toast
+                message={toast.message}
+                type={toast.type}
+                isVisible={toast.isVisible}
+                onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
+            />
             <div className="w-full max-w-lg bg-white rounded-xl shadow-2xl overflow-hidden max-h-[95vh] overflow-y-auto">
                 <div className="bg-primary-green p-4 sm:p-6 text-white sticky top-0 z-10">
                     <div className="flex items-start sm:items-center justify-between gap-2">

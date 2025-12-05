@@ -6,6 +6,7 @@ import { FolderList } from '../components/FolderList';
 import { ShareModal } from '../components/ShareModal';
 import { PDFViewer } from '../components/PDFViewer';
 import { Plus, FileText, CheckCircle, Clock, Share2, Search, Upload as UploadIcon, AlertCircle, Eye, Trash2, FolderInput, Activity } from 'lucide-react';
+import { Toast } from '../components/Toast';
 import { useAuth } from '../contexts/AuthContext';
 import {
     getUserDocuments,
@@ -416,9 +417,10 @@ export function Dashboard() {
         if (!blockchainAddress) return;
         try {
             await navigator.clipboard.writeText(blockchainAddress);
-            alert('Blockchain address copied to clipboard');
+            showToast('Blockchain address copied to clipboard!', 'success');
         } catch (err) {
             console.error('Copy failed', err);
+            showToast('Failed to copy address', 'error');
         }
     };
 
@@ -554,6 +556,26 @@ export function Dashboard() {
         return matchesSearch && matchesFolder;
     });
 
+    const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info'; isVisible: boolean }>({
+        message: '',
+        type: 'success',
+        isVisible: false,
+    });
+
+    const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+        setToast({ message, type, isVisible: true });
+    };
+
+    const getWelcomeMessage = () => {
+        const name = user?.user_metadata?.full_name || user?.email?.split('@')[0];
+        if (name) {
+            // Capitalize first letter of name if it's lowercase
+            const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
+            return `Oh, welcome back, ${formattedName}!`;
+        }
+        return 'Welcome back!';
+    };
+
     if (authLoading || loading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -565,11 +587,17 @@ export function Dashboard() {
     return (
         <div className="min-h-screen bg-gray-50">
             <Navbar />
+            <Toast
+                message={toast.message}
+                type={toast.type}
+                isVisible={toast.isVisible}
+                onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
+            />
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">My Vault</h1>
+                        <h1 className="text-2xl font-bold text-gray-900">{getWelcomeMessage()}</h1>
                         <p className="text-gray-600">Manage and protect your essential documents.</p>
                     </div>
                     <div className="flex items-center gap-3 flex-wrap">
