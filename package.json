@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "npx thirdweb deploy"
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.2.9",
@@ -27,6 +28,7 @@
     "react-pdf": "^10.2.0",
     "react-router-dom": "^7.10.0",
     "tailwind-merge": "^3.4.0",
+    "thirdweb": "^5.116.1",
     "typescript": "^5.7.2",
     "viem": "^2.41.2",
     "vite": "^6.0.1",

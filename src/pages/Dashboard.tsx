@@ -20,6 +20,7 @@ import {
     deleteFolder,
     moveDocumentToFolder
 } from '../lib/api';
+import { registerDocumentOnChain } from '../lib/blockchain';
 import { supabase } from '../lib/supabase';
 import { logActivity } from '../lib/shareApi';
 import CryptoJS from 'crypto-js';
@@ -353,7 +354,11 @@ export function Dashboard() {
                 console.warn('Failed to get preview URL', err);
             }
 
-            // Generate blockchain address
+            // Trigger background blockchain registration
+            // We do not await this, so the UI returns success immediately
+            registerDocumentOnChain(selectedFile, newDoc.id);
+
+            // Generate blockchain address (Placeholder for immediate UI feedback, or remove if we want to show real one later)
             const blockchainAddress = `0x${CryptoJS.SHA1(newDoc.id + Date.now().toString()).toString().slice(0, 40)}`;
 
             // Update modal to success state

@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
 import { Button } from '../components/Button';
-import { Search, CheckCircle, XCircle, FileText, Calendar, Hash } from 'lucide-react';
+import { Search, CheckCircle, XCircle, FileText, Calendar, Hash, ShieldCheck } from 'lucide-react';
 import { validateShareToken } from '../lib/shareApi';
 import { supabase } from '../lib/supabase';
+import { verifyDocumentOnChain } from '../lib/blockchain';
 
 export function Verify() {
     const [searchParams] = useSearchParams();
@@ -12,6 +13,7 @@ export function Verify() {
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
     const [result, setResult] = useState<any>(null);
     const [error, setError] = useState<string>('');
+    const [blockchainStatus, setBlockchainStatus] = useState<{ verified: boolean; timestamp?: number } | null>(null);
 
     // Auto-verify if token is in URL
     useEffect(() => {
@@ -43,6 +45,16 @@ export function Verify() {
                 maxUses: tokenData.max_uses,
                 filePath: document.file_path, // Store file path instead of URL
             });
+
+            // Parallel Blockchain Verification
+            if (document.hash) {
+                verifyDocumentOnChain(document.hash).then((status: { verified: boolean; timestamp?: number } | null | { verified: boolean; error: any }) => {
+                    // Normalize the status type
+                    if (status && 'verified' in status && !('error' in status)) {
+                        setBlockchainStatus(status as { verified: boolean; timestamp?: number });
+                    }
+                });
+            }
         } catch (err: any) {
             setStatus('error');
             setError(err.message || 'Invalid or expired verification code');
@@ -186,6 +198,19 @@ export function Verify() {
                                             </code>
                                         </div>
                                     </div>
+
+                                    {/* Blockchain Verification Badge */}
+                                    {blockchainStatus?.verified && (
+                                        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-3 animate-in fade-in">
+                                            <ShieldCheck className="h-6 w-6 text-blue-600" />
+                                            <div>
+                                                <h4 className="font-semibold text-blue-900 text-sm">Verified on Blockchain</h4>
+                                                <p className="text-xs text-blue-700">
+                                                    Timestamp: {new Date(blockchainStatus.timestamp!).toLocaleString()}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {result.filePath && (
