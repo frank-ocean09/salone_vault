@@ -962,7 +962,7 @@ export function Dashboard() {
                                 </div>
                             ) : (
                                 <>
-                                    <div className="flex flex-col lg:flex-row gap-6">
+                                    <div className="flex flex-col xl:flex-row gap-6">
                                         <div className="flex-1 min-w-0">
                                             <DocumentsTable
                                                 documents={documents}
@@ -977,10 +977,10 @@ export function Dashboard() {
                                             />
                                         </div>
 
-                                        {/* Shared Albums sidebar */}
-                                        <div className="w-full lg:w-64 block">
-                                            <div className="bg-gray-50 p-4 rounded-lg lg:bg-transparent lg:p-0">
-                                                <h3 className="lg:hidden font-bold mb-3">Manage Albums</h3>
+                                        {/* Shared Albums sidebar - Side on XL+, integrated below on smaller */}
+                                        <div className="w-full xl:w-72 flex-shrink-0">
+                                            <div className="bg-gray-50 p-4 rounded-lg xl:bg-white xl:p-0 xl:border-l xl:pl-6 xl:rounded-none">
+                                                <h3 className="xl:hidden font-bold mb-3">Manage Albums</h3>
                                                 <SharedAlbumsSidebar userId={user!.id} onOpenShareFolder={(folderId) => { setShareFolderId(folderId); setShareFolderModalOpen(true); }} />
                                             </div>
                                         </div>
