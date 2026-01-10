@@ -5,10 +5,11 @@ import { getSharedAlbumsForUser, createSharedAlbum, getSharedAlbumMembers, invit
 
 type Props = {
   userId: string;
-  onOpenShareFolder: (folderId: string) => void; // existing Dashboard handler signature
+  onOpenShareFolder: (folderId: string) => void;
+  onSelectAlbum: (album: any) => void;
 };
 
-export const SharedAlbumsSidebar: React.FC<Props> = ({ userId, onOpenShareFolder }) => {
+export const SharedAlbumsSidebar: React.FC<Props> = ({ userId, onOpenShareFolder, onSelectAlbum }) => {
   const [albums, setAlbums] = useState<any[]>([]);
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState('');
@@ -32,8 +33,11 @@ export const SharedAlbumsSidebar: React.FC<Props> = ({ userId, onOpenShareFolder
     if (!newName.trim()) return;
     setCreating(true);
     try {
-      // For now, create album without folder association; the user can select a folder when sharing
-      const dummyFolderId = '';
+      // Create album without folder association initially
+      // Use null instead of empty string if your schema allows null, otherwise ensure DB handles it.
+      // Schema has folder_id uuid, so it must be valid UUID or NULL. Empty string will fail.
+      const dummyFolderId = null;
+      // @ts-ignore
       const created = await createSharedAlbum(userId, dummyFolderId, newName.trim());
       setAlbums(prev => [created, ...prev]);
       setNewName('');
@@ -45,14 +49,16 @@ export const SharedAlbumsSidebar: React.FC<Props> = ({ userId, onOpenShareFolder
   };
 
   const handleSelectAlbum = async (album: any) => {
+    // Notify parent to view this album
+    onSelectAlbum(album);
+
+    // Also load members for inline display
     try {
       const members = await getSharedAlbumMembers(album.id);
       setSelectedAlbumMembers(members || []);
     } catch (err) {
       console.warn('Failed to load members', err);
     }
-    // If the album has a folder link, open share modal in Dashboard
-    if (album.folder_id) onOpenShareFolder(album.folder_id);
   };
 
   const handleInvite = async (albumId: string) => {
@@ -82,18 +88,17 @@ export const SharedAlbumsSidebar: React.FC<Props> = ({ userId, onOpenShareFolder
         </div>
 
         {albums.map(album => (
-          <div key={album.id} className="p-2 border rounded flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Users size={16} />
+          <div key={album.id} className="p-2 border rounded flex items-center justify-between hover:bg-gray-50 transition-colors">
+            <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleSelectAlbum(album)}>
+              <Users size={16} className="text-gray-500" />
               <div>
-                <div className="font-medium">{album.name || '(Unnamed)'}</div>
-                <div className="text-xs text-gray-500">{album.folder_id ? 'Folder linked' : 'No folder'}</div>
+                <div className="font-medium text-sm">{album.name || '(Unnamed)'}</div>
+                <div className="text-xs text-gray-400">{album.folder_id ? 'Folder linked' : 'No folder'}</div>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={() => handleSelectAlbum(album)} className="text-sm text-gray-600">Open</button>
-              <button onClick={() => setSelectedAlbumMembers([])} className="text-sm text-gray-600">Members</button>
-              <button onClick={() => console.log('more')} className="text-gray-500"><MoreHorizontal size={16} /></button>
+              <button onClick={() => handleSelectAlbum(album)} className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded hover:bg-blue-100">Open</button>
+              <button onClick={() => console.log('more')} className="text-gray-400 hover:text-gray-600"><MoreHorizontal size={16} /></button>
             </div>
           </div>
         ))}

@@ -273,3 +273,10 @@ export async function getSharedAlbumMembers(sharedAlbumId: string) {
     return data;
 }
 
+export async function getSharedAlbumDocuments(albumId: string) {
+    const { data, error } = await supabase
+        .rpc('get_shared_album_documents', { album_id: albumId });
+
+    if (error) throw error;
+    return data as Document[];
+}

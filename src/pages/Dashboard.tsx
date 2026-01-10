@@ -30,6 +30,7 @@ import {
     inviteToSharedAlbum,
     getSharedAlbumsForUser,
     getSharedAlbumMembers,
+    getSharedAlbumDocuments,
 } from '../lib/api';
 import { registerDocumentOnChain } from '../lib/blockchain';
 import { supabase } from '../lib/supabase';
@@ -44,6 +45,7 @@ export function Dashboard() {
     const [documents, setDocuments] = useState<Document[]>([]);
     const [folders, setFolders] = useState<Folder[]>([]);
     const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+    const [viewingSharedAlbum, setViewingSharedAlbum] = useState<{ id: string; name: string; folder_id?: string } | null>(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     // Selection handled by hook
@@ -737,6 +739,34 @@ export function Dashboard() {
         }
     };
 
+    const handleSelectSharedAlbum = async (album: any) => {
+        try {
+            setLoading(true);
+            setViewingSharedAlbum({ id: album.id, name: album.name, folder_id: album.folder_id });
+            setSelectedFolderId(null); // Deselect personal folder
+
+            // If the album is linked to a folder, fetch documents via RPC
+            if (album.folder_id) {
+                const docs = await getSharedAlbumDocuments(album.id);
+                setDocuments(docs || []);
+            } else {
+                setDocuments([]); // Empty album
+            }
+            setMobileMenuOpen(false); // Close mobile menu if open
+        } catch (err: any) {
+            console.error('Failed to load shared documents', err);
+            setError('Failed to load shared documents');
+            showToast('Could not load shared album', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleBackToMyVault = async () => {
+        setViewingSharedAlbum(null);
+        await loadDocuments();
+    };
+
     const filteredDocuments = documents.filter(doc => {
         const matchesSearch = doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             doc.type.toLowerCase().includes(searchQuery.toLowerCase());
@@ -866,7 +896,7 @@ export function Dashboard() {
                                     <ul className="space-y-2 text-sm">
                                         {sharedAlbums.map(sa => (
                                             <li key={sa.id} className="flex items-center justify-between">
-                                                <button onClick={() => { setSelectedFolderId(sa.folder_id); setMobileMenuOpen(false); }} className="text-left text-sm text-gray-800 hover:underline">{sa.name}</button>
+                                                <button onClick={() => handleSelectSharedAlbum(sa)} className="text-left text-sm text-gray-800 hover:underline">{sa.name}</button>
                                                 <span className="text-xs text-gray-500">{sa.owner_id === user?.id ? 'You' : 'Shared'}</span>
                                             </li>
                                         ))}
@@ -912,9 +942,17 @@ export function Dashboard() {
                             <div className="p-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
                                 <div className="flex items-center gap-4 w-full">
                                     <h2 className="text-lg font-bold text-gray-900 flex-1">
-                                        {selectedFolderId
-                                            ? folders.find(f => f.id === selectedFolderId)?.name || 'Folder'
-                                            : 'All Documents'}
+                                        {viewingSharedAlbum ? (
+                                            <span className="flex items-center gap-2">
+                                                <span className="text-primary-green">Shared Album:</span>
+                                                {viewingSharedAlbum.name}
+                                                <button onClick={handleBackToMyVault} className="text-xs bg-gray-100 px-2 py-1 rounded hover:bg-gray-200 text-gray-600 font-normal ml-2">Back to My Vault</button>
+                                            </span>
+                                        ) : (
+                                            selectedFolderId
+                                                ? folders.find(f => f.id === selectedFolderId)?.name || 'Folder'
+                                                : 'All Documents'
+                                        )}
                                     </h2>
 
                                     {/* Selection toolbar */}
@@ -981,7 +1019,11 @@ export function Dashboard() {
                                         <div className="w-full xl:w-72 flex-shrink-0">
                                             <div className="bg-gray-50 p-4 rounded-lg xl:bg-white xl:p-0 xl:border-l xl:pl-6 xl:rounded-none">
                                                 <h3 className="xl:hidden font-bold mb-3">Manage Albums</h3>
-                                                <SharedAlbumsSidebar userId={user!.id} onOpenShareFolder={(folderId) => { setShareFolderId(folderId); setShareFolderModalOpen(true); }} />
+                                                <SharedAlbumsSidebar
+                                                    userId={user!.id}
+                                                    onSelectAlbum={handleSelectSharedAlbum}
+                                                    onOpenShareFolder={(folderId) => { setShareFolderId(folderId); setShareFolderModalOpen(true); }}
+                                                />
                                             </div>
                                         </div>
                                     </div>
