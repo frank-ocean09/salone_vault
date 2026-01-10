@@ -41,8 +41,16 @@ Deno.serve(async (req: Request) => {
     }
 
     try {
-        if (!WALLET_PRIVATE_KEY || !CONTRACT_ADDRESS) {
-            throw new Error("Missing Configuration (WALLET_PRIVATE_KEY or DOCUMENT_REGISTRY_ADDRESS)");
+        const privateKey = Deno.env.get('WALLET_PRIVATE_KEY');
+        const contractAddress = Deno.env.get('DOCUMENT_REGISTRY_ADDRESS') ?? Deno.env.get('BLOCKCHAIN_CONTRACT_ADDRESS');
+
+        if (!privateKey) {
+            console.error("Missing WALLET_PRIVATE_KEY");
+            throw new Error("Configuration Error: WALLET_PRIVATE_KEY is missing");
+        }
+        if (!contractAddress) {
+            console.error("Missing DOCUMENT_REGISTRY_ADDRESS");
+            throw new Error("Configuration Error: DOCUMENT_REGISTRY_ADDRESS is missing");
         }
 
         const { hash, documentId } = await req.json();

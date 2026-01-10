@@ -10,7 +10,9 @@
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write .",
     "preview": "vite preview",
-    "deploy": "npx thirdweb deploy"
+    "deploy": "npx thirdweb deploy",
+    "deploy:functions": "npx supabase functions deploy",
+    "db:push": "npx supabase db push"
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.2.9",
