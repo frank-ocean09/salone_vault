@@ -6,6 +6,12 @@ import { FolderList } from '../components/FolderList';
 import { ShareModal } from '../components/ShareModal';
 import { PDFViewer } from '../components/PDFViewer';
 import { Plus, FileText, CheckCircle, Clock, Share2, Search, Upload as UploadIcon, AlertCircle, Eye, Trash2, FolderInput, Activity } from 'lucide-react';
+import { DocumentsTable } from '../components/DocumentsTable';
+import { BulkToolbar } from '../components/BulkToolbar';
+import { SharedAlbumsSidebar } from '../components/SharedAlbumsSidebar';
+import { ShareFolderModal } from '../components/ShareFolderModal';
+import { DebugPanel } from '../components/DebugPanel';
+import { useSelection } from '../hooks/useSelection';
 import { Toast } from '../components/Toast';
 import { useAuth } from '../contexts/AuthContext';
 import {
@@ -39,8 +45,8 @@ export function Dashboard() {
     const [folders, setFolders] = useState<Folder[]>([]);
     const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
 
-    // Selection state for bulk actions
-    const [selectedDocIds, setSelectedDocIds] = useState<string[]>([]);
+    // Selection handled by hook
+    const { selectedIds: selectedDocIds, toggle: toggleSelect, selectAll, deselectAll, clear } = useSelection();
     const selectedCount = selectedDocIds.length;
 
     const [isUploading, setIsUploading] = useState(false);
@@ -56,19 +62,8 @@ export function Dashboard() {
     const [bulkMoveNewFolderName, setBulkMoveNewFolderName] = useState('');
     const [bulkShareExpiry, setBulkShareExpiry] = useState<string>('24 hours');
 
-    // Helpers for selection
-    const toggleSelectDoc = (docId: string) => {
-        setSelectedDocIds(prev => prev.includes(docId) ? prev.filter(id => id !== docId) : [...prev, docId]);
-    };
-
-    const selectAllFiltered = () => {
-        const ids = filteredDocuments.map(d => d.id);
-        setSelectedDocIds(ids);
-    };
-
-    const deselectAll = () => {
-        setSelectedDocIds([]);
-    };
+    // Selection helpers are provided by the useSelection hook: toggleSelect, selectAll, deselectAll, clear
+    // Use those directly where needed (no extra wrappers to avoid naming collisions).
 
     // Modal state and controls
     const [showUploadModal, setShowUploadModal] = useState(false);
@@ -96,32 +91,11 @@ export function Dashboard() {
     // Folder sharing state
     const [shareFolderId, setShareFolderId] = useState<string | null>(null);
     const [shareFolderModalOpen, setShareFolderModalOpen] = useState(false);
-    const [inviteEmail, setInviteEmail] = useState('');
-    const [inviteRole, setInviteRole] = useState<'viewer' | 'uploader'>('viewer');
-    const [sharedAlbumMembers, setSharedAlbumMembers] = useState<any[]>([]);
 
     // Shared albums list (declared before useEffect to avoid temporal dead zone)
     const [sharedAlbums, setSharedAlbums] = useState<any[]>([]);
 
-    // When share modal opens, fetch current members (if album exists)
-    useEffect(() => {
-        const fetchMembers = async () => {
-            if (!shareFolderId) return;
-            try {
-                // Try to find album for this folder (owned by user)
-                const album = sharedAlbums.find(sa => sa.folder_id === shareFolderId);
-                if (!album) {
-                    setSharedAlbumMembers([]);
-                    return;
-                }
-                const members = await getSharedAlbumMembers(album.id);
-                setSharedAlbumMembers(members || []);
-            } catch (err) {
-                console.warn('Failed to fetch shared album members', err);
-            }
-        };
-        if (shareFolderModalOpen) fetchMembers();
-    }, [shareFolderModalOpen, shareFolderId, sharedAlbums]);
+
 
     // Folder states for upload modal
     const [uploadSelectedFolderId, setUploadSelectedFolderId] = useState<string>('');
@@ -351,7 +325,7 @@ export function Dashboard() {
 
             // 4. Update UI
             setDocuments(prev => prev.filter(d => !selectedDocIds.includes(d.id)));
-            setSelectedDocIds([]);
+            clear();
             showToast(`Deleted ${docsToDelete.length} documents`, 'success');
         } catch (err: any) {
             console.error('Bulk delete failed', err);
@@ -398,7 +372,7 @@ export function Dashboard() {
             // Copy tokens to clipboard as newline-separated list
             await navigator.clipboard.writeText(tokens.join('\n'));
             showToast(`Created ${tokens.length} share tokens and copied to clipboard`, 'success');
-            setSelectedDocIds([]);
+            clear();
         } catch (err: any) {
             console.error('Bulk share failed', err);
             setError(err.message || 'Bulk share failed');
@@ -430,7 +404,7 @@ export function Dashboard() {
 
             // Update UI
             setDocuments(prev => prev.map(d => selectedDocIds.includes(d.id) ? { ...d, folder_id: folderIdToUse } : d));
-            setSelectedDocIds([]);
+            clear();
             setBulkMoveFolderId(null);
             setBulkMoveNewFolderName('');
             showToast('Documents moved successfully', 'success');
@@ -743,26 +717,20 @@ export function Dashboard() {
         }
     };
 
-    // Create shared album and optionally invite a collaborator
+    // Create shared album (used by other flows)
     const handleCreateSharedAlbumAndInvite = async () => {
         if (!user || !shareFolderId) return;
         try {
             setShareFolderModalOpen(false);
             const folder = folders.find(f => f.id === shareFolderId);
-            const album = await createSharedAlbum(user.id, shareFolderId, folder?.name || 'Shared Album');
-
-            if (inviteEmail.trim()) {
-                await inviteToSharedAlbum(album.id, inviteEmail.trim(), inviteRole);
-                showToast('Invitation sent', 'success');
-                setInviteEmail('');
-            }
+            await createSharedAlbum(user.id, shareFolderId, folder?.name || 'Shared Album');
 
             // Refresh shared albums list
             const userSharedAlbums = await getSharedAlbumsForUser(user.id);
             setSharedAlbums(userSharedAlbums || []);
             showToast('Shared album created', 'success');
         } catch (err: any) {
-            console.error('Failed to create shared album or invite', err);
+            console.error('Failed to create shared album', err);
             setError(err.message || 'Failed to create shared album');
             showToast('Failed to create shared album', 'error');
         }
@@ -782,6 +750,8 @@ export function Dashboard() {
         type: 'success',
         isVisible: false,
     });
+
+    const [showDebugPanel, setShowDebugPanel] = useState(false);
 
     const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
         setToast({ message, type, isVisible: true });
@@ -931,13 +901,14 @@ export function Dashboard() {
 
                                     {/* Selection toolbar */}
                                     {selectedCount > 0 ? (
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-sm text-gray-600">{selectedCount} selected</span>
-                                            <button onClick={() => setBulkMoveOpen(true)} className="px-3 py-1 rounded-md bg-white border hover:bg-gray-50 text-sm">Add to Folder</button>
-                                            <button onClick={() => setBulkShareOpen(true)} className="px-3 py-1 rounded-md bg-white border hover:bg-gray-50 text-sm">Share</button>
-                                            <button onClick={() => setBulkDeleteOpen(true)} className="px-3 py-1 rounded-md bg-white border hover:bg-gray-50 text-sm text-red-600">Delete</button>
-                                            <button onClick={deselectAll} className="px-2 py-1 rounded-md bg-white border hover:bg-gray-50 text-sm">Deselect</button>
-                                        </div>
+                                        <BulkToolbar
+                                            selectedCount={selectedCount}
+                                            selectAll={() => selectAll(filteredDocuments.map(d => d.id))}
+                                            deselectAll={() => deselectAll()}
+                                            onOpenDelete={() => setBulkDeleteOpen(true)}
+                                            onOpenMove={() => setBulkMoveOpen(true)}
+                                            onOpenShare={() => setBulkShareOpen(true)}
+                                        />
                                     ) : null}
                                 </div>
 
@@ -972,121 +943,35 @@ export function Dashboard() {
                                     )}
                                 </div>
                             ) : (
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-left">
-                                        <thead className="bg-gray-50 text-gray-500 text-sm uppercase">
-                                                    <tr>
-                                                    <th className="px-6 py-4 font-medium">
-                                                        <input
-                                                            type="checkbox"
-                                                            className="h-4 w-4"
-                                                            onChange={(e) => e.target.checked ? selectAllFiltered() : deselectAll()}
-                                                            checked={filteredDocuments.length > 0 && selectedCount === filteredDocuments.length}
-                                                            aria-label="Select all documents"
-                                                        />
-                                                    </th>
-                                                    <th className="px-6 py-4 font-medium">Document Name</th>
-                                                    <th className="px-6 py-4 font-medium">Type</th>
-                                                    <th className="px-6 py-4 font-medium">Date Uploaded</th>
-                                                    <th className="px-6 py-4 font-medium">Status</th>
-                                                    <th className="px-6 py-4 font-medium text-right">Actions</th>
-                                                </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-gray-200">
-                                            {filteredDocuments.map((doc) => (
-                                                <tr key={doc.id} className="hover:bg-gray-50 transition-colors">
-                                                    <td className="px-6 py-4">
-                                                        <input
-                                                            type="checkbox"
-                                                            className="h-4 w-4"
-                                                            checked={selectedDocIds.includes(doc.id)}
-                                                            onChange={() => toggleSelectDoc(doc.id)}
-                                                            aria-label={`Select ${doc.name}`}
-                                                        />
-                                                    </td>
-                                                    <td className="px-6 py-4">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="p-2 bg-blue-50 rounded-lg text-primary-green">
-                                                                <FileText className="h-5 w-5" />
-                                                            </div>
-                                                            <div>
-                                                                <p className="font-medium text-gray-900">{doc.name}</p>
-                                                                <p className="text-xs text-gray-500 font-mono">{doc.hash}</p>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-6 py-4 text-sm text-gray-600">{doc.type}</td>
-                                                    <td className="px-6 py-4 text-sm text-gray-600">
-                                                        {new Date(doc.created_at).toLocaleDateString()}
-                                                    </td>
-                                                    <td className="px-6 py-4">
-                                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${doc.status === 'verified'
-                                                            ? 'bg-green-100 text-green-800'
-                                                            : 'bg-yellow-100 text-yellow-800'
-                                                            }`}>
-                                                            {doc.status === 'verified' && <CheckCircle className="w-3 h-3 mr-1" />}
-                                                            {doc.status === 'verified' ? 'Verified' : 'Pending'}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-6 py-4 text-right">
-                                                        <div className="flex items-center justify-end gap-2">
-                                                            <button
-                                                                onClick={() => handleViewDocument(doc)}
-                                                                className="p-2 text-gray-400 hover:text-primary-green transition-colors"
-                                                                title="View Document"
-                                                            >
-                                                                <Eye className="h-4 w-4" />
-                                                            </button>
-                                                            <div className="relative group">
-                                                                <button
-                                                                    className="p-2 text-gray-400 hover:text-primary-green transition-colors"
-                                                                    title="Move to Folder"
-                                                                >
-                                                                    <FolderInput className="h-4 w-4" />
-                                                                </button>
-                                                                {/* Dropdown for moving folders */}
-                                                                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block border border-gray-200">
-                                                                    <button
-                                                                        onClick={() => handleMoveDocument(doc, null)}
-                                                                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                                    >
-                                                                        No Folder
-                                                                    </button>
-                                                                    {folders.map(f => (
-                                                                        <button
-                                                                            key={f.id}
-                                                                            onClick={() => handleMoveDocument(doc, f.id)}
-                                                                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                                        >
-                                                                            {f.name}
-                                                                        </button>
-                                                                    ))}
-                                                                </div>
-                                                            </div>
-                                                            <button
-                                                                onClick={() => {
-                                                                    setNewShareTargetDocument(doc);
-                                                                    setNewShareModalOpen(true);
-                                                                }}
-                                                                className="p-2 text-gray-400 hover:text-primary-green transition-colors"
-                                                                title="Share Document"
-                                                            >
-                                                                <Share2 className="h-4 w-4" />
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleDeleteDocument(doc)}
-                                                                className="p-2 text-gray-400 hover:text-red-600 transition-colors"
-                                                                title="Delete Document"
-                                                            >
-                                                                <Trash2 className="h-4 w-4" />
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                <>
+                                    <div className="flex gap-6">
+                                        <div className="flex-1">
+                                            <DocumentsTable
+                                                documents={documents}
+                                                selectedIds={selectedDocIds}
+                                                onToggleSelect={toggleSelect}
+                                                onSelectAll={(ids) => selectAll(ids)}
+                                                onDeselectAll={() => deselectAll()}
+                                                onView={(doc) => handleViewDocument(doc)}
+                                                onDelete={(doc) => handleDeleteDocument(doc)}
+                                                onShare={(doc) => { setNewShareTargetDocument(doc); setNewShareModalOpen(true); }}
+                                                searchQuery={searchQuery}
+                                            />
+                                        </div>
+
+                                        {/* Shared Albums sidebar */}
+                                        <div className="w-64 hidden lg:block">
+                                            <SharedAlbumsSidebar userId={user!.id} onOpenShareFolder={(folderId) => { setShareFolderId(folderId); setShareFolderModalOpen(true); }} />
+                                        </div>
+                                    </div>
+
+                                    {/* Debug toggle (dev only) */}
+                                    {import.meta.env.VITE_DEBUG === 'true' && (
+                                        <>
+                                            <button onClick={() => setShowDebugPanel(s => !s)} className="fixed left-4 bottom-20 z-50 bg-white border rounded-full p-2 shadow-lg text-sm hidden lg:block">Debug</button>
+                                        </>
+                                    )}
+                                </>
                             )}
                         </div>
                     </div>
@@ -1363,44 +1248,15 @@ export function Dashboard() {
                 </div>
             )}
 
-            {/* Share Folder Modal */}
-            {shareFolderModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                    <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6 mx-4">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-bold">Share Folder</h3>
-                            <button onClick={() => setShareFolderModalOpen(false)} className="text-gray-500 hover:text-gray-800">✕</button>
-                        </div>
-
-                        <p className="mb-3 text-sm text-gray-700">Invite users to collaborate on this folder. Invited users can view and (optionally) upload documents.</p>
-
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Invite by email</label>
-                            <input value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2" placeholder="user@example.com" />
-                            <label className="block text-sm font-medium text-gray-700 mt-3">Role</label>
-                            <select value={inviteRole} onChange={(e) => setInviteRole(e.target.value as any)} className="w-full border border-gray-300 rounded-md px-3 py-2">
-                                <option value="viewer">Viewer (view only)</option>
-                                <option value="uploader">Uploader (view & upload)</option>
-                            </select>
-                        </div>
-
-                        <div className="mb-4">
-                            <p className="font-medium mb-2">Current Members</p>
-                            <ul className="text-sm text-gray-700 list-disc list-inside">
-                                {sharedAlbumMembers.length === 0 && <li className="text-gray-500">No members yet</li>}
-                                {sharedAlbumMembers.map(m => (
-                                    <li key={m.id}>{m.email || m.user_id} — {m.role}</li>
-                                ))}
-                            </ul>
-                        </div>
-
-                        <div className="flex justify-end gap-3">
-                            <Button variant="outline" onClick={() => setShareFolderModalOpen(false)}>Cancel</Button>
-                            <Button onClick={handleCreateSharedAlbumAndInvite}>Create & Invite</Button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            <ShareFolderModal
+                isOpen={shareFolderModalOpen}
+                onClose={() => setShareFolderModalOpen(false)}
+                folderId={shareFolderId}
+                userId={user!.id}
+                folders={folders}
+                onAlbumsUpdated={(a) => setSharedAlbums(a)}
+                showToast={showToast}
+            />
             {/* New Share Modal */}
             {newShareModalOpen && newShareTargetDocument && user && (
                 <ShareModal
@@ -1413,6 +1269,46 @@ export function Dashboard() {
                     userId={user.id}
                 />
             )}
+
+            {/* Debug Panel (dev-only) */}
+            {import.meta.env.VITE_DEBUG === 'true' && showDebugPanel && (
+                <DebugPanel
+                    documents={documents}
+                    selectedIds={selectedDocIds}
+                    clearSelection={clear}
+                    onRevalidate={async () => {
+                        try {
+                            const d = await getUserDocuments(user!.id);
+                            setDocuments(d || []);
+                            showToast('Documents revalidated', 'success');
+                        } catch (err) {
+                            showToast('Failed to revalidate', 'error');
+                        }
+                    }}
+                    onDeleteSelected={async () => {
+                        // Reuse the existing bulk delete logic but without requiring modal confirmation
+                        try {
+                            // make a shallow copy of selected ids
+                            const idsToDelete = [...selectedDocIds];
+                            if (idsToDelete.length === 0) return;
+
+                            // Delete tokens
+                            await supabase.from('verification_tokens').delete().in('document_id', idsToDelete);
+                            // Delete documents
+                            await supabase.from('documents').delete().in('id', idsToDelete);
+
+                            // Remove from UI
+                            setDocuments(prev => prev.filter(d => !idsToDelete.includes(d.id)));
+                            clear();
+                        } catch (err) {
+                            console.error('Debug bulk delete failed', err);
+                            throw err;
+                        }
+                    }}
+                    showToast={showToast}
+                />
+            )}
+
             {/* PDF Viewer */}
             {viewingDocument && user && (
                 <PDFViewer
