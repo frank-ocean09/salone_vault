@@ -18,7 +18,8 @@ export function FolderList({
     onSelectFolder,
     onCreateFolder,
     onUpdateFolder,
-    onDeleteFolder
+    onDeleteFolder,
+    onShareFolder
 }: FolderListProps) {
     const [isCreating, setIsCreating] = useState(false);
     const [newFolderName, setNewFolderName] = useState('');
