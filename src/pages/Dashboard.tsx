@@ -5,7 +5,7 @@ import { Button } from '../components/Button';
 import { FolderList } from '../components/FolderList';
 import { ShareModal } from '../components/ShareModal';
 import { PDFViewer } from '../components/PDFViewer';
-import { Plus, FileText, CheckCircle, Clock, Share2, Search, Upload as UploadIcon, AlertCircle, Eye, Trash2, FolderInput, Activity } from 'lucide-react';
+import { Plus, FileText, CheckCircle, Clock, Share2, Search, Upload as UploadIcon, AlertCircle, Eye, Trash2, FolderInput, Activity, ChevronDown, ChevronUp } from 'lucide-react';
 import { DocumentsTable } from '../components/DocumentsTable';
 import { BulkToolbar } from '../components/BulkToolbar';
 import { SharedAlbumsSidebar } from '../components/SharedAlbumsSidebar';
@@ -44,6 +44,7 @@ export function Dashboard() {
     const [documents, setDocuments] = useState<Document[]>([]);
     const [folders, setFolders] = useState<Folder[]>([]);
     const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     // Selection handled by hook
     const { selectedIds: selectedDocIds, toggle: toggleSelect, selectAll, deselectAll, clear } = useSelection();
@@ -833,29 +834,46 @@ export function Dashboard() {
                 <div className="flex flex-col md:flex-row gap-6">
                     {/* Sidebar - Folder List */}
                     <div className="w-full md:w-64 flex-shrink-0">
-                        <FolderList
-                            folders={folders.map(f => ({ ...f, shared: sharedAlbums.some(sa => sa.folder_id === f.id) }))}
-                            selectedFolderId={selectedFolderId}
-                            onSelectFolder={setSelectedFolderId}
-                            onCreateFolder={handleCreateFolder}
-                            onUpdateFolder={handleUpdateFolder}
-                            onDeleteFolder={handleDeleteFolder}
-                            onShareFolder={(folderId) => { setShareFolderId(folderId); setShareFolderModalOpen(true); }}
-                        />
+                        {/* Mobile Toggle */}
+                        <div className="md:hidden mb-4">
+                            <Button
+                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                                variant="outline"
+                                className="w-full justify-between bg-white"
+                            >
+                                <span className="flex items-center gap-2">
+                                    <FolderInput className="h-4 w-4" />
+                                    {selectedFolderId ? folders.find(f => f.id === selectedFolderId)?.name || 'Folders' : 'All Folders'}
+                                </span>
+                                {mobileMenuOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                            </Button>
+                        </div>
 
-                        {sharedAlbums.length > 0 && (
-                            <div className="mt-4 bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-                                <h3 className="text-sm font-medium text-gray-700 mb-2">Shared Albums</h3>
-                                <ul className="space-y-2 text-sm">
-                                    {sharedAlbums.map(sa => (
-                                        <li key={sa.id} className="flex items-center justify-between">
-                                            <button onClick={() => setSelectedFolderId(sa.folder_id)} className="text-left text-sm text-gray-800 hover:underline">{sa.name}</button>
-                                            <span className="text-xs text-gray-500">{sa.owner_id === user?.id ? 'You' : 'Shared'}</span>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        )}
+                        <div className={`${mobileMenuOpen ? 'block' : 'hidden'} md:block space-y-4`}>
+                            <FolderList
+                                folders={folders.map(f => ({ ...f, shared: sharedAlbums.some(sa => sa.folder_id === f.id) }))}
+                                selectedFolderId={selectedFolderId}
+                                onSelectFolder={(id) => { setSelectedFolderId(id); setMobileMenuOpen(false); }}
+                                onCreateFolder={handleCreateFolder}
+                                onUpdateFolder={handleUpdateFolder}
+                                onDeleteFolder={handleDeleteFolder}
+                                onShareFolder={(folderId) => { setShareFolderId(folderId); setShareFolderModalOpen(true); }}
+                            />
+
+                            {sharedAlbums.length > 0 && (
+                                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+                                    <h3 className="text-sm font-medium text-gray-700 mb-2">Joined Albums</h3>
+                                    <ul className="space-y-2 text-sm">
+                                        {sharedAlbums.map(sa => (
+                                            <li key={sa.id} className="flex items-center justify-between">
+                                                <button onClick={() => { setSelectedFolderId(sa.folder_id); setMobileMenuOpen(false); }} className="text-left text-sm text-gray-800 hover:underline">{sa.name}</button>
+                                                <span className="text-xs text-gray-500">{sa.owner_id === user?.id ? 'You' : 'Shared'}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Main Content */}
@@ -944,8 +962,8 @@ export function Dashboard() {
                                 </div>
                             ) : (
                                 <>
-                                    <div className="flex gap-6">
-                                        <div className="flex-1">
+                                    <div className="flex flex-col lg:flex-row gap-6">
+                                        <div className="flex-1 min-w-0">
                                             <DocumentsTable
                                                 documents={documents}
                                                 selectedIds={selectedDocIds}
@@ -960,8 +978,11 @@ export function Dashboard() {
                                         </div>
 
                                         {/* Shared Albums sidebar */}
-                                        <div className="w-64 hidden lg:block">
-                                            <SharedAlbumsSidebar userId={user!.id} onOpenShareFolder={(folderId) => { setShareFolderId(folderId); setShareFolderModalOpen(true); }} />
+                                        <div className="w-full lg:w-64 block">
+                                            <div className="bg-gray-50 p-4 rounded-lg lg:bg-transparent lg:p-0">
+                                                <h3 className="lg:hidden font-bold mb-3">Manage Albums</h3>
+                                                <SharedAlbumsSidebar userId={user!.id} onOpenShareFolder={(folderId) => { setShareFolderId(folderId); setShareFolderModalOpen(true); }} />
+                                            </div>
                                         </div>
                                     </div>
 

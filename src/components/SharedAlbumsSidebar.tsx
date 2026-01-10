@@ -67,7 +67,7 @@ export const SharedAlbumsSidebar: React.FC<Props> = ({ userId, onOpenShareFolder
   };
 
   return (
-    <aside className="w-64 border-l pl-4 hidden lg:block">
+    <aside className="border-l pl-4 h-full">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-sm font-semibold">Shared Albums</h3>
         <Button variant="ghost" onClick={() => { /* focus new input */ }}>
