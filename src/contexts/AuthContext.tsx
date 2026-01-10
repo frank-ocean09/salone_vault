@@ -9,7 +9,8 @@ interface AuthContextType {
     session: Session | null;
     loading: boolean;
     signUp: (email: string, password: string, fullName: string, phone: string) => Promise<{ error: AuthError | null }>;
-    signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
+    // Returns any auth error, and session if immediately available after sign in
+    signIn: (email: string, password: string) => Promise<{ error: AuthError | null; session?: Session | null }>;
     signOut: () => Promise<void>;
 }
 
@@ -63,6 +64,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 email,
                 password,
                 options: {
+                    // Ensure the email verification link redirects back to the current origin (useful for local dev)
+                    emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined,
                     data: {
                         full_name: fullName,
                         phone: phone,
@@ -106,7 +109,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 });
             }
 
-            return { error };
+            // If a session is returned immediately, set it in context so callers can rely on it synchronously
+            if (data?.session) {
+                setSession(data.session);
+                setUser(data.user ?? null);
+            }
+
+            return { error, session: data?.session ?? null };
         } catch (err: any) {
             return { error: err };
         }

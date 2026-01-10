@@ -5,6 +5,7 @@ import { Button } from '../components/Button';
 import { GoogleLoginButton } from '../components/GoogleLoginButton';
 import { Shield, Mail, Lock, User, Phone, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 
 export function Auth() {
     const navigate = useNavigate();
@@ -29,9 +30,29 @@ export function Auth() {
         try {
             if (isLogin) {
                 // Sign in
-                const { error } = await signIn(formData.email, formData.password);
+                const { error, session } = await signIn(formData.email, formData.password);
                 if (error) throw error;
-                navigate('/dashboard');
+
+                // If session is already returned, redirect immediately
+                if (session) {
+                    navigate('/dashboard');
+                } else {
+                    // Otherwise poll for session briefly (up to 5s) to ensure token is set before redirect
+                    setIsLoading(true);
+                    const start = Date.now();
+                    let found = false;
+                    while (Date.now() - start < 5000) {
+                        const { data: { session: current } } = await supabase.auth.getSession();
+                        if (current) {
+                            found = true;
+                            break;
+                        }
+                        await new Promise((r) => setTimeout(r, 200));
+                    }
+                    setIsLoading(false);
+                    // Redirect regardless, but session should be present in most cases by now
+                    navigate('/dashboard');
+                }
             } else {
                 // Sign up
                 const { error } = await signUp(

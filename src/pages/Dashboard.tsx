@@ -18,7 +18,12 @@ import {
     createFolder,
     updateFolder,
     deleteFolder,
-    moveDocumentToFolder
+    moveDocumentToFolder,
+    // Shared album APIs
+    createSharedAlbum,
+    inviteToSharedAlbum,
+    getSharedAlbumsForUser,
+    getSharedAlbumMembers,
 } from '../lib/api';
 import { registerDocumentOnChain } from '../lib/blockchain';
 import { supabase } from '../lib/supabase';
@@ -33,10 +38,37 @@ export function Dashboard() {
     const [documents, setDocuments] = useState<Document[]>([]);
     const [folders, setFolders] = useState<Folder[]>([]);
     const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+
+    // Selection state for bulk actions
+    const [selectedDocIds, setSelectedDocIds] = useState<string[]>([]);
+    const selectedCount = selectedDocIds.length;
+
     const [isUploading, setIsUploading] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
+
+    // Bulk action modals
+    const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+    const [bulkShareOpen, setBulkShareOpen] = useState(false);
+    const [bulkMoveOpen, setBulkMoveOpen] = useState(false);
+    const [bulkMoveFolderId, setBulkMoveFolderId] = useState<string | null>(null);
+    const [bulkMoveNewFolderName, setBulkMoveNewFolderName] = useState('');
+    const [bulkShareExpiry, setBulkShareExpiry] = useState<string>('24 hours');
+
+    // Helpers for selection
+    const toggleSelectDoc = (docId: string) => {
+        setSelectedDocIds(prev => prev.includes(docId) ? prev.filter(id => id !== docId) : [...prev, docId]);
+    };
+
+    const selectAllFiltered = () => {
+        const ids = filteredDocuments.map(d => d.id);
+        setSelectedDocIds(ids);
+    };
+
+    const deselectAll = () => {
+        setSelectedDocIds([]);
+    };
 
     // Modal state and controls
     const [showUploadModal, setShowUploadModal] = useState(false);
@@ -61,6 +93,36 @@ export function Dashboard() {
     const [newShareModalOpen, setNewShareModalOpen] = useState<boolean>(false);
     const [newShareTargetDocument, setNewShareTargetDocument] = useState<Document | null>(null);
 
+    // Folder sharing state
+    const [shareFolderId, setShareFolderId] = useState<string | null>(null);
+    const [shareFolderModalOpen, setShareFolderModalOpen] = useState(false);
+    const [inviteEmail, setInviteEmail] = useState('');
+    const [inviteRole, setInviteRole] = useState<'viewer' | 'uploader'>('viewer');
+    const [sharedAlbumMembers, setSharedAlbumMembers] = useState<any[]>([]);
+
+    // Shared albums list (declared before useEffect to avoid temporal dead zone)
+    const [sharedAlbums, setSharedAlbums] = useState<any[]>([]);
+
+    // When share modal opens, fetch current members (if album exists)
+    useEffect(() => {
+        const fetchMembers = async () => {
+            if (!shareFolderId) return;
+            try {
+                // Try to find album for this folder (owned by user)
+                const album = sharedAlbums.find(sa => sa.folder_id === shareFolderId);
+                if (!album) {
+                    setSharedAlbumMembers([]);
+                    return;
+                }
+                const members = await getSharedAlbumMembers(album.id);
+                setSharedAlbumMembers(members || []);
+            } catch (err) {
+                console.warn('Failed to fetch shared album members', err);
+            }
+        };
+        if (shareFolderModalOpen) fetchMembers();
+    }, [shareFolderModalOpen, shareFolderId, sharedAlbums]);
+
     // Folder states for upload modal
     const [uploadSelectedFolderId, setUploadSelectedFolderId] = useState<string>('');
     const [uploadNewFolderName, setUploadNewFolderName] = useState<string>('');
@@ -84,7 +146,8 @@ export function Dashboard() {
         }
     }, [user, authLoading, navigate]);
 
-    // Fetch documents
+    // Fetch documents and user's shared albums
+
     useEffect(() => {
         if (user) {
             loadDocuments();
@@ -96,12 +159,14 @@ export function Dashboard() {
 
         try {
             setLoading(true);
-            const [docs, userFolders] = await Promise.all([
+            const [docs, userFolders, userSharedAlbums] = await Promise.all([
                 getUserDocuments(user.id),
-                getFolders(user.id)
+                getFolders(user.id),
+                getSharedAlbumsForUser(user.id)
             ]);
             setDocuments(docs);
             setFolders(userFolders);
+            setSharedAlbums(userSharedAlbums || []);
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -247,6 +312,132 @@ export function Dashboard() {
         } catch (err: any) {
             console.error('Delete failed:', err);
             setError(err.message || 'Failed to delete document');
+        }
+    };
+
+    // Bulk Delete selected documents
+    const handleConfirmBulkDelete = async () => {
+        if (selectedDocIds.length === 0) return;
+        setBulkDeleteOpen(false);
+
+        try {
+            // Gather file paths for storage deletion
+            const docsToDelete = documents.filter(d => selectedDocIds.includes(d.id));
+            const filePaths = docsToDelete.map(d => d.file_path);
+
+            // 1. Delete verification tokens in batch
+            const { error: tokenErr } = await supabase
+                .from('verification_tokens')
+                .delete()
+                .in('document_id', selectedDocIds);
+
+            if (tokenErr) throw tokenErr;
+
+            // 2. Delete documents in batch
+            const { error: docsErr } = await supabase
+                .from('documents')
+                .delete()
+                .in('id', selectedDocIds);
+
+            if (docsErr) throw docsErr;
+
+            // 3. Remove files from storage
+            if (filePaths.length > 0) {
+                const { error: storageErr } = await supabase.storage
+                    .from('Documents')
+                    .remove(filePaths);
+                if (storageErr) console.warn('Some files failed to delete from storage', storageErr);
+            }
+
+            // 4. Update UI
+            setDocuments(prev => prev.filter(d => !selectedDocIds.includes(d.id)));
+            setSelectedDocIds([]);
+            showToast(`Deleted ${docsToDelete.length} documents`, 'success');
+        } catch (err: any) {
+            console.error('Bulk delete failed', err);
+            setError(err.message || 'Bulk delete failed');
+            showToast('Bulk delete encountered an error', 'error');
+        }
+    };
+
+    // Bulk Share selected documents
+    const handleConfirmBulkShare = async () => {
+        if (selectedDocIds.length === 0) return;
+        setBulkShareOpen(false);
+
+        try {
+            const tokens: string[] = [];
+
+            await Promise.all(selectedDocIds.map(async (docId) => {
+                const doc = documents.find(d => d.id === docId);
+                if (!doc) return;
+
+                const tokenArray = crypto.getRandomValues(new Uint8Array(16));
+                const token = Array.from(tokenArray)
+                    .map((b) => b.toString(16).padStart(2, '0'))
+                    .join('');
+
+                const now = new Date();
+                const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString(); // default 24h
+
+                const { error: insertError } = await supabase
+                    .from('verification_tokens')
+                    .insert({
+                        token,
+                        document_id: doc.id,
+                        document_type_snapshot: doc.type,
+                        document_snapshot: { document_type: doc.type, uploaded_at: doc.created_at },
+                        expires_at: expiresAt,
+                    });
+
+                if (insertError) throw insertError;
+
+                tokens.push(token);
+            }));
+
+            // Copy tokens to clipboard as newline-separated list
+            await navigator.clipboard.writeText(tokens.join('\n'));
+            showToast(`Created ${tokens.length} share tokens and copied to clipboard`, 'success');
+            setSelectedDocIds([]);
+        } catch (err: any) {
+            console.error('Bulk share failed', err);
+            setError(err.message || 'Bulk share failed');
+            showToast('Bulk share encountered an error', 'error');
+        }
+    };
+
+    // Bulk Move selected documents to folder
+    const handleConfirmBulkMove = async () => {
+        if (selectedDocIds.length === 0) return;
+        setBulkMoveOpen(false);
+
+        try {
+            let folderIdToUse = bulkMoveFolderId;
+            if (!folderIdToUse && bulkMoveNewFolderName.trim()) {
+                const newF = await createFolder(user!.id, bulkMoveNewFolderName.trim(), 'blue');
+                setFolders(prev => [...prev, newF]);
+                folderIdToUse = newF.id;
+            }
+
+            if (!folderIdToUse) {
+                showToast('Please select or create a folder to move documents into', 'error');
+                return;
+            }
+
+            await Promise.all(selectedDocIds.map(async (docId) => {
+                await moveDocumentToFolder(docId, folderIdToUse as string);
+            }));
+
+            // Update UI
+            setDocuments(prev => prev.map(d => selectedDocIds.includes(d.id) ? { ...d, folder_id: folderIdToUse } : d));
+            setSelectedDocIds([]);
+            setBulkMoveFolderId(null);
+            setBulkMoveNewFolderName('');
+            showToast('Documents moved successfully', 'success');
+        } catch (err: any) {
+            console.error('Bulk move failed', err);
+            setError(err.message || 'Bulk move failed');
+            showToast('Bulk move encountered an error', 'error');
         }
     };
 
@@ -552,6 +743,31 @@ export function Dashboard() {
         }
     };
 
+    // Create shared album and optionally invite a collaborator
+    const handleCreateSharedAlbumAndInvite = async () => {
+        if (!user || !shareFolderId) return;
+        try {
+            setShareFolderModalOpen(false);
+            const folder = folders.find(f => f.id === shareFolderId);
+            const album = await createSharedAlbum(user.id, shareFolderId, folder?.name || 'Shared Album');
+
+            if (inviteEmail.trim()) {
+                await inviteToSharedAlbum(album.id, inviteEmail.trim(), inviteRole);
+                showToast('Invitation sent', 'success');
+                setInviteEmail('');
+            }
+
+            // Refresh shared albums list
+            const userSharedAlbums = await getSharedAlbumsForUser(user.id);
+            setSharedAlbums(userSharedAlbums || []);
+            showToast('Shared album created', 'success');
+        } catch (err: any) {
+            console.error('Failed to create shared album or invite', err);
+            setError(err.message || 'Failed to create shared album');
+            showToast('Failed to create shared album', 'error');
+        }
+    };
+
     const filteredDocuments = documents.filter(doc => {
         const matchesSearch = doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             doc.type.toLowerCase().includes(searchQuery.toLowerCase());
@@ -648,13 +864,28 @@ export function Dashboard() {
                     {/* Sidebar - Folder List */}
                     <div className="w-full md:w-64 flex-shrink-0">
                         <FolderList
-                            folders={folders}
+                            folders={folders.map(f => ({ ...f, shared: sharedAlbums.some(sa => sa.folder_id === f.id) }))}
                             selectedFolderId={selectedFolderId}
                             onSelectFolder={setSelectedFolderId}
                             onCreateFolder={handleCreateFolder}
                             onUpdateFolder={handleUpdateFolder}
                             onDeleteFolder={handleDeleteFolder}
+                            onShareFolder={(folderId) => { setShareFolderId(folderId); setShareFolderModalOpen(true); }}
                         />
+
+                        {sharedAlbums.length > 0 && (
+                            <div className="mt-4 bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+                                <h3 className="text-sm font-medium text-gray-700 mb-2">Shared Albums</h3>
+                                <ul className="space-y-2 text-sm">
+                                    {sharedAlbums.map(sa => (
+                                        <li key={sa.id} className="flex items-center justify-between">
+                                            <button onClick={() => setSelectedFolderId(sa.folder_id)} className="text-left text-sm text-gray-800 hover:underline">{sa.name}</button>
+                                            <span className="text-xs text-gray-500">{sa.owner_id === user?.id ? 'You' : 'Shared'}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
                     </div>
 
                     {/* Main Content */}
@@ -691,11 +922,25 @@ export function Dashboard() {
                         {/* Document List */}
                         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
                             <div className="p-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
-                                <h2 className="text-lg font-bold text-gray-900">
-                                    {selectedFolderId
-                                        ? folders.find(f => f.id === selectedFolderId)?.name || 'Folder'
-                                        : 'All Documents'}
-                                </h2>
+                                <div className="flex items-center gap-4 w-full">
+                                    <h2 className="text-lg font-bold text-gray-900 flex-1">
+                                        {selectedFolderId
+                                            ? folders.find(f => f.id === selectedFolderId)?.name || 'Folder'
+                                            : 'All Documents'}
+                                    </h2>
+
+                                    {/* Selection toolbar */}
+                                    {selectedCount > 0 ? (
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-sm text-gray-600">{selectedCount} selected</span>
+                                            <button onClick={() => setBulkMoveOpen(true)} className="px-3 py-1 rounded-md bg-white border hover:bg-gray-50 text-sm">Add to Folder</button>
+                                            <button onClick={() => setBulkShareOpen(true)} className="px-3 py-1 rounded-md bg-white border hover:bg-gray-50 text-sm">Share</button>
+                                            <button onClick={() => setBulkDeleteOpen(true)} className="px-3 py-1 rounded-md bg-white border hover:bg-gray-50 text-sm text-red-600">Delete</button>
+                                            <button onClick={deselectAll} className="px-2 py-1 rounded-md bg-white border hover:bg-gray-50 text-sm">Deselect</button>
+                                        </div>
+                                    ) : null}
+                                </div>
+
                                 <div className="relative w-full sm:w-64">
                                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                                     <input
@@ -730,17 +975,35 @@ export function Dashboard() {
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-left">
                                         <thead className="bg-gray-50 text-gray-500 text-sm uppercase">
-                                            <tr>
-                                                <th className="px-6 py-4 font-medium">Document Name</th>
-                                                <th className="px-6 py-4 font-medium">Type</th>
-                                                <th className="px-6 py-4 font-medium">Date Uploaded</th>
-                                                <th className="px-6 py-4 font-medium">Status</th>
-                                                <th className="px-6 py-4 font-medium text-right">Actions</th>
-                                            </tr>
+                                                    <tr>
+                                                    <th className="px-6 py-4 font-medium">
+                                                        <input
+                                                            type="checkbox"
+                                                            className="h-4 w-4"
+                                                            onChange={(e) => e.target.checked ? selectAllFiltered() : deselectAll()}
+                                                            checked={filteredDocuments.length > 0 && selectedCount === filteredDocuments.length}
+                                                            aria-label="Select all documents"
+                                                        />
+                                                    </th>
+                                                    <th className="px-6 py-4 font-medium">Document Name</th>
+                                                    <th className="px-6 py-4 font-medium">Type</th>
+                                                    <th className="px-6 py-4 font-medium">Date Uploaded</th>
+                                                    <th className="px-6 py-4 font-medium">Status</th>
+                                                    <th className="px-6 py-4 font-medium text-right">Actions</th>
+                                                </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-200">
                                             {filteredDocuments.map((doc) => (
                                                 <tr key={doc.id} className="hover:bg-gray-50 transition-colors">
+                                                    <td className="px-6 py-4">
+                                                        <input
+                                                            type="checkbox"
+                                                            className="h-4 w-4"
+                                                            checked={selectedDocIds.includes(doc.id)}
+                                                            onChange={() => toggleSelectDoc(doc.id)}
+                                                            aria-label={`Select ${doc.name}`}
+                                                        />
+                                                    </td>
                                                     <td className="px-6 py-4">
                                                         <div className="flex items-center gap-3">
                                                             <div className="p-2 bg-blue-50 rounded-lg text-primary-green">
@@ -1009,6 +1272,131 @@ export function Dashboard() {
                         <div className="flex justify-end gap-3">
                             <Button onClick={handleCreateShareLink}>Create Share Link</Button>
                             <Button variant="outline" onClick={closeShareModal}>Cancel</Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Bulk Delete Confirm Modal */}
+            {bulkDeleteOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                    <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6 mx-4">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-bold text-red-600">Delete {selectedCount} documents?</h3>
+                            <button onClick={() => setBulkDeleteOpen(false)} className="text-gray-500 hover:text-gray-800">✕</button>
+                        </div>
+                        <p className="text-sm text-gray-700 mb-4">This action cannot be undone. Documents will be removed from your vault and storage.</p>
+                        <div className="flex justify-end gap-3">
+                            <Button variant="outline" onClick={() => setBulkDeleteOpen(false)}>Cancel</Button>
+                            <Button onClick={handleConfirmBulkDelete} className="bg-red-600">Delete</Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Bulk Share Modal */}
+            {bulkShareOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                    <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6 mx-4">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-bold">Share {selectedCount} documents</h3>
+                            <button onClick={() => setBulkShareOpen(false)} className="text-gray-500 hover:text-gray-800">✕</button>
+                        </div>
+
+                        <p className="mb-3 text-sm text-gray-700">Create verification tokens for the selected documents and copy them to your clipboard.</p>
+
+                        <div className="mb-4">
+                            <p className="font-medium mb-2">Choose when the shared links should expire:</p>
+                            <div className="flex flex-wrap gap-2">
+                                {['10 minutes', '1 hour', '24 hours', '7 days', '30 days', 'Never expires'].map((opt) => (
+                                    <button
+                                        key={opt}
+                                        onClick={() => setBulkShareExpiry(opt)}
+                                        className={`px-3 py-1 rounded-md border ${bulkShareExpiry === opt ? 'bg-primary-green text-white' : 'bg-white'}`}
+                                    >{opt}</button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="mb-4 text-sm text-gray-700">
+                            <ul className="list-disc list-inside max-h-40 overflow-auto">
+                                {documents.filter(d => selectedDocIds.includes(d.id)).map(d => (
+                                    <li key={d.id}>{d.name}</li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        <div className="flex justify-end gap-3">
+                            <Button variant="outline" onClick={() => setBulkShareOpen(false)}>Cancel</Button>
+                            <Button onClick={handleConfirmBulkShare}>Create Tokens</Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Bulk Move Modal */}
+            {bulkMoveOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                    <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6 mx-4">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-bold">Add {selectedCount} documents to folder</h3>
+                            <button onClick={() => setBulkMoveOpen(false)} className="text-gray-500 hover:text-gray-800">✕</button>
+                        </div>
+
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Choose Folder</label>
+                            <select value={bulkMoveFolderId ?? ''} onChange={(e) => setBulkMoveFolderId(e.target.value || null)} className="w-full border border-gray-300 rounded-md px-3 py-2">
+                                <option value="">— Select existing folder —</option>
+                                {folders.map(f => (
+                                    <option key={f.id} value={f.id}>{f.name}</option>
+                                ))}
+                            </select>
+                            <p className="text-sm text-gray-500 mt-2">Or create a new folder</p>
+                            <input value={bulkMoveNewFolderName} onChange={(e) => setBulkMoveNewFolderName(e.target.value)} className="mt-2 w-full border border-gray-300 rounded-md px-3 py-2" placeholder="New folder name" />
+                        </div>
+
+                        <div className="flex justify-end gap-3">
+                            <Button variant="outline" onClick={() => setBulkMoveOpen(false)}>Cancel</Button>
+                            <Button onClick={handleConfirmBulkMove}>Move</Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Share Folder Modal */}
+            {shareFolderModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                    <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6 mx-4">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-bold">Share Folder</h3>
+                            <button onClick={() => setShareFolderModalOpen(false)} className="text-gray-500 hover:text-gray-800">✕</button>
+                        </div>
+
+                        <p className="mb-3 text-sm text-gray-700">Invite users to collaborate on this folder. Invited users can view and (optionally) upload documents.</p>
+
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Invite by email</label>
+                            <input value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2" placeholder="user@example.com" />
+                            <label className="block text-sm font-medium text-gray-700 mt-3">Role</label>
+                            <select value={inviteRole} onChange={(e) => setInviteRole(e.target.value as any)} className="w-full border border-gray-300 rounded-md px-3 py-2">
+                                <option value="viewer">Viewer (view only)</option>
+                                <option value="uploader">Uploader (view & upload)</option>
+                            </select>
+                        </div>
+
+                        <div className="mb-4">
+                            <p className="font-medium mb-2">Current Members</p>
+                            <ul className="text-sm text-gray-700 list-disc list-inside">
+                                {sharedAlbumMembers.length === 0 && <li className="text-gray-500">No members yet</li>}
+                                {sharedAlbumMembers.map(m => (
+                                    <li key={m.id}>{m.email || m.user_id} — {m.role}</li>
+                                ))}
+                            </ul>
+                        </div>
+
+                        <div className="flex justify-end gap-3">
+                            <Button variant="outline" onClick={() => setShareFolderModalOpen(false)}>Cancel</Button>
+                            <Button onClick={handleCreateSharedAlbumAndInvite}>Create & Invite</Button>
                         </div>
                     </div>
                 </div>

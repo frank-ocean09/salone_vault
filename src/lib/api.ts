@@ -228,3 +228,48 @@ export async function moveDocumentToFolder(documentId: string, folderId: string 
     if (error) throw error;
     return data;
 }
+
+// --- Shared Albums (Collaborative Folders) ---
+
+export async function createSharedAlbum(ownerId: string, folderId: string, name: string) {
+    const { data, error } = await supabase
+        .from('shared_albums')
+        .insert({ owner_id: ownerId, folder_id: folderId, name })
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data;
+}
+
+export async function inviteToSharedAlbum(sharedAlbumId: string, email: string, role: 'viewer' | 'uploader' = 'viewer') {
+    const { data, error } = await supabase
+        .from('shared_album_members')
+        .insert({ shared_album_id: sharedAlbumId, email, role })
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data;
+}
+
+export async function getSharedAlbumsForUser(userId: string) {
+    // Simple fetch: albums owned by the user (memberships can be added in RPC later)
+    const { data, error } = await supabase
+        .from('shared_albums')
+        .select('*')
+        .eq('owner_id', userId)
+        .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data;
+}
+
+export async function getSharedAlbumMembers(sharedAlbumId: string) {
+    const { data, error } = await supabase
+        .from('shared_album_members')
+        .select('*')
+        .eq('shared_album_id', sharedAlbumId);
+    if (error) throw error;
+    return data;
+}
+

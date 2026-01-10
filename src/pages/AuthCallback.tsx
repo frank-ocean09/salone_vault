@@ -41,10 +41,8 @@ export function AuthCallback() {
 
                     setStatus('success');
 
-                    // Redirect to dashboard after a brief delay
-                    setTimeout(() => {
-                        navigate('/dashboard');
-                    }, 1000);
+                    // Redirect to dashboard immediately once session is confirmed
+                    navigate('/dashboard');
                 } else {
                     throw new Error('No session found');
                 }

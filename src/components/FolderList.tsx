@@ -9,6 +9,7 @@ interface FolderListProps {
     onCreateFolder: (name: string, color: string) => void;
     onUpdateFolder: (folderId: string, name: string, color: string) => void;
     onDeleteFolder: (folderId: string) => void;
+    onShareFolder?: (folderId: string) => void;
 }
 
 export function FolderList({
@@ -95,10 +96,8 @@ export function FolderList({
                                 >
                                     <Folder className={`h-5 w-5 ${selectedFolderId === folder.id ? 'text-primary-green' : 'text-gray-400'}`} />
                                     <span className="font-medium truncate">{folder.name}</span>
-                                    {folder.document_count !== undefined && folder.document_count > 0 && (
-                                        <span className="ml-auto mr-2 text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
-                                            {folder.document_count}
-                                        </span>
+                                    {(folder as any).shared && (
+                                        <span className="ml-2 text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full">Shared</span>
                                     )}
                                 </button>
 
@@ -113,6 +112,22 @@ export function FolderList({
                                         title="Rename"
                                     >
                                         <Edit2 className="h-3 w-3" />
+                                    </button>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            // Trigger share callback if provided
+                                            if (typeof onShareFolder === 'function') {
+                                                onShareFolder(folder.id);
+                                            } else {
+                                                alert('Sharing is not configured in this environment yet.');
+                                            }
+                                        }}
+                                        className="p-1 hover:text-indigo-600"
+                                        title="Share Folder"
+                                    >
+                                        <FolderOpen className="h-3 w-3" />
                                     </button>
                                     <button
                                         onClick={(e) => {
