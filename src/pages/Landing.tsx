@@ -112,29 +112,30 @@ export function Landing() {
                 </div>
             </section>
 
-            {/* Benefits Section */}
-            <section className="py-24 bg-gray-50">
+            {/* Trust & Security Section */}
+            <section className="py-24 bg-[#C1F6ED]">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="text-center mb-16">
-                        <span className="text-[#2EAF7D] font-bold tracking-wider uppercase text-sm">Features</span>
-                        <h2 className="text-4xl font-bold text-[#02353C] mt-2 mb-4">Secure by Design</h2>
+                        <span className="text-[#449342] font-bold tracking-wider uppercase text-sm">Trust & Security</span>
+                        <h2 className="text-4xl font-bold text-[#02353C] mt-2 mb-4">Bank-Grade Security & Control</h2>
                         <p className="text-gray-600 max-w-2xl mx-auto">
                             We use advanced encryption and blockchain technology to ensure your documents are tamper-proof and permanently accessible.
                         </p>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-8">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {[
-                            { icon: Lock, title: "Bank-Grade Encryption", desc: "AES-256 encryption protects your data at rest and in transit." },
-                            { icon: Globe, title: "Global Access", desc: "Access your documents securely from anywhere in the world." },
-                            { icon: Award, title: "Official Verification", desc: "Documents are verified against national registries instantly." }
+                            { icon: Lock, title: "Encrypted Storage", desc: "Your documents are encrypted using AES-256 protocols." },
+                            { icon: ShieldCheck, title: "Blockchain Verification", desc: "Tamper-proof verification on the Ethereum Sepolia network." },
+                            { icon: Users, title: "User Control", desc: "Complete control over who views or accesses your documents." },
+                            { icon: FileCheck, title: "Data Protection", desc: "Redundant backups and strict data separation policies." }
                         ].map((item, i) => (
                             <div key={i} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
-                                <div className="w-12 h-12 bg-[#C1F6ED] rounded-xl flex items-center justify-center text-[#02353C] mb-6">
-                                    <item.icon className="w-6 h-6" />
+                                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-transparent mb-6">
+                                    <item.icon className="w-8 h-8 text-[#449342]" />
                                 </div>
                                 <h3 className="text-xl font-bold text-[#02353C] mb-3">{item.title}</h3>
-                                <p className="text-gray-600 leading-relaxed">{item.desc}</p>
+                                <p className="text-gray-600 leading-relaxed text-sm">{item.desc}</p>
                             </div>
                         ))}
                     </div>
