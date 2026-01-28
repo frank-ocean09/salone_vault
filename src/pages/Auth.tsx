@@ -88,9 +88,9 @@ export function Auth() {
                 <div className="max-w-md w-full">
                     <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
                         {/* Header */}
-                        <div className="bg-primary-green p-8 text-center">
-                            <img src="/nddv-logo.png" alt="Salone Vault Logo" className="h-16 w-16 mx-auto mb-4" />
-                            <h1 className="text-2xl font-bold text-white">
+                        <div className="bg-[#02353C] p-8 text-center text-white">
+                            <img src="/nddv-logo.png" alt="Salone Vault Logo" className="h-16 w-16 mx-auto mb-4 bg-white rounded-full p-2" />
+                            <h1 className="text-2xl font-bold">
                                 {isLogin ? 'Welcome Back' : 'Create Your Account'}
                             </h1>
                             <p className="text-blue-200 mt-2">
@@ -132,7 +132,7 @@ export function Auth() {
                                                 onChange={handleChange}
                                                 required={!isLogin}
                                                 placeholder="John Doe"
-                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-green/20 focus:border-primary-green transition-all"
+                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9] transition-all"
                                             />
                                         </div>
                                     </div>
@@ -152,7 +152,7 @@ export function Auth() {
                                             onChange={handleChange}
                                             required
                                             placeholder="you@example.com"
-                                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-green/20 focus:border-primary-green transition-all"
+                                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9] transition-all"
                                         />
                                     </div>
                                 </div>
@@ -172,7 +172,7 @@ export function Auth() {
                                                 onChange={handleChange}
                                                 required={!isLogin}
                                                 placeholder="+232 XX XXX XXXX"
-                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-green/20 focus:border-primary-green transition-all"
+                                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9] transition-all"
                                             />
                                         </div>
                                     </div>
@@ -193,7 +193,7 @@ export function Auth() {
                                             required
                                             placeholder="••••••••"
                                             minLength={6}
-                                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-green/20 focus:border-primary-green transition-all"
+                                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9] transition-all"
                                         />
                                     </div>
                                     {!isLogin && (
@@ -204,7 +204,7 @@ export function Auth() {
                                             <button
                                                 type="button"
                                                 onClick={() => navigate('/auth/forgot-password')}
-                                                className="text-sm text-primary-green hover:underline"
+                                                className="text-sm text-[#3FD0C9] hover:underline"
                                             >
                                                 Forgot Password?
                                             </button>
@@ -212,7 +212,7 @@ export function Auth() {
                                     )}
                                 </div>
 
-                                <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+                                <Button type="submit" className="w-full bg-[#2EAF7D] hover:bg-[#2EAF7D]/90" size="lg" disabled={isLoading}>
                                     {isLoading ? (
                                         <span className="flex items-center justify-center gap-2">
                                             <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
@@ -248,7 +248,7 @@ export function Auth() {
                                             setError(null);
                                             setSuccess(null);
                                         }}
-                                        className="text-primary-green font-medium hover:underline"
+                                        className="text-[#3FD0C9] font-medium hover:underline"
                                     >
                                         {isLogin ? 'Sign Up' : 'Sign In'}
                                     </button>

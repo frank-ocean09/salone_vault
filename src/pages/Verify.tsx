@@ -94,9 +94,9 @@ export function Verify() {
 
             <main className="flex-grow flex items-center justify-center p-4">
                 <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-                    <div className="bg-primary-green p-8 text-center">
-                        <img src="/nddv-logo.png" alt="Salone Vault Logo" className="h-16 w-16 mx-auto mb-4" />
-                        <h1 className="text-2xl font-bold text-white">Document Verification</h1>
+                    <div className="bg-[#3FD0C9] p-8 text-center text-white">
+                        <img src="/nddv-logo.png" alt="Salone Vault Logo" className="h-16 w-16 mx-auto mb-4 bg-white rounded-full p-2" />
+                        <h1 className="text-2xl font-bold">Document Verification</h1>
                         <p className="text-blue-200 mt-2">Enter the verification token to verify document authenticity.</p>
                     </div>
 
@@ -114,11 +114,11 @@ export function Verify() {
                                         value={verificationCode}
                                         onChange={(e) => setVerificationCode(e.target.value)}
                                         placeholder="Enter verification token"
-                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-green/20 focus:border-primary-green transition-all"
+                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2EAF7D]/20 focus:border-[#2EAF7D] transition-all"
                                     />
                                 </div>
                             </div>
-                            <Button type="submit" className="w-full" size="lg" disabled={status === 'loading'}>
+                            <Button type="submit" className="w-full bg-[#2EAF7D] hover:bg-[#2EAF7D]/90" size="lg" disabled={status === 'loading'}>
                                 {status === 'loading' ? (
                                     <span className="flex items-center justify-center gap-2">
                                         <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />

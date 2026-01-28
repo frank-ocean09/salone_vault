@@ -60,7 +60,7 @@ export function FolderList({
                 <button
                     onClick={() => onSelectFolder(null)}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${selectedFolderId === null
-                        ? 'bg-primary-green/10 text-primary-green'
+                        ? 'bg-[#CFF4D2] text-[#02353C] font-semibold'
                         : 'text-gray-700 hover:bg-gray-50'
                         }`}
                 >
@@ -81,13 +81,13 @@ export function FolderList({
                                     value={editName}
                                     onChange={(e) => setEditName(e.target.value)}
                                     onBlur={() => setEditingFolderId(null)}
-                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:border-primary-green"
+                                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:border-[#3FD0C9] focus:ring-1 focus:ring-[#3FD0C9]"
                                 />
                             </form>
                         ) : (
                             <div
                                 className={`flex items-center justify-between w-full px-3 py-2 rounded-lg transition-colors ${selectedFolderId === folder.id
-                                    ? 'bg-primary-green/10 text-primary-green'
+                                    ? 'bg-[#CFF4D2] text-[#02353C] font-semibold'
                                     : 'text-gray-700 hover:bg-gray-50'
                                     }`}
                             >
@@ -95,7 +95,7 @@ export function FolderList({
                                     onClick={() => onSelectFolder(folder.id)}
                                     className="flex items-center gap-3 flex-1 text-left truncate"
                                 >
-                                    <Folder className={`h-5 w-5 ${selectedFolderId === folder.id ? 'text-primary-green' : 'text-gray-400'}`} />
+                                    <Folder className={`h-5 w-5 ${selectedFolderId === folder.id ? 'text-[#02353C]' : 'text-gray-400'}`} />
                                     <span className="font-medium truncate">{folder.name}</span>
                                     {(folder as any).shared && (
                                         <span className="ml-2 text-xs bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full">Shared</span>
@@ -157,7 +157,7 @@ export function FolderList({
                             value={newFolderName}
                             onChange={(e) => setNewFolderName(e.target.value)}
                             onBlur={() => !newFolderName && setIsCreating(false)}
-                            className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:border-primary-green"
+                            className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:border-brand-teal"
                         />
                     </form>
                 )}

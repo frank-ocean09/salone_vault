@@ -47,19 +47,19 @@ export const DocumentsTable: React.FC<Props> = ({
                 <div className="flex items-center gap-3">
                   <input
                     type="checkbox"
-                    className="h-5 w-5 rounded border-gray-300 text-primary-green focus:ring-primary-green"
+                    className="h-5 w-5 rounded border-gray-300 text-[#3FD0C9] focus:ring-[#3FD0C9]"
                     checked={selectedIds.includes(doc.id)}
                     onChange={() => onToggleSelect(doc.id)}
                   />
                   <div className="p-2 bg-blue-50 rounded-lg">
-                    <svg className="h-6 w-6 text-primary-green" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 7v10a2 2 0 0 0 2 2h14" /></svg>
+                    <svg className="h-6 w-6 text-[#02353C]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 7v10a2 2 0 0 0 2 2h14" /></svg>
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <button onClick={() => onView(doc)} className="p-2 text-gray-400 hover:text-primary-green">
+                  <button onClick={() => onView(doc)} className="p-2 text-gray-400 hover:text-[#3FD0C9]">
                     <Eye className="h-5 w-5" />
                   </button>
-                  <button onClick={() => onShare(doc)} className="p-2 text-gray-400 hover:text-primary-green">
+                  <button onClick={() => onShare(doc)} className="p-2 text-gray-400 hover:text-[#3FD0C9]">
                     <Share2 className="h-5 w-5" />
                   </button>
                   <button onClick={() => onDelete(doc)} className="p-2 text-gray-400 hover:text-red-600">
@@ -74,7 +74,7 @@ export const DocumentsTable: React.FC<Props> = ({
 
                 <div className="flex items-center justify-between text-sm">
                   <div className="text-gray-600">{doc.type}</div>
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${doc.status === 'verified' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${doc.status === 'verified' ? 'bg-[#CFF4D2] text-[#02353C]' : 'bg-yellow-100 text-yellow-800'}`}>
                     {doc.status === 'verified' && <CheckCircle className="w-3 h-3 mr-1" />}
                     {doc.status === 'verified' ? 'Verified' : 'Pending'}
                   </span>
@@ -130,8 +130,8 @@ export const DocumentsTable: React.FC<Props> = ({
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-blue-50 rounded-lg text-primary-green">
-                        <svg className="h-5 w-5 text-primary-green" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 7v10a2 2 0 0 0 2 2h14" /></svg>
+                      <div className="p-2 bg-blue-50 rounded-lg text-[#02353C]">
+                        <svg className="h-5 w-5 text-[#02353C]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 7v10a2 2 0 0 0 2 2h14" /></svg>
                       </div>
                       <div>
                         <button onClick={() => onView(doc)} className="font-medium text-gray-900 hover:underline text-left">
@@ -151,10 +151,10 @@ export const DocumentsTable: React.FC<Props> = ({
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button onClick={() => onView(doc)} className="p-2 text-gray-400 hover:text-primary-green transition-colors" title="View Document">
+                      <button onClick={() => onView(doc)} className="p-2 text-gray-400 hover:text-[#3FD0C9] transition-colors" title="View Document">
                         <Eye className="h-4 w-4" />
                       </button>
-                      <button onClick={() => onShare(doc)} className="p-2 text-gray-400 hover:text-primary-green transition-colors" title="Share Document">
+                      <button onClick={() => onShare(doc)} className="p-2 text-gray-400 hover:text-[#3FD0C9] transition-colors" title="Share Document">
                         <Share2 className="h-4 w-4" />
                       </button>
                       <button onClick={() => onDelete(doc)} className="p-2 text-gray-400 hover:text-red-600 transition-colors" title="Delete Document">

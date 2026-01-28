@@ -34,7 +34,8 @@ export async function createDocument(
     filePath: string,
     fileSize: number,
     hash: string,
-    folderName?: string | null
+    folderName?: string | null,
+    sharedAlbumId?: string | null
 ) {
     const insertBody: any = {
         user_id: userId,
@@ -47,6 +48,7 @@ export async function createDocument(
     };
 
     if (folderName) insertBody.folder_name = folderName;
+    if (sharedAlbumId) insertBody.shared_album_id = sharedAlbumId;
 
     const { data, error } = await supabase
         .from('documents')

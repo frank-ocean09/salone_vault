@@ -8,10 +8,17 @@ export default {
     extend: {
       colors: {
         primary: {
-          blue: '#0B287F',
-          green: '#00A859',
+          DEFAULT: '#2EAF7D', // Bright Teal
+          dark: '#02353C', // Deep Dark Teal
+          light: '#3FD0C9', // Cyan
         },
-        accent: '#C84600',
+        brand: {
+          dark: '#02353C',
+          green: '#449342',
+          teal: '#2EAF7D',
+          cyan: '#3FD0C9',
+          pale: '#C1F6ED',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],

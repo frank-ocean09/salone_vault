@@ -85,7 +85,7 @@ export function ResetPasswordPage() {
                     <div className="bg-white rounded-xl shadow-lg p-8">
                         {!sessionReady && !error ? (
                             <div className="text-center py-8">
-                                <div className="animate-spin h-8 w-8 border-4 border-primary-green border-t-transparent rounded-full mx-auto mb-4" />
+                                <div className="animate-spin h-8 w-8 border-4 border-[#3FD0C9] border-t-transparent rounded-full mx-auto mb-4" />
                                 <p className="text-gray-600">Verifying reset link...</p>
                             </div>
                         ) : error && !sessionReady ? (
@@ -115,13 +115,13 @@ export function ResetPasswordPage() {
                                 <p className="text-gray-600 mb-6">
                                     Your password has been successfully updated. Redirecting to dashboard...
                                 </p>
-                                <div className="animate-spin h-6 w-6 border-3 border-primary-green border-t-transparent rounded-full mx-auto" />
+                                <div className="animate-spin h-6 w-6 border-3 border-[#3FD0C9] border-t-transparent rounded-full mx-auto" />
                             </div>
                         ) : (
                             <>
                                 <div className="text-center mb-8">
-                                    <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-green/10 rounded-full mb-4">
-                                        <Lock className="h-8 w-8 text-primary-green" />
+                                    <div className="inline-flex items-center justify-center w-16 h-16 bg-[#2EAF7D]/10 rounded-full mb-4">
+                                        <Lock className="h-8 w-8 text-[#2EAF7D]" />
                                     </div>
                                     <h1 className="text-2xl font-bold text-gray-900 mb-2">
                                         Set New Password
@@ -143,7 +143,7 @@ export function ResetPasswordPage() {
                                                 value={password}
                                                 onChange={(e) => setPassword(e.target.value)}
                                                 required
-                                                className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-green/20 focus:border-primary-green"
+                                                className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9]"
                                                 placeholder="Enter new password"
                                             />
                                             <button
@@ -170,7 +170,7 @@ export function ResetPasswordPage() {
                                                 value={confirmPassword}
                                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                                 required
-                                                className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-green/20 focus:border-primary-green"
+                                                className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9]"
                                                 placeholder="Confirm new password"
                                             />
                                             <button

@@ -42,30 +42,30 @@ export function Navbar() {
                     <div className="flex items-center">
                         <Link to="/" className="flex items-center gap-2">
                             <img src="/nddv-logo.png" alt="NDDV Logo" className="h-10 w-10" />
-                            <span className="font-heading font-bold text-xl text-primary-green hidden sm:block">
+                            <span className="font-heading font-bold text-xl text-primary-dark hidden sm:block">
                                 Salone Vault
                             </span>
-                            <span className="font-heading font-bold text-xl text-primary-green sm:hidden">
+                            <span className="font-heading font-bold text-xl text-primary-dark sm:hidden">
                                 Salone Vault
                             </span>
                         </Link>
                     </div>
 
                     <div className="hidden md:flex items-center gap-6">
-                        <Link to="/" className="text-gray-600 hover:text-primary-green font-medium">
+                        <Link to="/" className="text-gray-600 hover:text-brand-teal font-medium">
                             Home
                         </Link>
-                        <Link to="/verify" className="text-gray-600 hover:text-primary-green font-medium">
+                        <Link to="/verify" className="text-gray-600 hover:text-brand-teal font-medium">
                             Verify Document
                         </Link>
                         {user ? (
                             <>
-                                <Link to="/dashboard" className="text-gray-600 hover:text-primary-green font-medium">
+                                <Link to="/dashboard" className="text-gray-600 hover:text-brand-teal font-medium">
                                     My Vault
                                 </Link>
                                 <button
                                     onClick={handleSignOut}
-                                    className="flex items-center gap-2 text-gray-600 hover:text-primary-green font-medium"
+                                    className="flex items-center gap-2 text-gray-600 hover:text-brand-teal font-medium"
                                 >
                                     <LogOut className="h-4 w-4" />
                                     Sign Out
@@ -83,7 +83,7 @@ export function Navbar() {
                     <div className="flex items-center md:hidden">
                         <button
                             onClick={() => setIsOpen(!isOpen)}
-                            className="text-gray-600 hover:text-primary-green"
+                            className="text-gray-600 hover:text-brand-teal"
                         >
                             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                         </button>
@@ -97,14 +97,14 @@ export function Navbar() {
                     <div className="px-2 pt-2 pb-3 space-y-1">
                         <Link
                             to="/"
-                            className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-green hover:bg-gray-50"
+                            className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brand-teal hover:bg-gray-50"
                             onClick={() => setIsOpen(false)}
                         >
                             Home
                         </Link>
                         <Link
                             to="/verify"
-                            className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-green hover:bg-gray-50"
+                            className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brand-teal hover:bg-gray-50"
                             onClick={() => setIsOpen(false)}
                         >
                             Verify Document
@@ -113,7 +113,7 @@ export function Navbar() {
                             <>
                                 <Link
                                     to="/dashboard"
-                                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-green hover:bg-gray-50"
+                                    className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brand-teal hover:bg-gray-50"
                                     onClick={() => setIsOpen(false)}
                                 >
                                     My Vault
@@ -123,7 +123,7 @@ export function Navbar() {
                                         handleSignOut();
                                         setIsOpen(false);
                                     }}
-                                    className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-green hover:bg-gray-50"
+                                    className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brand-teal hover:bg-gray-50"
                                 >
                                     Sign Out
                                 </button>
@@ -131,7 +131,7 @@ export function Navbar() {
                         ) : (
                             <Link
                                 to="/auth"
-                                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary-green hover:bg-gray-50"
+                                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-brand-teal hover:bg-gray-50"
                                 onClick={() => setIsOpen(false)}
                             >
                                 Sign In

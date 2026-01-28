@@ -5,7 +5,8 @@ import { Button } from '../components/Button';
 import { FolderList } from '../components/FolderList';
 import { ShareModal } from '../components/ShareModal';
 import { PDFViewer } from '../components/PDFViewer';
-import { Plus, FileText, CheckCircle, Clock, Share2, Search, Upload as UploadIcon, AlertCircle, Eye, Trash2, FolderInput, Activity, ChevronDown, ChevronUp } from 'lucide-react';
+import { AlbumSettingsModal } from '../components/AlbumSettingsModal';
+import { Plus, FileText, CheckCircle, Clock, Share2, Search, Upload as UploadIcon, AlertCircle, Eye, Trash2, FolderInput, Activity, ChevronDown, ChevronUp, Users, Settings } from 'lucide-react';
 import { DocumentsTable } from '../components/DocumentsTable';
 import { BulkToolbar } from '../components/BulkToolbar';
 import { SharedAlbumsSidebar } from '../components/SharedAlbumsSidebar';
@@ -45,8 +46,9 @@ export function Dashboard() {
     const [documents, setDocuments] = useState<Document[]>([]);
     const [folders, setFolders] = useState<Folder[]>([]);
     const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
-    const [viewingSharedAlbum, setViewingSharedAlbum] = useState<{ id: string; name: string; folder_id?: string } | null>(null);
+    const [viewingSharedAlbum, setViewingSharedAlbum] = useState<{ id: string; name: string; folder_id?: string; owner_id: string } | null>(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [albumSettingsOpen, setAlbumSettingsOpen] = useState(false);
 
     // Selection handled by hook
     const { selectedIds: selectedDocIds, toggle: toggleSelect, selectAll, deselectAll, clear } = useSelection();
@@ -506,7 +508,8 @@ export function Dashboard() {
                 filePath,
                 selectedFile.size,
                 hash,
-                null // Deprecated folder_name
+                uploadSelectedFolderId || null,
+                viewingSharedAlbum?.id || null // Pass shared album ID if active
             );
 
             if (finalFolderId) {
@@ -742,7 +745,7 @@ export function Dashboard() {
     const handleSelectSharedAlbum = async (album: any) => {
         try {
             setLoading(true);
-            setViewingSharedAlbum({ id: album.id, name: album.name, folder_id: album.folder_id });
+            setViewingSharedAlbum({ id: album.id, name: album.name, folder_id: album.folder_id, owner_id: album.owner_id });
             setSelectedFolderId(null); // Deselect personal folder
 
             // If the album is linked to a folder, fetch documents via RPC
@@ -801,7 +804,7 @@ export function Dashboard() {
     if (authLoading || loading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="animate-spin h-8 w-8 border-4 border-primary-green border-t-transparent rounded-full" />
+                <div className="animate-spin h-8 w-8 border-4 border-[#3FD0C9] border-t-transparent rounded-full" />
             </div>
         );
     }
@@ -913,14 +916,14 @@ export function Dashboard() {
                             <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
                                 <div className="flex items-center justify-between mb-4">
                                     <h3 className="font-medium text-gray-500">Total Documents</h3>
-                                    <FileText className="h-5 w-5 text-primary-green" />
+                                    <FileText className="h-5 w-5 text-[#02353C]" />
                                 </div>
                                 <p className="text-3xl font-bold text-gray-900">{documents.length}</p>
                             </div>
                             <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
                                 <div className="flex items-center justify-between mb-4">
                                     <h3 className="font-medium text-gray-500">Verified</h3>
-                                    <CheckCircle className="h-5 w-5 text-primary-green" />
+                                    <CheckCircle className="h-5 w-5 text-[#2EAF7D]" />
                                 </div>
                                 <p className="text-3xl font-bold text-gray-900">
                                     {documents.filter(d => d.status === 'verified').length}
@@ -929,7 +932,7 @@ export function Dashboard() {
                             <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
                                 <div className="flex items-center justify-between mb-4">
                                     <h3 className="font-medium text-gray-500">Pending</h3>
-                                    <Clock className="h-5 w-5 text-accent" />
+                                    <Clock className="h-5 w-5 text-[#3FD0C9]" />
                                 </div>
                                 <p className="text-3xl font-bold text-gray-900">
                                     {documents.filter(d => d.status === 'pending').length}
@@ -943,11 +946,16 @@ export function Dashboard() {
                                 <div className="flex items-center gap-4 w-full">
                                     <h2 className="text-lg font-bold text-gray-900 flex-1">
                                         {viewingSharedAlbum ? (
-                                            <span className="flex items-center gap-2">
-                                                <span className="text-primary-green">Shared Album:</span>
-                                                {viewingSharedAlbum.name}
-                                                <button onClick={handleBackToMyVault} className="text-xs bg-gray-100 px-2 py-1 rounded hover:bg-gray-200 text-gray-600 font-normal ml-2">Back to My Vault</button>
-                                            </span>
+                                            <div className="flex items-center gap-3">
+                                                <span className="flex items-center gap-2">
+                                                    <span className="text-[#02353C] font-semibold">Shared Album:</span>
+                                                    {viewingSharedAlbum.name}
+                                                </span>
+                                                <button onClick={() => setAlbumSettingsOpen(true)} className="flex items-center gap-1 text-xs bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors font-medium">
+                                                    <Users size={14} /> Add People
+                                                </button>
+                                                <button onClick={handleBackToMyVault} className="text-xs bg-gray-100 px-2 py-1 rounded hover:bg-gray-200 text-gray-600 font-normal">Back to My Vault</button>
+                                            </div>
                                         ) : (
                                             selectedFolderId
                                                 ? folders.find(f => f.id === selectedFolderId)?.name || 'Folder'
@@ -975,7 +983,7 @@ export function Dashboard() {
                                         placeholder="Search documents..."
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-green/20 focus:border-primary-green"
+                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9]"
                                     />
                                 </div>
                             </div>
@@ -1058,7 +1066,7 @@ export function Dashboard() {
                                         type="text"
                                         value={documentName}
                                         onChange={(e) => setDocumentName(e.target.value)}
-                                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-green/20 focus:border-primary-green"
+                                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9]"
                                         placeholder="e.g., My Birth Certificate"
                                     />
                                 </div>
@@ -1082,7 +1090,7 @@ export function Dashboard() {
                                                     value={opt}
                                                     checked={selectedDocType === opt}
                                                     onChange={() => setSelectedDocType(opt)}
-                                                    className="text-primary-green focus:ring-primary-green"
+                                                    className="text-[#3FD0C9] focus:ring-[#3FD0C9]"
                                                 />
                                                 <span className="text-sm">{opt}</span>
                                             </label>
@@ -1094,7 +1102,7 @@ export function Dashboard() {
                                             placeholder="Please specify"
                                             value={otherDocType}
                                             onChange={(e) => setOtherDocType(e.target.value)}
-                                            className="mt-2 w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-green/20 focus:border-primary-green"
+                                            className="mt-2 w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9]"
                                         />
                                     )}
 
@@ -1104,7 +1112,7 @@ export function Dashboard() {
                                             <select
                                                 value={uploadSelectedFolderId}
                                                 onChange={(e) => { setUploadSelectedFolderId(e.target.value); setUploadNewFolderName(''); }}
-                                                className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-green/20 focus:border-primary-green"
+                                                className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9]"
                                             >
                                                 <option value="">— No folder —</option>
                                                 {folders.map((f) => (
@@ -1116,7 +1124,7 @@ export function Dashboard() {
                                                 placeholder="Or create new folder"
                                                 value={uploadNewFolderName}
                                                 onChange={(e) => { setUploadNewFolderName(e.target.value); setUploadSelectedFolderId(''); }}
-                                                className="w-48 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-green/20 focus:border-primary-green"
+                                                className="w-48 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9]"
                                             />
                                         </div>
                                         {suggestedFolderName && !uploadSelectedFolderId && !uploadNewFolderName && (
@@ -1131,9 +1139,9 @@ export function Dashboard() {
                                                             setUploadNewFolderName(suggestedFolderName);
                                                         }
                                                     }}
-                                                    className="text-xs text-primary-green hover:underline flex items-center gap-1"
+                                                    className="text-xs text-[#3FD0C9] hover:underline flex items-center gap-1"
                                                 >
-                                                    <span className="bg-primary-green/10 px-2 py-0.5 rounded-full font-medium">
+                                                    <span className="bg-[#CFF4D2] px-2 py-0.5 rounded-full font-medium text-[#02353C]">
                                                         Suggested: {suggestedFolderName}
                                                     </span>
                                                     <span className="text-gray-500">(Click to apply)</span>
