@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Lock, Search, Upload, Users, Globe, Award, Zap, FileText, Star, ArrowRight } from 'lucide-react';
+import { Lock, Search, Upload, Users, Globe, Award, Zap, FileText, Star, ArrowRight, ShieldCheck, FileCheck } from 'lucide-react';
 import { Button } from '../components/Button';
 import { Navbar } from '../components/Navbar';
 
@@ -8,14 +8,14 @@ export function Landing() {
         <div className="min-h-screen flex flex-col bg-white overflow-hidden font-sans">
             <Navbar />
 
-            {/* Hero Section - "Brightscout" Style */}
+            {/* Hero Section - Redesigned */}
             <section className="relative text-white pt-32 pb-48 overflow-hidden">
                 {/* Main Gradient Background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#02353C] via-[#0D4448] to-[#2EAF7D] z-0" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[#02353C] via-[#0D4448] to-[#3FD0C9] z-0" />
 
                 {/* Abstract Geometric Elements */}
                 {/* Large Circle Right */}
-                <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[#449342] rounded-full blur-3xl opacity-20 translate-x-1/3 -translate-y-1/4 animate-pulse" />
+                <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[#2EAF7D] rounded-full blur-3xl opacity-10 translate-x-1/3 -translate-y-1/4 animate-pulse" />
                 {/* Small Glow Bottom Left */}
                 <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#3FD0C9] rounded-full blur-3xl opacity-10 -translate-x-1/2 translate-y-1/2" />
 
@@ -27,32 +27,67 @@ export function Landing() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 h-full flex flex-col justify-center">
                     <div className="max-w-3xl">
                         <h1 className="text-6xl md:text-7xl font-bold leading-tight tracking-tight mb-8">
-                            Design & Technology<br />
-                            that <span className="text-[#3FD0C9]">Transforms</span>
+                            Secure. Verify.<br />
+                            Protect your <span className="text-[#3FD0C9]">documents digitally.</span>
                         </h1>
-                        <p className="text-xl md:text-2xl text-gray-200 mb-10 leading-relaxed max-w-2xl">
-                            Building highly-polished digital products that transform business and accelerate the speed of innovation.
+                        <p className="text-xl md:text-2xl text-[#C1F6ED] mb-10 leading-relaxed max-w-2xl font-light">
+                            A trusted digital vault for official and personal records in Sierra Leone.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-5">
-                            <Link to="/auth">
-                                <button className="group relative px-8 py-4 bg-gradient-to-r from-[#2EAF7D] to-[#3FD0C9] rounded-full text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center gap-2">
-                                    LET'S GET STARTED
+                            <Link to="/auth?mode=signup">
+                                <Button
+                                    variant="primary"
+                                    className="bg-[#2EAF7D] hover:bg-[#2EAF7D]/90 text-white px-8 py-4 h-auto text-lg rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center gap-2"
+                                >
+                                    Create Account
                                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                                </button>
+                                </Button>
+                            </Link>
+                            <Link to="/verify">
+                                <Button
+                                    variant="outline"
+                                    className="border-[#3FD0C9] text-[#3FD0C9] hover:bg-[#3FD0C9]/10 px-8 py-4 h-auto text-lg rounded-full"
+                                >
+                                    Verify a Document
+                                </Button>
                             </Link>
                         </div>
                     </div>
 
                     {/* Floating Abstract "Platform" Visual (Right Side) */}
-                    <div className="hidden lg:block absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/4 w-[800px] h-[800px] pointer-events-none">
-                        {/* Example of abstract 3D-ish composition using CSS shapes */}
+                    <div className="hidden lg:block absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/6 w-[700px] h-[700px] pointer-events-none">
+                        {/* Semi-abstract dashboard composition */}
                         <div className="relative w-full h-full perspective-1000">
-                            <div className="absolute top-1/2 left-1/2 w-96 h-96 border-[20px] border-[#3FD0C9]/20 rounded-full transform -translate-x-1/2 -translate-y-1/2 rotate-x-60 animate-[spin_20s_linear_infinite]" />
-                            <div className="absolute top-1/2 left-1/2 w-[500px] h-[500px] border-[2px] border-[#fff]/10 rounded-full transform -translate-x-1/2 -translate-y-1/2 rotate-x-60" />
-                            {/* Floating bars */}
-                            <div className="absolute top-[20%] right-[30%] w-4 h-32 bg-[#2EAF7D] opacity-80 backdrop-blur-md rounded-full animate-bounce delay-700" />
-                            <div className="absolute bottom-[30%] right-[40%] w-4 h-48 bg-[#3FD0C9] opacity-60 backdrop-blur-md rounded-full animate-bounce delay-100" />
+                            {/* Central Card */}
+                            <div className="absolute top-1/2 left-1/2 w-[400px] h-[300px] bg-[#02353C]/80 backdrop-blur-xl border border-[#3FD0C9]/30 rounded-2xl transform -translate-x-1/2 -translate-y-1/2 rotate-y-[-10deg] rotate-x-[5deg] shadow-2xl z-20 overflow-hidden group">
+                                <div className="absolute top-0 left-0 w-full h-8 bg-[#0D4448] border-b border-[#3FD0C9]/20 flex items-center px-4 gap-2">
+                                    <div className="w-3 h-3 rounded-full bg-red-500/50"></div>
+                                    <div className="w-3 h-3 rounded-full bg-yellow-500/50"></div>
+                                    <div className="w-3 h-3 rounded-full bg-green-500/50"></div>
+                                </div>
+                                <div className="p-6 pt-12 space-y-4">
+                                    <div className="h-4 w-3/4 bg-[#3FD0C9]/20 rounded animate-pulse"></div>
+                                    <div className="h-4 w-1/2 bg-[#3FD0C9]/10 rounded"></div>
+                                    <div className="flex gap-3 mt-8">
+                                        <div className="h-24 w-20 bg-[#2EAF7D]/10 rounded border border-[#2EAF7D]/20 flex items-center justify-center">
+                                            <ShieldCheck className="text-[#2EAF7D] w-8 h-8 opacity-80" />
+                                        </div>
+                                        <div className="h-24 w-20 bg-[#3FD0C9]/10 rounded border border-[#3FD0C9]/20 flex items-center justify-center">
+                                            <FileCheck className="text-[#3FD0C9] w-8 h-8 opacity-80" />
+                                        </div>
+                                    </div>
+                                </div>
+                                {/* Scanning effect */}
+                                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-[#3FD0C9]/10 to-transparent -translate-y-full animate-[scan_3s_ease-in-out_infinite]" />
+                            </div>
+
+                            {/* Back Card */}
+                            <div className="absolute top-1/2 left-1/2 w-[350px] h-[250px] bg-[#0D4448]/80 backdrop-blur-md border border-[#2EAF7D]/20 rounded-2xl transform -translate-x-[40%] -translate-y-[60%] rotate-y-[-10deg] rotate-x-[5deg] z-10 scale-90 opacity-60"></div>
+
+                            {/* Decorative Elements */}
+                            <div className="absolute top-[20%] right-[20%] w-16 h-16 border-2 border-[#2EAF7D]/30 rounded-full animate-[spin_10s_linear_infinite]" />
+                            <div className="absolute bottom-[30%] left-[20%] w-4 h-4 bg-[#3FD0C9] rounded-full animate-bounce shadow-[0_0_20px_#3FD0C9]" />
                         </div>
                     </div>
                 </div>
