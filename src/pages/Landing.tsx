@@ -26,7 +26,7 @@ export function Landing() {
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 h-full flex flex-col justify-center">
                     <div className="max-w-3xl">
-                        <h1 className="text-6xl md:text-7xl font-bold leading-tight tracking-tight mb-8">
+                        <h1 className="text-6xl md:text-7xl font-bold text-white leading-tight tracking-tight mb-8">
                             Secure. Verify.<br />
                             Protect your <span className="text-[#3FD0C9]">documents digitally.</span>
                         </h1>
