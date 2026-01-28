@@ -143,7 +143,7 @@ export function ShareModal({ document, isOpen, onClose, userId }: ShareModalProp
                 onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
             />
             <div className="w-full max-w-lg bg-white rounded-xl shadow-2xl overflow-hidden max-h-[95vh] overflow-y-auto">
-                <div className="bg-primary-green p-4 sm:p-6 text-white sticky top-0 z-10">
+                <div className="bg-brand-teal p-4 sm:p-6 text-white sticky top-0 z-10">
                     <div className="flex items-start sm:items-center justify-between gap-2">
                         <div className="flex items-start sm:items-center gap-2 sm:gap-3 flex-1 min-w-0">
                             <Share2 className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0 mt-0.5 sm:mt-0" />
@@ -175,7 +175,7 @@ export function ShareModal({ document, isOpen, onClose, userId }: ShareModalProp
 
                     {loading && !shareUrl ? (
                         <div className="text-center py-6 sm:py-8">
-                            <div className="animate-spin h-6 w-6 sm:h-8 sm:w-8 border-4 border-primary-green border-t-transparent rounded-full mx-auto mb-3 sm:mb-4" />
+                            <div className="animate-spin h-6 w-6 sm:h-8 sm:w-8 border-4 border-brand-teal border-t-transparent rounded-full mx-auto mb-3 sm:mb-4" />
                             <p className="text-sm sm:text-base text-gray-600">Generating secure share link...</p>
                         </div>
                     ) : (
@@ -194,8 +194,8 @@ export function ShareModal({ document, isOpen, onClose, userId }: ShareModalProp
                                             key={option.value}
                                             onClick={() => setExpiryHours(option.value)}
                                             className={`px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg border transition-colors ${expiryHours === option.value
-                                                ? 'bg-primary-green text-white border-primary-green'
-                                                : 'bg-white text-gray-700 border-gray-300 hover:border-primary-green'
+                                                ? 'bg-brand-teal text-white border-brand-teal'
+                                                : 'bg-white text-gray-700 border-gray-300 hover:border-brand-teal'
                                                 }`}
                                         >
                                             {option.label}

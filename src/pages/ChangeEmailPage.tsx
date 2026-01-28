@@ -66,8 +66,8 @@ export function ChangeEmailPage() {
                         {!success ? (
                             <>
                                 <div className="text-center mb-8">
-                                    <div className="inline-flex items-center justify-center w-16 h-16 bg-primary-green/10 rounded-full mb-4">
-                                        <Mail className="h-8 w-8 text-primary-green" />
+                                    <div className="inline-flex items-center justify-center w-16 h-16 bg-brand-teal/10 rounded-full mb-4">
+                                        <Mail className="h-8 w-8 text-brand-teal" />
                                     </div>
                                     <h1 className="text-2xl font-bold text-gray-900 mb-2">
                                         Change Email Address
@@ -88,7 +88,7 @@ export function ChangeEmailPage() {
                                             value={newEmail}
                                             onChange={(e) => setNewEmail(e.target.value)}
                                             required
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-green/20 focus:border-primary-green"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal"
                                             placeholder="new.email@example.com"
                                         />
                                     </div>

@@ -216,7 +216,7 @@ export function PDFViewer({ url, documentId, documentName, userId, onClose }: PD
             <div className="flex-grow overflow-auto bg-gray-100 flex justify-center p-4 sm:p-8">
                 {loading && (
                     <div className="flex flex-col items-center justify-center h-full">
-                        <Loader2 className="h-12 w-12 text-primary-green animate-spin mb-4" />
+                        <Loader2 className="h-12 w-12 text-brand-teal animate-spin mb-4" />
                         <p className="text-gray-600">Loading secure document...</p>
                     </div>
                 )}
@@ -241,7 +241,7 @@ export function PDFViewer({ url, documentId, documentName, userId, onClose }: PD
                             onLoadSuccess={onDocumentLoadSuccess}
                             loading={
                                 <div className="flex items-center justify-center p-12">
-                                    <Loader2 className="h-8 w-8 text-primary-green animate-spin" />
+                                    <Loader2 className="h-8 w-8 text-brand-teal animate-spin" />
                                 </div>
                             }
                             error={

@@ -1219,7 +1219,7 @@ export function Dashboard() {
                                     <button
                                         key={opt}
                                         onClick={() => setShareExpiry(opt)}
-                                        className={`px-3 py-1 rounded-md border ${shareExpiry === opt ? 'bg-primary-green text-white' : 'bg-white'}`}
+                                        className={`px-3 py-1 rounded-md border ${shareExpiry === opt ? 'bg-brand-teal text-white' : 'bg-white'}`}
                                     >{opt}</button>
                                 ))}
                             </div>
@@ -1268,7 +1268,7 @@ export function Dashboard() {
                                     <button
                                         key={opt}
                                         onClick={() => setBulkShareExpiry(opt)}
-                                        className={`px-3 py-1 rounded-md border ${bulkShareExpiry === opt ? 'bg-primary-green text-white' : 'bg-white'}`}
+                                        className={`px-3 py-1 rounded-md border ${bulkShareExpiry === opt ? 'bg-brand-teal text-white' : 'bg-white'}`}
                                     >{opt}</button>
                                 ))}
                             </div>

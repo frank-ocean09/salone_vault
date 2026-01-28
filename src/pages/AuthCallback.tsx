@@ -66,7 +66,7 @@ export function AuthCallback() {
             <div className="w-full max-w-md bg-white rounded-xl shadow-lg p-8">
                 {status === 'loading' && (
                     <div className="text-center">
-                        <div className="animate-spin h-12 w-12 border-4 border-primary-green border-t-transparent rounded-full mx-auto mb-4" />
+                        <div className="animate-spin h-12 w-12 border-4 border-[#2EAF7D] border-t-transparent rounded-full mx-auto mb-4" />
                         <h2 className="text-xl font-bold text-gray-900 mb-2">
                             Signing you in...
                         </h2>
@@ -78,8 +78,8 @@ export function AuthCallback() {
 
                 {status === 'success' && (
                     <div className="text-center">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                            <CheckCircle className="h-8 w-8 text-green-600" />
+                        <div className="inline-flex items-center justify-center w-16 h-16 bg-[#C1F6ED] rounded-full mb-4">
+                            <CheckCircle className="h-8 w-8 text-[#2EAF7D]" />
                         </div>
                         <h2 className="text-xl font-bold text-gray-900 mb-2">
                             Success!

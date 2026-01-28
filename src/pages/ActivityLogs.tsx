@@ -173,7 +173,7 @@ export function ActivityLogs() {
                 <Navbar />
                 <main className="flex-grow flex items-center justify-center">
                     <div className="text-center">
-                        <div className="animate-spin h-12 w-12 border-4 border-primary-green border-t-transparent rounded-full mx-auto mb-4" />
+                        <div className="animate-spin h-12 w-12 border-4 border-brand-teal border-t-transparent rounded-full mx-auto mb-4" />
                         <p className="text-gray-600">Loading activity logs...</p>
                     </div>
                 </main>
@@ -191,7 +191,7 @@ export function ActivityLogs() {
                     <div className="mb-8">
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-3">
-                                <Activity className="h-8 w-8 text-primary-green" />
+                                <Activity className="h-8 w-8 text-brand-teal" />
                                 <h1 className="text-3xl font-bold text-gray-900">Activity Logs</h1>
                             </div>
                             <Button onClick={() => navigate('/dashboard')} variant="outline">
@@ -216,7 +216,7 @@ export function ActivityLogs() {
                                 <select
                                     value={filterAction}
                                     onChange={(e) => setFilterAction(e.target.value)}
-                                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-green/20 focus:border-primary-green"
+                                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal"
                                 >
                                     <option value="all">All Actions</option>
                                     {actionTypes.map(action => (
@@ -233,7 +233,7 @@ export function ActivityLogs() {
                                 <select
                                     value={sortOrder}
                                     onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')}
-                                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-green/20 focus:border-primary-green"
+                                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal"
                                 >
                                     <option value="newest">Newest First</option>
                                     <option value="oldest">Oldest First</option>
@@ -339,7 +339,7 @@ export function ActivityLogs() {
                                     <p className="text-sm text-gray-600">Total Activities</p>
                                     <p className="text-2xl font-bold text-gray-900">{logs.length}</p>
                                 </div>
-                                <Activity className="h-8 w-8 text-primary-green" />
+                                <Activity className="h-8 w-8 text-brand-teal" />
                             </div>
                         </div>
                         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">

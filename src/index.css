@@ -6,7 +6,7 @@
 
 @layer base {
   body {
-    @apply font-sans antialiased text-[#205072] bg-[#F8FAFC];
+    @apply font-sans antialiased text-[#02353C] bg-[#F8FAFC];
   }
 
   h1,
@@ -15,6 +15,6 @@
   h4,
   h5,
   h6 {
-    @apply font-heading text-[#205072] font-bold;
+    @apply font-heading text-[#02353C] font-bold;
   }
 }
