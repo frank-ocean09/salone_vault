@@ -142,14 +142,14 @@ export function ShareModal({ document, isOpen, onClose, userId }: ShareModalProp
                 isVisible={toast.isVisible}
                 onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
             />
-            <div className="w-full max-w-lg bg-white rounded-xl shadow-2xl overflow-hidden max-h-[95vh] overflow-y-auto">
+            <div className="w-full max-w-lg bg-white dark:bg-brand-lighter-dark rounded-[2.5rem] shadow-2xl overflow-hidden max-h-[95vh] overflow-y-auto border border-white dark:border-white/5 animate-in zoom-in duration-300">
                 <div className="bg-brand-teal p-4 sm:p-6 text-white sticky top-0 z-10">
                     <div className="flex items-start sm:items-center justify-between gap-2">
                         <div className="flex items-start sm:items-center gap-2 sm:gap-3 flex-1 min-w-0">
                             <Share2 className="h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0 mt-0.5 sm:mt-0" />
                             <div className="min-w-0 flex-1">
-                                <h2 className="text-lg sm:text-xl font-bold">Share Document</h2>
-                                <p className="text-xs sm:text-sm text-blue-100 mt-1 truncate">{document.name}</p>
+                                <h2 className="text-lg sm:text-xl font-black uppercase tracking-widest">Share Document</h2>
+                                <p className="text-xs sm:text-sm text-blue-100 font-bold mt-1 truncate">{document.name}</p>
                             </div>
                         </div>
                         <button onClick={handleClose} className="text-white hover:bg-white/20 rounded-full p-1.5 sm:p-2 transition-colors flex-shrink-0">
@@ -181,7 +181,7 @@ export function ShareModal({ document, isOpen, onClose, userId }: ShareModalProp
                     ) : (
                         <>
                             <div>
-                                <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Link Expiry</label>
+                                <label className="block text-[10px] font-black uppercase tracking-widest text-[#02353C]/40 dark:text-white/40 mb-3">Link Expiry</label>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                     {[
                                         { label: '1 Hour', value: 1 },
@@ -211,20 +211,20 @@ export function ShareModal({ document, isOpen, onClose, userId }: ShareModalProp
                             ) : (
                                 <>
                                     <div className="text-center">
-                                        <p className="text-xs sm:text-sm font-medium text-gray-700 mb-3">Scan QR Code</p>
-                                        <div className="inline-block p-3 sm:p-4 bg-white border-2 border-gray-200 rounded-lg">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-[#02353C]/40 dark:text-white/40 mb-3">Scan QR Code</p>
+                                        <div className="inline-block p-4 bg-white dark:bg-white rounded-[2rem] border-4 border-[#3FD0C9]/20 shadow-xl">
                                             <canvas ref={canvasRef} className="mx-auto" style={{ maxWidth: '100%', height: 'auto' }} />
                                         </div>
                                     </div>
 
                                     <div>
-                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2">Verification Token</label>
+                                        <label className="block text-[10px] font-black uppercase tracking-widest text-[#02353C]/40 dark:text-white/40 mb-2">Verification Token</label>
                                         <div className="flex gap-2">
                                             <input
                                                 type="text"
                                                 value={token}
                                                 readOnly
-                                                className="flex-1 min-w-0 px-2 sm:px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-xs sm:text-sm font-mono truncate"
+                                                className="flex-1 min-w-0 px-4 py-3 border border-gray-100 dark:border-white/5 rounded-2xl bg-gray-50 dark:bg-white/5 text-[#02353C] dark:text-white text-xs sm:text-sm font-mono truncate font-bold"
                                             />
                                             <Button onClick={handleCopyLink} size="sm" disabled={isRevoked}>
                                                 <Copy className="h-4 w-4" />

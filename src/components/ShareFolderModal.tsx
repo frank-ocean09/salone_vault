@@ -90,40 +90,44 @@ export const ShareFolderModal: React.FC<Props> = ({ isOpen, onClose, folderId, u
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6 mx-4">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-bold">Share Folder</h3>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-800">✕</button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+      <div className="w-full max-w-md bg-white dark:bg-brand-lighter-dark rounded-[2.5rem] shadow-2xl p-8 animate-in zoom-in duration-300 border border-white dark:border-white/5">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-xl font-black text-[#02353C] dark:text-brand-pale uppercase tracking-widest">Share Folder</h3>
+          <button onClick={onClose} className="text-[#02353C]/40 dark:text-white/40 hover:text-[#02353C] dark:hover:text-white p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl">✕</button>
         </div>
 
-        <p className="mb-3 text-sm text-gray-700">Invite users to collaborate on this folder. Invited users can view and (optionally) upload documents.</p>
+        <p className="mb-6 text-sm text-[#02353C]/60 dark:text-white/40 font-semibold">Invite users to collaborate on this folder. Invited users can view and (optionally) upload documents.</p>
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1">Invite by email</label>
-          <input value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2" placeholder="user@example.com" />
-          <label className="block text-sm font-medium text-gray-700 mt-3">Role</label>
-          <select value={inviteRole} onChange={(e) => setInviteRole(e.target.value as any)} className="w-full border border-gray-300 rounded-md px-3 py-2">
-            <option value="viewer">Viewer (view only)</option>
-            <option value="uploader">Uploader (view & upload)</option>
-          </select>
-        </div>
+        <div className="mb-6 space-y-4">
+          <div>
+            <label className="block text-[10px] font-black uppercase tracking-widest text-[#02353C]/40 dark:text-white/40 mb-2">Invite by email</label>
+            <input value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm font-bold text-[#02353C] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9] transition-all" placeholder="user@example.com" />
+          </div>
+          <div>
+            <label className="block text-[10px] font-black uppercase tracking-widest text-[#02353C]/40 dark:text-white/40 mb-2">Role</label>
+            <select value={inviteRole} onChange={(e) => setInviteRole(e.target.value as any)} className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm font-bold text-[#02353C] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9] transition-all">
+              <option value="viewer">Viewer (view only)</option>
+              <option value="uploader">Uploader (view & upload)</option>
+            </select>
+          </div>
 
-        <div className="mb-4">
-          <p className="font-medium mb-2">Current Members</p>
-          <ul className="text-sm text-gray-700 list-disc list-inside">
-            {members.length === 0 && <li className="text-gray-500">No members yet</li>}
-            {members.map(m => (
-              <li key={m.id}>{m.email || m.user_id} — {m.role}</li>
-            ))}
-          </ul>
-        </div>
+          <div className="mb-4">
+            <p className="font-medium mb-2">Current Members</p>
+            <ul className="text-sm text-gray-700 list-disc list-inside">
+              {members.length === 0 && <li className="text-gray-500">No members yet</li>}
+              {members.map(m => (
+                <li key={m.id}>{m.email || m.user_id} — {m.role}</li>
+              ))}
+            </ul>
+          </div>
 
-        {error && <div className="text-sm text-red-600 mb-3">{error}</div>}
+          {error && <div className="text-sm text-red-600 mb-3">{error}</div>}
 
-        <div className="flex justify-end gap-3">
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleCreateAndInvite} disabled={loading}>{loading ? 'Working...' : 'Create & Invite'}</Button>
+          <div className="flex justify-end gap-3">
+            <Button variant="outline" onClick={onClose}>Cancel</Button>
+            <Button onClick={handleCreateAndInvite} disabled={loading}>{loading ? 'Working...' : 'Create & Invite'}</Button>
+          </div>
         </div>
       </div>
     </div>

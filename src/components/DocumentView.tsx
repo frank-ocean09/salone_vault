@@ -130,32 +130,32 @@ export function DocumentView({
     const isPdf = document.name.toLowerCase().endsWith('.pdf') || document.type === 'application/pdf';
 
     return (
-        <div className="fixed inset-0 z-50 flex flex-col bg-[#C1F6ED] overflow-hidden font-sans">
+        <div className="fixed inset-0 z-50 flex flex-col bg-[#C1F6ED] dark:bg-brand-dark overflow-hidden font-sans transition-colors duration-500">
             {/* Technical Grid Pattern BG */}
-            <div className="absolute inset-0 opacity-[0.1] pointer-events-none"
+            <div className="absolute inset-0 opacity-[0.1] dark:opacity-[0.05] pointer-events-none"
                 style={{ backgroundImage: 'linear-gradient(#02353C 1px, transparent 1px), linear-gradient(90deg, #02353C 1px, transparent 1px)', backgroundSize: '40px 40px' }}>
             </div>
 
             {/* Header / Toolbar */}
-            <header className="relative z-10 flex items-center justify-between px-8 py-4 bg-white/80 backdrop-blur-md border-b border-[#02353C]/5 shadow-sm">
+            <header className="relative z-10 flex items-center justify-between px-8 py-4 bg-white/80 dark:bg-brand-darker/80 backdrop-blur-md border-b border-[#02353C]/5 dark:border-white/5 shadow-sm">
                 <div className="flex items-center gap-4">
-                    <div className="p-2 bg-[#02353C] rounded-lg">
-                        <ShieldCheck className="h-5 w-5 text-[#3FD0C9]" />
+                    <div className="p-2 bg-[#02353C] dark:bg-brand-pale rounded-lg transition-colors">
+                        <ShieldCheck className="h-5 w-5 text-[#3FD0C9] dark:text-brand-dark" />
                     </div>
                     <div>
-                        <h1 className="text-sm font-black text-[#02353C] uppercase tracking-widest">National Digital Vault</h1>
-                        <p className="text-[10px] font-bold text-[#02353C]/40 uppercase tracking-tight">SECURE DOCUMENT VIEWER</p>
+                        <h1 className="text-sm font-black text-[#02353C] dark:text-brand-pale uppercase tracking-widest">National Digital Vault</h1>
+                        <p className="text-[10px] font-bold text-[#02353C]/40 dark:text-white/40 uppercase tracking-tight">SECURE DOCUMENT VIEWER</p>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-4">
-                    <div className="hidden md:flex items-center gap-2 px-4 py-1.5 bg-[#C1F6ED] rounded-full border border-[#02353C]/5">
+                    <div className="hidden md:flex items-center gap-2 px-4 py-1.5 bg-[#C1F6ED] dark:bg-white/5 rounded-full border border-[#02353C]/5 dark:border-white/5 text-[#02353C] dark:text-brand-pale transition-colors">
                         <span className="w-2 h-2 rounded-full bg-[#2EAF7D] animate-pulse" />
-                        <span className="text-[10px] font-black text-[#02353C] uppercase tracking-widest">Encrypted Session</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest">Encrypted Session</span>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-[#02353C]/5 rounded-xl transition-colors text-[#02353C]/60 hover:text-[#02353C]"
+                        className="p-2 hover:bg-[#02353C]/5 dark:hover:bg-white/5 rounded-xl transition-colors text-[#02353C]/60 dark:text-white/40 hover:text-[#02353C] dark:hover:text-white"
                     >
                         <X className="h-6 w-6" />
                     </button>
@@ -164,30 +164,30 @@ export function DocumentView({
 
             <main className="relative z-10 flex flex-col lg:flex-row flex-1 overflow-hidden">
                 {/* Left Panel: Preview */}
-                <div className="flex-1 flex flex-col bg-gray-100/50 relative overflow-hidden border-r border-[#02353C]/5">
+                <div className="flex-1 flex flex-col bg-gray-100/50 dark:bg-brand-dark/20 relative overflow-hidden border-r border-[#02353C]/5 dark:border-white/5">
                     {/* PDF Controls Area */}
                     {isPdf && !loading && !error && (
-                        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-4 px-6 py-2 bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl shadow-[#02353C]/10 border border-white">
+                        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-4 px-6 py-2 bg-white/90 dark:bg-brand-darker/90 backdrop-blur-sm rounded-2xl shadow-xl shadow-[#02353C]/10 border border-white dark:border-white/5 transition-colors">
                             <div className="flex items-center gap-1">
-                                <Button variant="ghost" size="sm" onClick={() => changePage(-1)} disabled={pageNumber <= 1} className="h-8 w-8 p-0">
+                                <Button variant="ghost" size="sm" onClick={() => changePage(-1)} disabled={pageNumber <= 1} className="h-8 w-8 p-0 text-[#02353C] dark:text-brand-pale">
                                     <ChevronLeft className="h-4 w-4" />
                                 </Button>
-                                <span className="text-xs font-black text-[#02353C] min-w-[60px] text-center">
+                                <span className="text-xs font-black text-[#02353C] dark:text-brand-pale min-w-[60px] text-center">
                                     {pageNumber} / {numPages}
                                 </span>
-                                <Button variant="ghost" size="sm" onClick={() => changePage(1)} disabled={pageNumber >= numPages} className="h-8 w-8 p-0">
+                                <Button variant="ghost" size="sm" onClick={() => changePage(1)} disabled={pageNumber >= numPages} className="h-8 w-8 p-0 text-[#02353C] dark:text-brand-pale">
                                     <ChevronRight className="h-4 w-4" />
                                 </Button>
                             </div>
-                            <div className="w-px h-4 bg-[#02353C]/10" />
+                            <div className="w-px h-4 bg-[#02353C]/10 dark:bg-white/10" />
                             <div className="flex items-center gap-1">
-                                <Button variant="ghost" size="sm" onClick={() => setScale(s => Math.max(0.4, s - 0.1))} className="h-8 w-8 p-0">
+                                <Button variant="ghost" size="sm" onClick={() => setScale(s => Math.max(0.4, s - 0.1))} className="h-8 w-8 p-0 text-[#02353C] dark:text-brand-pale">
                                     <ZoomOut className="h-4 w-4" />
                                 </Button>
-                                <span className="text-xs font-black text-[#02353C] min-w-[40px] text-center">
+                                <span className="text-xs font-black text-[#02353C] dark:text-brand-pale min-w-[40px] text-center">
                                     {Math.round(scale * 100)}%
                                 </span>
-                                <Button variant="ghost" size="sm" onClick={() => setScale(s => Math.min(2.0, s + 0.1))} className="h-8 w-8 p-0">
+                                <Button variant="ghost" size="sm" onClick={() => setScale(s => Math.min(2.0, s + 0.1))} className="h-8 w-8 p-0 text-[#02353C] dark:text-brand-pale">
                                     <ZoomIn className="h-4 w-4" />
                                 </Button>
                             </div>
@@ -232,7 +232,7 @@ export function DocumentView({
                 </div>
 
                 {/* Right Panel: Metadata & Actions */}
-                <div className="w-full lg:w-[450px] bg-white flex flex-col overflow-y-auto border-l border-[#02353C]/5 shadow-2xl relative z-20">
+                <div className="w-full lg:w-[450px] bg-white dark:bg-brand-darker flex flex-col overflow-y-auto border-l border-[#02353C]/5 dark:border-white/5 shadow-2xl relative z-20 transition-colors">
                     <div className="p-10 space-y-10">
                         {/* Title & Badge */}
                         <div className="space-y-4">
@@ -244,12 +244,12 @@ export function DocumentView({
                                     {document.status === 'verified' ? 'Verified Official' : 'Verification Pending'}
                                 </span>
                                 {isOffline && (
-                                    <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-amber-50 text-amber-600 border border-amber-100 italic">
+                                    <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border border-amber-100 dark:border-amber-900/30 italic">
                                         Offline Copy
                                     </span>
                                 )}
                             </div>
-                            <h2 className="text-3xl font-black text-[#02353C] tracking-tighter leading-tight">
+                            <h2 className="text-3xl font-black text-[#02353C] dark:text-brand-pale tracking-tighter leading-tight">
                                 {document.name}
                             </h2>
                         </div>
@@ -262,13 +262,13 @@ export function DocumentView({
                                 { label: 'Vault Owner', value: ownerName, icon: User },
                                 { label: 'Location', value: folderName, icon: FolderIcon },
                             ].map((item, i) => (
-                                <div key={i} className="flex items-start gap-4 p-4 rounded-2xl bg-[#C1F6ED]/20 border border-transparent hover:border-[#3FD0C9]/30 transition-all">
-                                    <div className="p-2.5 bg-white rounded-xl shadow-sm">
-                                        <item.icon className="h-4 w-4 text-[#02353C]" />
+                                <div key={i} className="flex items-start gap-4 p-4 rounded-2xl bg-[#C1F6ED]/20 dark:bg-white/5 border border-transparent hover:border-[#3FD0C9]/30 transition-all">
+                                    <div className="p-2.5 bg-white dark:bg-brand-dark rounded-xl shadow-sm transition-colors">
+                                        <item.icon className="h-4 w-4 text-[#02353C] dark:text-brand-pale" />
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-[#02353C]/30 mb-1">{item.label}</p>
-                                        <p className="text-sm font-black text-[#02353C]">{item.value}</p>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-[#02353C]/30 dark:text-white/30 mb-1">{item.label}</p>
+                                        <p className="text-sm font-black text-[#02353C] dark:text-brand-pale">{item.value}</p>
                                     </div>
                                 </div>
                             ))}
@@ -366,8 +366,8 @@ export function DocumentView({
                         </div>
                     </div>
 
-                    <div className="mt-auto p-8 bg-gray-50 border-t border-[#02353C]/5 text-center">
-                        <p className="text-[10px] font-black text-[#02353C]/20 uppercase tracking-[0.3em]">SaloneVault National Infrastructure</p>
+                    <div className="mt-auto p-8 bg-gray-50 dark:bg-black/10 border-t border-[#02353C]/5 dark:border-white/5 text-center transition-colors">
+                        <p className="text-[10px] font-black text-[#02353C]/20 dark:text-white/20 uppercase tracking-[0.3em]">SaloneVault National Infrastructure</p>
                     </div>
                 </div>
             </main>

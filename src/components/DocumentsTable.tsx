@@ -39,21 +39,21 @@ export const DocumentsTable: React.FC<Props> = ({
     switch (status) {
       case 'verified':
         return (
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#449342]/10 text-[#449342] border border-[#449342]/20">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#449342]/10 dark:bg-[#449342]/20 text-[#449342] dark:text-[#58c455] border border-[#449342]/20 dark:border-[#449342]/30 transition-colors">
             <CheckCircle className="w-3 h-3 mr-1.5" />
             Verified
           </span>
         );
       case 'pending':
         return (
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#2EAF7D]/10 text-[#2EAF7D] border border-[#2EAF7D]/20">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#2EAF7D]/10 dark:bg-[#3FD0C9]/10 text-[#2EAF7D] dark:text-[#3FD0C9] border border-[#2EAF7D]/20 dark:border-[#3FD0C9]/20 transition-colors">
             <Clock className="w-3 h-3 mr-1.5" />
             Pending
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-gray-100 text-gray-600 border border-gray-200">
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-white/40 border border-gray-200 dark:border-white/10">
             Not Verified
           </span>
         );
@@ -64,12 +64,12 @@ export const DocumentsTable: React.FC<Props> = ({
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {documents.length === 0 ? (
-          <div className="col-span-full text-center py-20 bg-white/30 backdrop-blur-sm rounded-[3rem] border border-white/50 uppercase tracking-[0.3em] text-[10px] font-black text-gray-400">
+          <div className="col-span-full text-center py-20 bg-white/30 dark:bg-brand-lighter-dark/30 backdrop-blur-sm rounded-[3rem] border border-white/50 dark:border-white/5 uppercase tracking-[0.3em] text-[10px] font-black text-gray-400 dark:text-white/20">
             No documents found in this section
           </div>
         ) : (
           documents.map((doc) => (
-            <div key={doc.id} className="group bg-white p-6 rounded-[2.5rem] border border-white shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 flex flex-col h-full relative overflow-hidden">
+            <div key={doc.id} className="group bg-white dark:bg-brand-lighter-dark p-6 rounded-[2.5rem] border border-white dark:border-white/5 shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 flex flex-col h-full relative overflow-hidden">
               {/* Subtle background icon */}
               <div className="absolute -right-6 -bottom-6 opacity-[0.02] group-hover:opacity-[0.05] transition-all duration-700 rotate-12 group-hover:rotate-0">
                 <FileText size={160} />
@@ -85,7 +85,7 @@ export const DocumentsTable: React.FC<Props> = ({
                       onChange={() => onToggleSelect(doc.id)}
                     />
                   </div>
-                  <div className="p-4 bg-[#C1F6ED]/20 rounded-2xl text-[#02353C] group-hover:bg-[#02353C] group-hover:text-white transition-all duration-300">
+                  <div className="p-4 bg-[#C1F6ED]/20 dark:bg-white/5 rounded-2xl text-[#02353C] dark:text-brand-pale group-hover:bg-[#02353C] group-hover:dark:bg-brand-teal group-hover:text-white transition-all duration-300">
                     <FileText className="h-6 w-6" strokeWidth={2.5} />
                   </div>
                 </div>
@@ -103,29 +103,29 @@ export const DocumentsTable: React.FC<Props> = ({
               </div>
 
               <div onClick={() => onView(doc)} className="cursor-pointer flex-1 relative z-10 flex flex-col">
-                <h3 className="font-black text-[#02353C] text-xl mb-1 group-hover:text-[#3FD0C9] transition-colors truncate tracking-tight">
+                <h3 className="font-black text-[#02353C] dark:text-brand-pale text-xl mb-1 group-hover:text-[#3FD0C9] transition-colors truncate tracking-tight">
                   {doc.name}
                 </h3>
 
                 <div className="flex items-center gap-2 mb-6">
-                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-gray-50 rounded-lg border border-gray-100">
-                    <FolderIcon size={10} className="text-gray-400" />
-                    <span className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-gray-50 dark:bg-white/5 rounded-lg border border-gray-100 dark:border-white/5">
+                    <FolderIcon size={10} className="text-gray-400 dark:text-white/40" />
+                    <span className="text-[10px] text-gray-500 dark:text-white/40 font-bold uppercase tracking-wider">
                       {getFolderName(doc.folder_id)}
                     </span>
                   </div>
-                  <span className="text-[10px] bg-gray-50 px-2 py-0.5 rounded-lg border border-gray-100 text-gray-400 font-mono tracking-tighter uppercase font-bold">
+                  <span className="text-[10px] bg-gray-50 dark:bg-white/5 px-2 py-0.5 rounded-lg border border-gray-100 dark:border-white/5 text-gray-400 dark:text-white/40 font-mono tracking-tighter uppercase font-bold">
                     ID: {doc.hash.slice(0, 8)}
                   </span>
                 </div>
 
                 <div className="mt-auto pt-6 border-t border-gray-50">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#02353C]/30">{doc.type}</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#02353C]/30 dark:text-white/20">{doc.type}</span>
                     {getStatusBadge(doc.status)}
                   </div>
 
-                  <div className="flex items-center gap-2 text-gray-300">
+                  <div className="flex items-center gap-2 text-gray-300 dark:text-white/20">
                     <Clock size={12} strokeWidth={3} />
                     <span className="text-[10px] font-black uppercase tracking-[0.2em]">
                       Uploaded {new Date(doc.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}

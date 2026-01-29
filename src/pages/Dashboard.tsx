@@ -15,6 +15,7 @@ import { DebugPanel } from '../components/DebugPanel';
 import { useSelection } from '../hooks/useSelection';
 import { Toast } from '../components/Toast';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import {
     getUserDocuments,
     uploadDocument,
@@ -41,7 +42,8 @@ import type { Document, Folder } from '../lib/supabase';
 
 export function Dashboard() {
     const navigate = useNavigate();
-    const { user, loading: authLoading } = useAuth();
+    const { user, loading: authLoading, signOut } = useAuth();
+    const { theme, toggleTheme, isDarkMode } = useTheme();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [documents, setDocuments] = useState<Document[]>([]);
     const [folders, setFolders] = useState<Folder[]>([]);
@@ -810,10 +812,25 @@ export function Dashboard() {
         </button>
     );
 
+    const ThemeToggle = () => (
+        <button
+            onClick={toggleTheme}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 transition-all group"
+            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+        >
+            <div className={`relative w-10 h-5 rounded-full transition-colors duration-300 ${isDarkMode ? 'bg-[#2EAF7D]' : 'bg-white/20'}`}>
+                <div className={`absolute top-1 left-1 w-3 h-3 rounded-full bg-white transition-transform duration-300 ${isDarkMode ? 'translate-x-5' : 'translate-x-0'}`} />
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-widest text-white/80 group-hover:text-white">
+                {isDarkMode ? 'Dark' : 'Light'}
+            </span>
+        </button>
+    );
+
     return (
-        <div className="min-h-screen bg-[#C1F6ED] flex">
+        <div className="min-h-screen bg-[#C1F6ED] dark:bg-[#02353C] flex transition-colors duration-500">
             {/* Sidebar Desktop */}
-            <aside className="hidden lg:flex flex-col w-72 bg-[#02353C] p-6 text-white fixed h-screen z-50">
+            <aside className="hidden lg:flex flex-col w-72 bg-[#02353C] dark:bg-[#012A31] p-6 text-white fixed h-screen z-50 transition-colors duration-500">
                 <div className="flex items-center gap-3 mb-10 px-2 cursor-pointer transition-transform hover:scale-105" onClick={() => navigate('/')}>
                     <div className="p-2 bg-[#2EAF7D] rounded-xl shadow-lg shadow-[#2EAF7D]/20">
                         <ShieldCheck className="h-6 w-6 text-white" />
@@ -872,7 +889,7 @@ export function Dashboard() {
             )}
 
             {/* Sidebar Mobile */}
-            <aside className={`lg:hidden fixed inset-y-0 left-0 w-80 bg-[#02353C] p-6 text-white z-[70] transition-transform duration-500 transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+            <aside className={`lg:hidden fixed inset-y-0 left-0 w-80 bg-[#02353C] dark:bg-[#012A31] p-6 text-white z-[70] transition-transform duration-500 transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 <div className="flex items-center justify-between mb-10 px-2">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-[#2EAF7D] rounded-xl">
@@ -914,7 +931,7 @@ export function Dashboard() {
                 />
 
                 {/* Top Bar */}
-                <header className="sticky top-0 z-40 bg-[#02353C] border-b border-white/5 px-4 sm:px-8 py-4 flex items-center justify-between h-20 transition-all shadow-lg">
+                <header className="sticky top-0 z-40 bg-[#02353C] dark:bg-[#012A31] border-b border-white/5 px-4 sm:px-8 py-4 flex items-center justify-between h-20 transition-all shadow-lg">
                     <button onClick={() => setMobileMenuOpen(true)} className="lg:hidden p-2 text-white hover:bg-white/10 rounded-xl transition-colors">
                         <Menu size={24} />
                     </button>
@@ -944,6 +961,12 @@ export function Dashboard() {
 
                         <div className="h-10 w-[1px] bg-white/10 mx-2 hidden sm:block" />
 
+                        <div className="hidden sm:flex items-center gap-2 mr-2">
+                            <ThemeToggle />
+                        </div>
+
+                        <div className="h-10 w-[1px] bg-white/10 mx-2 hidden sm:block" />
+
                         <div className="flex items-center gap-3 pl-2">
                             <div className="hidden sm:block text-right">
                                 <p className="text-sm font-bold text-white leading-none mb-1">{user?.user_metadata?.full_name || 'Authorized User'}</p>
@@ -967,8 +990,8 @@ export function Dashboard() {
                         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                             <defs>
                                 <pattern id="dashboard-grid" width="60" height="60" patternUnits="userSpaceOnUse">
-                                    <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#02353C" strokeWidth="0.5" />
-                                    <circle cx="0" cy="0" r="1" fill="#02353C" />
+                                    <path d="M 60 0 L 0 0 0 60" fill="none" stroke={isDarkMode ? '#C1F6ED' : '#02353C'} strokeWidth="0.5" />
+                                    <circle cx="0" cy="0" r="1" fill={isDarkMode ? '#C1F6ED' : '#02353C'} />
                                 </pattern>
                             </defs>
                             <rect width="100%" height="100%" fill="url(#dashboard-grid)" />
@@ -979,10 +1002,10 @@ export function Dashboard() {
                         {/* Header Section */}
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
                             <div className="animate-in fade-in slide-in-from-left duration-700">
-                                <h1 className="text-4xl font-black text-[#02353C] tracking-tight mb-2">
+                                <h1 className="text-4xl font-black text-[#02353C] dark:text-[#C1F6ED] tracking-tight mb-2">
                                     {getWelcomeMessage()}
                                 </h1>
-                                <p className="text-[#02353C]/60 font-semibold flex items-center gap-2">
+                                <p className="text-[#02353C]/60 dark:text-white/40 font-semibold flex items-center gap-2">
                                     <ShieldCheck size={18} className="text-[#2EAF7D]" />
                                     Your personal state-secured digital document vault.
                                 </p>
@@ -1010,7 +1033,7 @@ export function Dashboard() {
                                 </button>
                                 <button
                                     onClick={() => navigate('/activity-logs')}
-                                    className="bg-white hover:bg-gray-50 text-[#02353C] px-6 py-4 rounded-2xl shadow-sm border border-gray-100 transition-all flex items-center gap-3 font-bold active:scale-95"
+                                    className="bg-white dark:bg-brand-lighter-dark hover:bg-gray-50 dark:hover:bg-white/5 text-[#02353C] dark:text-brand-pale px-6 py-4 rounded-2xl shadow-sm border border-gray-100 dark:border-white/5 transition-all flex items-center gap-3 font-bold active:scale-95"
                                 >
                                     <Activity size={20} />
                                     Activity
@@ -1036,22 +1059,22 @@ export function Dashboard() {
                                 { label: 'Awaiting Verification', value: documents.filter(d => d.status === 'pending').length, icon: Clock, color: '#2EAF7D' },
                                 { label: 'Security Score', value: '100%', icon: ShieldCheck, color: '#3FD0C9' },
                             ].map((stat, i) => (
-                                <div key={i} className="bg-white/80 backdrop-blur-sm p-6 rounded-[2.5rem] border border-white shadow-sm hover:shadow-xl transition-all duration-300 group hover:-translate-y-1">
+                                <div key={i} className="bg-white/80 dark:bg-brand-lighter-dark/80 backdrop-blur-sm p-6 rounded-[2.5rem] border border-white dark:border-white/5 shadow-sm hover:shadow-xl transition-all duration-300 group hover:-translate-y-1">
                                     <div className="flex items-center justify-between mb-4">
                                         <div className="p-3 rounded-2xl transition-colors duration-300" style={{ backgroundColor: `rgba(${stat.color === '#02353C' ? '2, 53, 60' : i === 1 ? '68, 147, 66' : i === 2 ? '46, 175, 125' : '63, 208, 201'}, 0.1)` }}>
                                             <stat.icon size={20} style={{ color: stat.color }} />
                                         </div>
                                     </div>
-                                    <p className="text-3xl font-black text-[#02353C] tracking-tighter mb-1">{stat.value}</p>
-                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#02353C]/40">{stat.label}</p>
+                                    <p className="text-3xl font-black text-[#02353C] dark:text-brand-pale tracking-tighter mb-1">{stat.value}</p>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#02353C]/40 dark:text-white/40">{stat.label}</p>
                                 </div>
                             ))}
                         </div>
 
                         {/* Document List Header */}
-                        <div className="bg-white/40 backdrop-blur-sm p-8 rounded-t-[3rem] border-x border-t border-white flex flex-col sm:flex-row justify-between items-center gap-6">
+                        <div className="bg-white/40 dark:bg-brand-lighter-dark/40 backdrop-blur-sm p-8 rounded-t-[3rem] border-x border-t border-white dark:border-white/5 flex flex-col sm:flex-row justify-between items-center gap-6">
                             <div className="flex items-center gap-6 w-full">
-                                <h2 className="text-2xl font-black text-[#02353C] tracking-tight">
+                                <h2 className="text-2xl font-black text-[#02353C] dark:text-brand-pale tracking-tight">
                                     {viewingSharedAlbum ? (
                                         <span className="flex items-center gap-3">
                                             <Users size={24} className="text-[#3FD0C9]" />
@@ -1079,7 +1102,7 @@ export function Dashboard() {
                             </div>
 
                             <div className="flex items-center gap-3 w-full sm:w-auto">
-                                <div className="flex bg-white/50 p-1 rounded-2xl border border-white">
+                                <div className="flex bg-white/50 dark:bg-white/5 p-1 rounded-2xl border border-white dark:border-white/5 shadow-sm">
                                     {[
                                         { id: 'all', label: 'All' },
                                         { id: 'verified', label: 'Verified' },
@@ -1090,8 +1113,8 @@ export function Dashboard() {
                                             key={f.id}
                                             onClick={() => setStatusFilter(f.id as any)}
                                             className={`px-4 py-2 rounded-xl shadow-sm text-xs font-bold tracking-widest uppercase transition-all ${statusFilter === f.id
-                                                ? 'bg-white text-[#02353C] shadow-md'
-                                                : 'text-[#02353C]/40 hover:text-[#02353C]'
+                                                ? 'bg-white dark:bg-[#3FD0C9] text-[#02353C] dark:text-[#02353C] shadow-md'
+                                                : 'text-[#02353C]/40 dark:text-white/40 hover:text-[#02353C] dark:hover:text-white'
                                                 }`}
                                         >
                                             {f.label}
@@ -1102,16 +1125,16 @@ export function Dashboard() {
                         </div>
 
                         {/* Document Grid Container */}
-                        <div className="bg-white/40 backdrop-blur-sm p-8 rounded-b-[3rem] border-x border-b border-white min-h-[500px]">
+                        <div className="bg-white/40 dark:bg-brand-lighter-dark/40 backdrop-blur-sm p-8 rounded-b-[3rem] border-x border-b border-white dark:border-white/5 min-h-[500px]">
                             {filteredDocuments.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in duration-1000">
-                                    <div className="h-24 w-24 bg-[#C1F6ED]/50 rounded-full flex items-center justify-center mb-6">
+                                    <div className="h-24 w-24 bg-[#C1F6ED]/50 dark:bg-white/5 rounded-full flex items-center justify-center mb-6">
                                         <UploadIcon className="h-10 w-10 text-[#2EAF7D]" />
                                     </div>
-                                    <h3 className="text-xl font-black text-[#02353C] mb-2 uppercase tracking-widest">
+                                    <h3 className="text-xl font-black text-[#02353C] dark:text-brand-pale mb-2 uppercase tracking-widest">
                                         {documents.length === 0 ? 'Vault Empty' : 'No Matches Found'}
                                     </h3>
-                                    <p className="text-[#02353C]/40 font-bold text-sm max-w-xs mx-auto mb-8">
+                                    <p className="text-[#02353C]/40 dark:text-white/40 font-bold text-sm max-w-xs mx-auto mb-8">
                                         {documents.length === 0
                                             ? 'Start securing your essential national documents by uploading them now.'
                                             : 'Try adjusting your search criteria or switching folders.'}
@@ -1132,17 +1155,17 @@ export function Dashboard() {
                                             onToggleSelect={toggleSelect}
                                             onSelectAll={(ids) => selectAll(ids)}
                                             onDeselectAll={() => deselectAll()}
-                                            onView={(doc) => handleViewDocument(doc)}
-                                            onDelete={(doc) => handleDeleteDocument(doc)}
-                                            onShare={(doc) => { setNewShareTargetDocument(doc); setNewShareModalOpen(true); }}
+                                            onView={handleViewDocument}
+                                            onDelete={handleDeleteDocument}
+                                            onShare={(doc) => openShareModal(doc)}
                                             searchQuery={searchQuery}
                                         />
                                     </div>
 
                                     {/* Shared Albums integrated as a sidebar within content if needed, but we have them in main sidebar too */}
                                     <div className="w-full xl:w-80 flex-shrink-0 space-y-6">
-                                        <div className="bg-white/50 p-6 rounded-[2rem] border border-white">
-                                            <h3 className="text-sm font-black text-[#02353C] uppercase tracking-widest mb-4">Manage Albums</h3>
+                                        <div className="bg-white/50 dark:bg-brand-lighter-dark/50 p-6 rounded-[2rem] border border-white dark:border-white/5">
+                                            <h3 className="text-sm font-black text-[#02353C] dark:text-brand-pale uppercase tracking-widest mb-4">Manage Albums</h3>
                                             <SharedAlbumsSidebar
                                                 userId={user!.id}
                                                 onSelectAlbum={handleSelectSharedAlbum}
@@ -1156,24 +1179,24 @@ export function Dashboard() {
                     </div>
                 </main>
                 {showUploadModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                        <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-6 mx-4">
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+                        <div className="w-full max-w-2xl bg-white dark:bg-brand-lighter-dark rounded-[2.5rem] shadow-2xl p-8 animate-in zoom-in duration-300 border border-white dark:border-white/5">
                             <div className="flex justify-between items-start mb-4">
-                                <h3 className="text-lg font-bold">
-                                    {uploadModalStep === 'info' ? 'Upload Document' : 'Document Upload — Next Steps'}
+                                <h3 className="text-xl font-black text-[#02353C] dark:text-brand-pale uppercase tracking-widest">
+                                    {uploadModalStep === 'info' ? 'Upload Document' : 'Next Steps'}
                                 </h3>
-                                <button onClick={handleCloseModal} className="text-gray-500 hover:text-gray-800">✕</button>
+                                <button onClick={handleCloseModal} className="text-[#02353C]/40 dark:text-white/40 hover:text-[#02353C] dark:hover:text-white p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all">✕</button>
                             </div>
 
                             {uploadModalStep === 'info' ? (
                                 <div className="space-y-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Document Name <span className="text-red-500">*</span></label>
+                                        <label className="block text-[10px] font-black uppercase tracking-widest text-[#02353C]/40 dark:text-white/40 mb-2">Document Name <span className="text-red-500">*</span></label>
                                         <input
                                             type="text"
                                             value={documentName}
                                             onChange={(e) => setDocumentName(e.target.value)}
-                                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9]"
+                                            className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-2xl px-4 py-3 text-sm font-bold text-[#02353C] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9] transition-all"
                                             placeholder="e.g., My Birth Certificate"
                                         />
                                     </div>
@@ -1359,14 +1382,14 @@ export function Dashboard() {
 
                 {/* Bulk Share Modal */}
                 {bulkShareOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                        <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6 mx-4">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-lg font-bold">Share {selectedCount} documents</h3>
-                                <button onClick={() => setBulkShareOpen(false)} className="text-gray-500 hover:text-gray-800">✕</button>
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+                        <div className="w-full max-w-md bg-white dark:bg-brand-lighter-dark rounded-[2.5rem] shadow-2xl p-8 animate-in zoom-in duration-300 border border-white dark:border-white/5">
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-xl font-black text-[#02353C] dark:text-brand-pale uppercase tracking-widest">Share {selectedCount} items</h3>
+                                <button onClick={() => setBulkShareOpen(false)} className="text-[#02353C]/40 dark:text-white/40 hover:text-[#02353C] dark:hover:text-white p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl">✕</button>
                             </div>
 
-                            <p className="mb-3 text-sm text-gray-700">Create verification tokens for the selected documents and copy them to your clipboard.</p>
+                            <p className="mb-6 text-sm text-[#02353C]/60 dark:text-white/40 font-semibold">Create verification tokens for the selected documents and copy them to your clipboard.</p>
 
                             <div className="mb-4">
                                 <p className="font-medium mb-2">Choose when the shared links should expire:</p>

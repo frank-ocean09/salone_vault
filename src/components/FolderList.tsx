@@ -81,7 +81,7 @@ export function FolderList({
                                     value={editName}
                                     onChange={(e) => setEditName(e.target.value)}
                                     onBlur={() => setEditingFolderId(null)}
-                                    className="w-full bg-[#02353C] text-white px-3 py-2 text-sm border border-white/10 rounded-xl focus:outline-none focus:border-[#3FD0C9] focus:ring-1 focus:ring-[#3FD0C9]"
+                                    className="w-full bg-[#02353C] dark:bg-brand-darker text-white px-3 py-2 text-sm border border-white/10 rounded-xl focus:outline-none focus:border-[#3FD0C9] focus:ring-1 focus:ring-[#3FD0C9]"
                                 />
                             </form>
                         ) : (
@@ -154,7 +154,7 @@ export function FolderList({
                             value={newFolderName}
                             onChange={(e) => setNewFolderName(e.target.value)}
                             onBlur={() => !newFolderName && setIsCreating(false)}
-                            className="w-full bg-[#02353C] text-white px-3 py-2 text-sm border border-white/10 rounded-xl focus:outline-none focus:border-[#3FD0C9] focus:ring-1 focus:ring-[#3FD0C9]"
+                            className="w-full bg-[#02353C] dark:bg-brand-darker text-white px-3 py-2 text-sm border border-white/10 rounded-xl focus:outline-none focus:border-[#3FD0C9] focus:ring-1 focus:ring-[#3FD0C9]"
                         />
                     </form>
                 )}

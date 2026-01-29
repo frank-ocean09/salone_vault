@@ -37,35 +37,37 @@ export function Navbar() {
     }, []);
 
     const isActive = (path: string) => {
-        return location.pathname === path || location.hash === path ? 'text-[#3FD0C9]' : 'text-white/80';
+        return location.pathname === path || location.hash === path
+            ? 'text-[#3FD0C9]'
+            : 'text-[#02353C]/60 dark:text-white/60';
     };
 
     return (
-        <nav className={`bg-[#02353C] border-b border-white/5 sticky top-0 z-50 transform transition-transform duration-300 shadow-lg ${hidden && !isOpen ? '-translate-y-full' : 'translate-y-0'}`}>
+        <nav className={`bg-white dark:bg-brand-dark border-b border-[#02353C]/5 dark:border-white/5 sticky top-0 z-50 transform transition-all duration-500 shadow-xl ${hidden && !isOpen ? '-translate-y-full' : 'translate-y-0'}`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-20">
                     <div className="flex items-center">
                         <Link to="/" className="flex items-center gap-3">
-                            <div className="p-2 bg-[#2EAF7D] rounded-xl">
+                            <div className="p-2 bg-[#2EAF7D] rounded-xl shadow-lg shadow-[#2EAF7D]/20">
                                 <ShieldCheck className="h-6 w-6 text-white" />
                             </div>
-                            <span className="font-black text-2xl text-white tracking-tighter">
+                            <span className="font-black text-2xl text-[#02353C] dark:text-brand-pale tracking-tighter">
                                 SALONEVAULT
                             </span>
                         </Link>
                     </div>
 
                     <div className="hidden md:flex items-center gap-8">
-                        <Link to="/" className={`${isActive('/')} hover:text-[#3FD0C9] font-bold text-xs uppercase tracking-widest transition-colors`}>
+                        <Link to="/" className={`${isActive('/')} hover:text-[#3FD0C9] font-black text-[10px] uppercase tracking-[0.2em] transition-colors`}>
                             Home
                         </Link>
-                        <a href="/#features" className={`${isActive('#features')} hover:text-[#3FD0C9] font-bold text-xs uppercase tracking-widest transition-colors`}>
+                        <a href="/#features" className={`${isActive('#features')} hover:text-[#3FD0C9] font-black text-[10px] uppercase tracking-[0.2em] transition-colors`}>
                             Features
                         </a>
-                        <a href="/#how-it-works" className={`${isActive('#how-it-works')} hover:text-[#3FD0C9] font-bold text-xs uppercase tracking-widest transition-colors`}>
+                        <a href="/#how-it-works" className={`${isActive('#how-it-works')} hover:text-[#3FD0C9] font-black text-[10px] uppercase tracking-[0.2em] transition-colors`}>
                             How It Works
                         </a>
-                        <Link to="/verify" className={`${isActive('/verify')} hover:text-[#3FD0C9] font-bold text-xs uppercase tracking-widest transition-colors`}>
+                        <Link to="/verify" className={`${isActive('/verify')} hover:text-[#3FD0C9] font-black text-[10px] uppercase tracking-[0.2em] transition-colors`}>
                             Verify Document
                         </Link>
 
@@ -76,7 +78,7 @@ export function Navbar() {
                                 </Link>
                                 <button
                                     onClick={handleSignOut}
-                                    className="flex items-center gap-2 text-white/60 hover:text-white font-bold text-xs uppercase tracking-widest transition-colors"
+                                    className="flex items-center gap-2 text-[#02353C]/40 dark:text-white/40 hover:text-red-500 transition-colors font-black text-[10px] uppercase tracking-[0.2em]"
                                 >
                                     <LogOut className="h-4 w-4" />
                                     Sign Out
@@ -109,7 +111,7 @@ export function Navbar() {
                     <div className="flex items-center md:hidden">
                         <button
                             onClick={() => setIsOpen(!isOpen)}
-                            className="text-white p-2 hover:bg-white/10 rounded-xl transition-colors"
+                            className="text-[#02353C] dark:text-white p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-colors"
                         >
                             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                         </button>
@@ -119,32 +121,32 @@ export function Navbar() {
 
             {/* Mobile menu */}
             {isOpen && (
-                <div className="md:hidden bg-[#02353C] border-b border-white/5 animate-in fade-in slide-in-from-top-4 duration-300">
+                <div className="md:hidden bg-white dark:bg-brand-dark border-b border-[#02353C]/5 dark:border-white/5 animate-in fade-in slide-in-from-top-4 duration-300">
                     <div className="px-4 pt-2 pb-6 space-y-2">
                         <Link
                             to="/"
-                            className="block px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-white/60 hover:text-white hover:bg-white/5 transition-all"
+                            className="block px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-[#02353C]/60 dark:text-white/60 hover:text-[#02353C] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all"
                             onClick={() => setIsOpen(false)}
                         >
                             Home
                         </Link>
                         <a
                             href="/#features"
-                            className="block px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-white/60 hover:text-white hover:bg-white/5 transition-all"
+                            className="block px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-[#02353C]/60 dark:text-white/60 hover:text-[#02353C] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all"
                             onClick={() => setIsOpen(false)}
                         >
                             Features
                         </a>
                         <a
                             href="/#how-it-works"
-                            className="block px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-white/60 hover:text-white hover:bg-white/5 transition-all"
+                            className="block px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-[#02353C]/60 dark:text-white/60 hover:text-[#02353C] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all"
                             onClick={() => setIsOpen(false)}
                         >
                             How It Works
                         </a>
                         <Link
                             to="/verify"
-                            className="block px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-white/60 hover:text-white hover:bg-white/5 transition-all"
+                            className="block px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-[#02353C]/60 dark:text-white/60 hover:text-[#02353C] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all"
                             onClick={() => setIsOpen(false)}
                         >
                             Verify Document

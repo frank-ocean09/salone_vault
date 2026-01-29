@@ -74,53 +74,48 @@ export const SharedAlbumsSidebar: React.FC<Props> = ({ userId, onOpenShareFolder
 
   return (
     <aside className="h-full">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-sm font-semibold">Shared Albums</h3>
-        <Button variant="ghost" onClick={() => { /* focus new input */ }}>
-          <Plus size={16} />
-        </Button>
-      </div>
-
-      <div className="space-y-3">
-        <div className="flex gap-2">
-          <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="New album name" className="flex-1 px-2 py-1 border rounded" />
-          <Button onClick={handleCreate} disabled={creating}>Create</Button>
+      <div className="space-y-4">
+        <div className="flex gap-2 mb-6">
+          <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="New Album Name" className="flex-1 bg-white/50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-xl px-3 py-2 text-xs font-bold text-[#02353C] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20" />
+          <Button onClick={handleCreate} disabled={creating} size="sm" className="rounded-xl px-4 py-2 text-[10px] font-black uppercase tracking-widest">Create</Button>
         </div>
 
         {albums.map(album => (
-          <div key={album.id} className="p-2 border rounded flex items-center justify-between hover:bg-gray-50 transition-colors">
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleSelectAlbum(album)}>
-              <Users size={16} className="text-gray-500" />
+          <div key={album.id} className="p-4 bg-white/50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-[1.5rem] flex items-center justify-between hover:bg-white/80 dark:hover:bg-white/10 transition-all group shadow-sm">
+            <div className="flex items-center gap-3 cursor-pointer" onClick={() => handleSelectAlbum(album)}>
+              <div className="h-10 w-10 bg-[#C1F6ED]/50 dark:bg-white/5 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Users size={16} className="text-[#02353C] dark:text-brand-pale" />
+              </div>
               <div>
-                <div className="font-medium text-sm">{album.name || '(Unnamed)'}</div>
-                <div className="text-xs text-gray-400">{album.folder_id ? 'Folder linked' : 'No folder'}</div>
+                <div className="font-black text-xs text-[#02353C] dark:text-brand-pale uppercase tracking-widest">{album.name || '(Unnamed)'}</div>
+                <div className="text-[10px] font-bold text-[#02353C]/40 dark:text-white/40">{album.folder_id ? 'Vault-Linked' : 'Standalone'}</div>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={() => handleSelectAlbum(album)} className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded hover:bg-blue-100">Open</button>
-              <button onClick={() => console.log('more')} className="text-gray-400 hover:text-gray-600"><MoreHorizontal size={16} /></button>
+              <button onClick={() => handleSelectAlbum(album)} className="text-[10px] font-black uppercase tracking-widest bg-[#2EAF7D] text-white px-3 py-1.5 rounded-lg hover:scale-105 transition-transform shadow-lg shadow-[#2EAF7D]/20">Open</button>
             </div>
           </div>
         ))}
 
         {selectedAlbumMembers.length > 0 && (
-          <div className="mt-2 p-2 border rounded">
-            <div className="text-sm font-medium mb-2">Members</div>
-            <div className="space-y-1 max-h-40 overflow-auto">
+          <div className="mt-8 p-6 bg-[#02353C]/5 dark:bg-white/5 rounded-[2rem] border border-transparent dark:border-white/5">
+            <div className="text-[10px] font-black uppercase tracking-widest text-[#02353C]/60 dark:text-white/40 mb-4 ml-1">Collaborators</div>
+            <div className="space-y-3 max-h-48 overflow-auto mb-6 pr-2 custom-scrollbar">
               {selectedAlbumMembers.map(m => (
-                <div key={m.id} className="flex items-center justify-between">
-                  <div>{m.email} <span className="text-xs text-gray-500">{m.role}</span></div>
+                <div key={m.id} className="flex items-center justify-between p-2 rounded-xl bg-white/50 dark:bg-black/20">
+                  <div className="text-xs font-bold text-[#02353C] dark:text-brand-pale truncate mr-2">{m.email}</div>
+                  <span className="text-[10px] font-black uppercase tracking-widest bg-[#3FD0C9]/20 text-[#3FD0C9] px-2 py-0.5 rounded-md">{m.role}</span>
                 </div>
               ))}
             </div>
-            <div className="mt-2 flex gap-2">
-              <input value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} placeholder="Invite by email" className="flex-1 px-2 py-1 border rounded" />
-              <Button onClick={() => handleInvite(selectedAlbumMembers[0]?.shared_album_id || '')}>Invite</Button>
+            <div className="flex gap-2">
+              <input value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} placeholder="Email address" className="flex-1 bg-white/50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-xl px-3 py-2 text-xs font-bold text-[#02353C] dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20" />
+              <Button onClick={() => handleInvite(selectedAlbumMembers[0]?.shared_album_id || '')} size="sm" className="rounded-xl p-2"><Plus size={16} /></Button>
             </div>
           </div>
         )}
 
-        {error && <div className="text-sm text-red-600">{error}</div>}
+        {error && <div className="text-xs font-bold text-red-600 dark:text-red-400 mt-2 p-2 bg-red-50 dark:bg-red-900/10 rounded-lg">{error}</div>}
       </div>
     </aside>
   );
