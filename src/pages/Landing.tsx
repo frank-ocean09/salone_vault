@@ -237,6 +237,33 @@ export function Landing() {
                 </div>
             </section>
 
+            {/* National Value Section */}
+            <section id="national-value" className="py-24 bg-white relative overflow-hidden">
+                {/* Subtle Background Pattern */}
+                <div className="absolute inset-0 opacity-[0.4] pointer-events-none">
+                    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#C1F6ED" strokeWidth="1" />
+                            </pattern>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#grid)" />
+                    </svg>
+                </div>
+
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+                    <h2 className="text-3xl md:text-4xl font-bold text-[#02353C] leading-tight mb-6">
+                        Building a trusted <span className="text-[#2EAF7D]">national digital document system</span> for Sierra Leone.
+                    </h2>
+
+                    <div className="w-24 h-1.5 bg-[#2EAF7D] mx-auto rounded-full mb-8"></div>
+
+                    <p className="text-lg md:text-xl text-[#02353C]/80 leading-relaxed font-medium">
+                        Designed to support citizens, institutions, and future digital services with bank-grade security and transparency.
+                    </p>
+                </div>
+            </section>
+
             {/* Color Palette Strip (Visual Reference only, per user request to "use this color scheme") */}
             <div className="grid grid-cols-5 h-2">
                 <div className="bg-[#C1F6ED]" title="#C1F6ED" />
