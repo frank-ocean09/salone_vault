@@ -58,6 +58,7 @@ export function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [statusFilter, setStatusFilter] = useState<'all' | 'verified' | 'pending' | 'not_verified'>('all');
 
     // Bulk action modals
     const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
@@ -776,7 +777,12 @@ export function Dashboard() {
 
         const matchesFolder = selectedFolderId === null || doc.folder_id === selectedFolderId;
 
-        return matchesSearch && matchesFolder;
+        const matchesStatus = statusFilter === 'all' ||
+            (statusFilter === 'verified' && doc.status === 'verified') ||
+            (statusFilter === 'pending' && doc.status === 'pending') ||
+            (statusFilter === 'not_verified' && doc.status !== 'verified' && doc.status !== 'pending');
+
+        return matchesSearch && matchesFolder && matchesStatus;
     });
 
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info'; isVisible: boolean }>({
@@ -896,20 +902,21 @@ export function Dashboard() {
                         <X size={20} />
                     </button>
                 </div>
-                <div className="space-y-2 overflow-y-auto h-[calc(100vh-140px)] no-scrollbar">
-                    <NavItem icon={Activity} label="My Wallet" active={false} />
+                <div className="space-y-2 overflow-y-auto h-[calc(100vh-140px)] no-scrollbar py-6">
+                    <NavItem icon={Activity} label="My Wallet" active={false} onClick={() => navigate('/wallet')} />
                     <NavItem icon={FolderInput} label="My Folders" active={!viewingSharedAlbum} onClick={handleBackToMyVault} />
-                    <NavItem icon={Users} label="Shared With Me" active={!!viewingSharedAlbum} />
-                    <NavItem icon={FileText} label="Verification" />
-                    <NavItem icon={Settings} label="Settings" />
+                    <NavItem icon={Users} label="Shared With Me" active={!!viewingSharedAlbum} onClick={() => { }} />
+                    <NavItem icon={FileText} label="Verification Requests" onClick={() => navigate('/requests')} />
+                    <NavItem icon={Settings} label="Settings" onClick={() => navigate('/settings')} />
                     <div className="mt-8 px-2">
                         <FolderList
-                            folders={folders}
+                            folders={folders.map(f => ({ ...f, shared: sharedAlbums.some(sa => sa.folder_id === f.id) }))}
                             selectedFolderId={selectedFolderId}
                             onSelectFolder={(id) => { setSelectedFolderId(id); setMobileMenuOpen(false); }}
                             onCreateFolder={handleCreateFolder}
                             onUpdateFolder={handleUpdateFolder}
                             onDeleteFolder={handleDeleteFolder}
+                            onShareFolder={(folderId) => { setShareFolderId(folderId); setShareFolderModalOpen(true); }}
                         />
                     </div>
                 </div>
@@ -925,38 +932,42 @@ export function Dashboard() {
                 />
 
                 {/* Top Bar */}
-                <header className="sticky top-0 z-40 bg-[#02353C] lg:bg-white/80 lg:backdrop-blur-md border-b border-gray-100 px-4 sm:px-8 py-4 flex items-center justify-between h-20 transition-colors">
+                <header className="sticky top-0 z-40 bg-[#02353C] border-b border-white/5 px-4 sm:px-8 py-4 flex items-center justify-between h-20 transition-all shadow-lg">
                     <button onClick={() => setMobileMenuOpen(true)} className="lg:hidden p-2 text-white hover:bg-white/10 rounded-xl transition-colors">
                         <Menu size={24} />
                     </button>
 
                     <div className="flex items-center gap-3 flex-1 max-w-xl mx-4 lg:mx-0">
                         <div className="relative w-full group">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-[#3FD0C9] transition-colors" />
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40 group-focus-within:text-[#3FD0C9] transition-colors" />
                             <input
                                 type="text"
                                 placeholder="Search national digital vault..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full bg-gray-100 lg:bg-gray-50/50 border-none rounded-2xl pl-12 pr-4 py-3 text-sm focus:ring-2 focus:ring-[#3FD0C9]/20 focus:bg-white transition-all text-[#02353C]"
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-3 text-sm focus:ring-2 focus:ring-[#3FD0C9]/20 focus:bg-white/10 transition-all text-white placeholder:text-white/30"
                             />
                         </div>
                     </div>
 
+                    <div className="hidden md:flex items-center px-4">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30">National Digital Vault</span>
+                    </div>
+
                     <div className="flex items-center gap-3">
-                        <button className="hidden sm:flex p-3 text-gray-400 hover:text-[#02353C] hover:bg-gray-100 rounded-2xl transition-all relative">
+                        <button className="hidden sm:flex p-3 text-white/40 hover:text-white hover:bg-white/5 rounded-2xl transition-all relative">
                             <Bell size={20} />
-                            <span className="absolute top-3 right-3 h-2 w-2 bg-[#2EAF7D] rounded-full border-2 border-white" />
+                            <span className="absolute top-3 right-3 h-2 w-2 bg-[#2EAF7D] rounded-full border-2 border-[#02353C]" />
                         </button>
 
-                        <div className="h-10 w-[1px] bg-gray-100 mx-2 hidden sm:block" />
+                        <div className="h-10 w-[1px] bg-white/10 mx-2 hidden sm:block" />
 
                         <div className="flex items-center gap-3 pl-2">
                             <div className="hidden sm:block text-right">
-                                <p className="text-sm font-bold text-[#02353C] leading-none mb-1">{user?.user_metadata?.full_name || 'Authorized User'}</p>
+                                <p className="text-sm font-bold text-white leading-none mb-1">{user?.user_metadata?.full_name || 'Authorized User'}</p>
                                 <p className="text-[10px] font-bold text-[#3FD0C9] uppercase tracking-widest">{user?.email?.split('@')[1] === 'gov.sl' ? 'Official' : 'Resident'}</p>
                             </div>
-                            <button className="h-12 w-12 bg-[#C1F6ED] rounded-2xl flex items-center justify-center text-[#02353C] border-2 border-white shadow-sm transition-transform hover:scale-110 active:scale-95 overflow-hidden">
+                            <button className="h-12 w-12 bg-white/10 rounded-2xl flex items-center justify-center text-white border-2 border-white/20 shadow-sm transition-transform hover:scale-110 active:scale-95 overflow-hidden">
                                 {user?.user_metadata?.avatar_url ? (
                                     <img src={user.user_metadata.avatar_url} alt="Profile" className="h-full w-full object-cover" />
                                 ) : (
@@ -970,11 +981,12 @@ export function Dashboard() {
                 {/* Content Area */}
                 <main className="flex-1 p-4 sm:p-8 relative overflow-hidden">
                     {/* Background Pattern */}
-                    <div className="absolute inset-0 opacity-[0.05] pointer-events-none">
+                    <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
                         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                             <defs>
-                                <pattern id="dashboard-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                                    <circle cx="2" cy="2" r="1.5" fill="#02353C" />
+                                <pattern id="dashboard-grid" width="60" height="60" patternUnits="userSpaceOnUse">
+                                    <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#02353C" strokeWidth="0.5" />
+                                    <circle cx="0" cy="0" r="1" fill="#02353C" />
                                 </pattern>
                             </defs>
                             <rect width="100%" height="100%" fill="url(#dashboard-grid)" />
@@ -1012,7 +1024,7 @@ export function Dashboard() {
                                     ) : (
                                         <Plus size={20} strokeWidth={3} />
                                     )}
-                                    {isUploading ? 'Uploading...' : 'Upload New Document'}
+                                    {isUploading ? 'Uploading...' : 'Upload Document'}
                                 </button>
                                 <button
                                     onClick={() => navigate('/activity-logs')}
@@ -1086,9 +1098,23 @@ export function Dashboard() {
 
                             <div className="flex items-center gap-3 w-full sm:w-auto">
                                 <div className="flex bg-white/50 p-1 rounded-2xl border border-white">
-                                    <button className="px-4 py-2 bg-white rounded-xl shadow-sm text-xs font-bold text-[#02353C] tracking-widest uppercase">All</button>
-                                    <button className="px-4 py-2 text-xs font-bold text-[#02353C]/40 tracking-widest uppercase hover:text-[#02353C]">Verified</button>
-                                    <button className="px-4 py-2 text-xs font-bold text-[#02353C]/40 tracking-widest uppercase hover:text-[#02353C]">Pending</button>
+                                    {[
+                                        { id: 'all', label: 'All' },
+                                        { id: 'verified', label: 'Verified' },
+                                        { id: 'pending', label: 'Pending' },
+                                        { id: 'not_verified', label: 'Not Verified' }
+                                    ].map((f) => (
+                                        <button
+                                            key={f.id}
+                                            onClick={() => setStatusFilter(f.id as any)}
+                                            className={`px-4 py-2 rounded-xl shadow-sm text-xs font-bold tracking-widest uppercase transition-all ${statusFilter === f.id
+                                                ? 'bg-white text-[#02353C] shadow-md'
+                                                : 'text-[#02353C]/40 hover:text-[#02353C]'
+                                                }`}
+                                        >
+                                            {f.label}
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
                         </div>
@@ -1118,7 +1144,8 @@ export function Dashboard() {
                                 <div className="flex flex-col xl:flex-row gap-8">
                                     <div className="flex-1 min-w-0">
                                         <DocumentsTable
-                                            documents={documents}
+                                            documents={filteredDocuments}
+                                            folders={folders}
                                             selectedIds={selectedDocIds}
                                             onToggleSelect={toggleSelect}
                                             onSelectAll={(ids) => selectAll(ids)}
