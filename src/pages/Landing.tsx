@@ -264,6 +264,72 @@ export function Landing() {
                 </div>
             </section>
 
+            {/* Platform Preview Section */}
+            <section id="platform-preview" className="py-24 bg-[#C1F6ED]">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="relative max-w-5xl mx-auto">
+                        {/* Browser-like Window Frame */}
+                        <div className="bg-[#02353C] rounded-t-xl p-3 flex items-center gap-2 border-x border-t border-white/10 shadow-t-xl">
+                            <div className="flex gap-1.5">
+                                <div className="w-3 h-3 rounded-full bg-red-500/40"></div>
+                                <div className="w-3 h-3 rounded-full bg-yellow-500/40"></div>
+                                <div className="w-3 h-3 rounded-full bg-green-500/40"></div>
+                            </div>
+                            <div className="flex-1 bg-white/5 rounded-md h-6 mx-4"></div>
+                        </div>
+
+                        {/* Mockup Content */}
+                        <div className="bg-white rounded-b-xl shadow-2xl overflow-hidden border-x border-b border-gray-200 aspect-[16/10] flex">
+                            {/* Sidebar Mockup */}
+                            <div className="w-1/4 bg-gray-50 border-r border-gray-100 p-6 hidden sm:block">
+                                <div className="space-y-4">
+                                    <div className="h-4 w-2/3 bg-gray-200 rounded"></div>
+                                    <div className="h-10 w-full bg-[#3FD0C9]/10 rounded-lg border border-[#3FD0C9]/20"></div>
+                                    <div className="h-4 w-1/2 bg-gray-100 rounded"></div>
+                                    <div className="h-4 w-3/4 bg-gray-100 rounded"></div>
+                                    <div className="h-4 w-2/3 bg-gray-100 rounded pt-8"></div>
+                                    <div className="h-4 w-1/2 bg-gray-100 rounded"></div>
+                                </div>
+                            </div>
+
+                            {/* Main Grid Mockup */}
+                            <div className="flex-1 p-8">
+                                <div className="flex justify-between items-center mb-8">
+                                    <div className="h-8 w-48 bg-gray-100 rounded"></div>
+                                    <div className="h-10 w-32 bg-[#2EAF7D] rounded-full"></div>
+                                </div>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                                    {[1, 2, 3, 4, 5, 6].map((i) => (
+                                        <div key={i} className="aspect-square bg-gray-50 rounded-xl border border-gray-100 p-4 relative group hover:border-[#3FD0C9]/30 transition-colors">
+                                            <div className="w-10 h-10 bg-white rounded-lg mb-3 shadow-sm border border-gray-50 flex items-center justify-center">
+                                                <FileText className="w-5 h-5 text-gray-400" />
+                                            </div>
+                                            <div className="h-3 w-3/4 bg-gray-200 rounded mb-2"></div>
+                                            <div className="h-2 w-1/2 bg-gray-100 rounded"></div>
+
+                                            {/* Status Badge Mockup */}
+                                            {i % 2 === 0 && (
+                                                <div className="absolute top-4 right-4 px-2 py-1 bg-[#2EAF7D]/10 text-[#2EAF7D] text-[10px] font-bold rounded flex items-center gap-1">
+                                                    <ShieldCheck className="w-3 h-3" />
+                                                    VERIFIED
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Caption below visual */}
+                        <div className="mt-12 text-center">
+                            <p className="text-xl md:text-2xl font-bold text-[#02353C]">
+                                Manage, verify, and protect your documents from one secure platform.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* Color Palette Strip (Visual Reference only, per user request to "use this color scheme") */}
             <div className="grid grid-cols-5 h-2">
                 <div className="bg-[#C1F6ED]" title="#C1F6ED" />
