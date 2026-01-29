@@ -172,6 +172,71 @@ export function Landing() {
                 </div>
             </section>
 
+            {/* How It Works Section */}
+            <section id="how-it-works" className="py-24 bg-[#C1F6ED]">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <span className="text-[#2EAF7D] font-bold tracking-wider uppercase text-sm">How It Works</span>
+                        <h2 className="text-4xl font-bold text-[#02353C] mt-2 mb-4">Simple, Secure Process</h2>
+                        <p className="text-gray-600 max-w-2xl mx-auto">
+                            Getting your documents secured on the blockchain in three easy steps.
+                        </p>
+                    </div>
+
+                    <div className="relative">
+                        {/* Connecting Line (Desktop) */}
+                        <div className="hidden md:block absolute top-8 left-0 w-full h-0.5 bg-[#3FD0C9] -z-0 transform translate-y-4"></div>
+
+                        <div className="grid md:grid-cols-3 gap-12 relative z-10">
+                            {/* Step 1 */}
+                            <div className="flex flex-col items-center text-center">
+                                <div className="w-24 h-24 bg-[#2EAF7D] rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg mb-6 border-4 border-white">
+                                    <Upload className="w-10 h-10" />
+                                </div>
+                                <h3 className="text-xl font-bold text-[#02353C] mb-3">1. Upload Document</h3>
+                                <p className="text-gray-600 leading-relaxed">
+                                    Securely upload your official records to your private vault. Files are encrypted locally before transmission.
+                                </p>
+                            </div>
+
+                            {/* Step 2 */}
+                            <div className="flex flex-col items-center text-center">
+                                <div className="w-24 h-24 bg-[#2EAF7D] rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg mb-6 border-4 border-white">
+                                    <ShieldCheck className="w-10 h-10" />
+                                </div>
+                                <h3 className="text-xl font-bold text-[#02353C] mb-3">2. Request Verification</h3>
+                                <p className="text-gray-600 leading-relaxed">
+                                    Our system checks with issuing authorities to manually or automatically verify authenticity.
+                                </p>
+                            </div>
+
+                            {/* Step 3 */}
+                            <div className="flex flex-col items-center text-center">
+                                <div className="w-24 h-24 bg-[#2EAF7D] rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg mb-6 border-4 border-white">
+                                    <Share2 className="w-10 h-10" />
+                                </div>
+                                <h3 className="text-xl font-bold text-[#02353C] mb-3">3. Store & Share</h3>
+                                <p className="text-gray-600 leading-relaxed">
+                                    Once verified, the hash is stored on-chain. Store indefinitely or share with secure one-time links.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="mt-16 text-center">
+                            <Link to="/auth?mode=signup">
+                                <Button
+                                    variant="primary"
+                                    size="lg"
+                                    className="bg-[#2EAF7D] hover:bg-[#2EAF7D]/90 text-white px-8 py-4 h-auto text-lg rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105"
+                                >
+                                    Get Started Now
+                                </Button>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* Color Palette Strip (Visual Reference only, per user request to "use this color scheme") */}
             <div className="grid grid-cols-5 h-2">
                 <div className="bg-[#C1F6ED]" title="#C1F6ED" />
