@@ -6,7 +6,7 @@ import { FolderList } from '../components/FolderList';
 import { ShareModal } from '../components/ShareModal';
 import { PDFViewer } from '../components/PDFViewer';
 import { AlbumSettingsModal } from '../components/AlbumSettingsModal';
-import { Plus, FileText, CheckCircle, Clock, Share2, Search, Upload as UploadIcon, AlertCircle, Eye, Trash2, FolderInput, Activity, ChevronDown, ChevronUp, Users, Settings } from 'lucide-react';
+import { Plus, FileText, CheckCircle, Clock, Share2, Search, Upload as UploadIcon, AlertCircle, Eye, Trash2, FolderInput, Activity, ChevronDown, ChevronUp, Users, Settings, Wallet, Bell, User as UserIcon, LogOut, Menu, X } from 'lucide-react';
 import { DocumentsTable } from '../components/DocumentsTable';
 import { BulkToolbar } from '../components/BulkToolbar';
 import { SharedAlbumsSidebar } from '../components/SharedAlbumsSidebar';
@@ -803,86 +803,50 @@ export function Dashboard() {
 
     if (authLoading || loading) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="animate-spin h-8 w-8 border-4 border-[#3FD0C9] border-t-transparent rounded-full" />
+            <div className="min-h-screen bg-[#C1F6ED] flex items-center justify-center">
+                <div className="animate-spin h-12 w-12 border-4 border-[#2EAF7D] border-t-transparent rounded-full" />
             </div>
         );
     }
 
-    return (
-        <div className="min-h-screen bg-gray-50">
-            <Navbar />
-            <Toast
-                message={toast.message}
-                type={toast.type}
-                isVisible={toast.isVisible}
-                onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
-            />
+    const NavItem = ({ icon: Icon, label, active, onClick }: { icon: any, label: string, active?: boolean, onClick?: () => void }) => (
+        <button
+            onClick={onClick}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group ${active
+                ? 'bg-[#3FD0C9] text-white shadow-lg shadow-[#3FD0C9]/20'
+                : 'text-white/60 hover:bg-white/5 hover:text-white'
+                }`}
+        >
+            <Icon className={`h-5 w-5 ${active ? 'text-white' : 'group-hover:text-[#3FD0C9] transition-colors'}`} />
+            <span className="font-semibold text-sm">{label}</span>
+        </button>
+    );
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">{getWelcomeMessage()}</h1>
-                        <p className="text-gray-600">Manage and protect your essential documents.</p>
+    return (
+        <div className="min-h-screen bg-[#C1F6ED] flex">
+            {/* Sidebar Desktop */}
+            <aside className="hidden lg:flex flex-col w-72 bg-[#02353C] p-6 text-white fixed h-screen z-50">
+                <div className="flex items-center gap-3 mb-10 px-2 cursor-pointer transition-transform hover:scale-105" onClick={() => navigate('/')}>
+                    <div className="p-2 bg-[#2EAF7D] rounded-xl shadow-lg shadow-[#2EAF7D]/20">
+                        <ShieldCheck className="h-6 w-6 text-white" />
                     </div>
-                    <div className="flex items-center gap-3 flex-wrap">
-                        <Button onClick={() => navigate('/activity-logs')} variant="outline">
-                            <Activity className="h-4 w-4 mr-2" />
-                            Activity Logs
-                        </Button>
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            className="hidden"
-                            accept=".pdf,.jpg,.jpeg,.png"
-                            onChange={handleFileUpload}
-                            disabled={isUploading}
-                        />
-                        <Button onClick={handleUploadClick} disabled={isUploading}>
-                            {isUploading ? (
-                                <span className="flex items-center gap-2">
-                                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
-                                    Uploading...
-                                </span>
-                            ) : (
-                                <span className="flex items-center gap-2">
-                                    <Plus className="h-4 w-4" />
-                                    Upload Document
-                                </span>
-                            )}
-                        </Button>
+                    <div>
+                        <span className="font-black text-xl tracking-tight leading-none block">SALONE</span>
+                        <span className="font-medium text-[10px] tracking-[0.2em] text-[#3FD0C9] uppercase">Vault</span>
                     </div>
                 </div>
 
-                {error && (
-                    <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-                        <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-                        <div>
-                            <p className="text-sm font-medium text-red-800">Error</p>
-                            <p className="text-sm text-red-700">{error}</p>
-                        </div>
-                    </div>
-                )}
+                <div className="space-y-2 flex-1 overflow-y-auto no-scrollbar">
+                    <p className="px-4 text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-4">Main Menu</p>
+                    <NavItem icon={Activity} label="My Wallet" active={false} onClick={() => navigate('/wallet')} />
+                    <NavItem icon={FolderInput} label="My Folders" active={!viewingSharedAlbum} onClick={handleBackToMyVault} />
+                    <NavItem icon={Users} label="Shared With Me" active={!!viewingSharedAlbum} onClick={() => { }} />
+                    <NavItem icon={FileText} label="Verification Requests" onClick={() => navigate('/requests')} />
+                    <NavItem icon={Settings} label="Settings" onClick={() => navigate('/settings')} />
 
-                <div className="flex flex-col md:flex-row gap-6">
-                    {/* Sidebar - Folder List */}
-                    <div className="w-full md:w-64 flex-shrink-0">
-                        {/* Mobile Toggle */}
-                        <div className="md:hidden mb-4">
-                            <Button
-                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                                variant="outline"
-                                className="w-full justify-between bg-white"
-                            >
-                                <span className="flex items-center gap-2">
-                                    <FolderInput className="h-4 w-4" />
-                                    {selectedFolderId ? folders.find(f => f.id === selectedFolderId)?.name || 'Folders' : 'All Folders'}
-                                </span>
-                                {mobileMenuOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                            </Button>
-                        </div>
-
-                        <div className={`${mobileMenuOpen ? 'block' : 'hidden'} md:block space-y-4`}>
+                    <div className="mt-10">
+                        <p className="px-4 text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-4">Folder Structure</p>
+                        <div className="px-2">
                             <FolderList
                                 folders={folders.map(f => ({ ...f, shared: sharedAlbums.some(sa => sa.folder_id === f.id) }))}
                                 selectedFolderId={selectedFolderId}
@@ -892,79 +856,222 @@ export function Dashboard() {
                                 onDeleteFolder={handleDeleteFolder}
                                 onShareFolder={(folderId) => { setShareFolderId(folderId); setShareFolderModalOpen(true); }}
                             />
+                        </div>
+                    </div>
+                </div>
 
-                            {sharedAlbums.length > 0 && (
-                                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
-                                    <h3 className="text-sm font-medium text-gray-700 mb-2">Joined Albums</h3>
-                                    <ul className="space-y-2 text-sm">
-                                        {sharedAlbums.map(sa => (
-                                            <li key={sa.id} className="flex items-center justify-between">
-                                                <button onClick={() => handleSelectSharedAlbum(sa)} className="text-left text-sm text-gray-800 hover:underline">{sa.name}</button>
-                                                <span className="text-xs text-gray-500">{sa.owner_id === user?.id ? 'You' : 'Shared'}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            )}
+                <div className="mt-auto pt-6 border-t border-white/5">
+                    <button
+                        onClick={() => signOut().then(() => navigate('/auth'))}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-red-400 hover:bg-red-400/10 transition-all group"
+                    >
+                        <LogOut className="h-5 w-5" />
+                        <span className="font-bold text-sm">Sign Out</span>
+                    </button>
+                    <div className="mt-6 p-4 bg-white/5 rounded-2xl border border-white/10">
+                        <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">System Status</p>
+                        <div className="flex items-center gap-2">
+                            <div className="h-1.5 w-1.5 rounded-full bg-[#449342] animate-pulse" />
+                            <span className="text-[10px] font-bold text-[#449342]">Operational</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            {/* Mobile Menu Backdrop */}
+            {mobileMenuOpen && (
+                <div className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] animate-in fade-in duration-300" onClick={() => setMobileMenuOpen(false)} />
+            )}
+
+            {/* Sidebar Mobile */}
+            <aside className={`lg:hidden fixed inset-y-0 left-0 w-80 bg-[#02353C] p-6 text-white z-[70] transition-transform duration-500 transform ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                <div className="flex items-center justify-between mb-10 px-2">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-[#2EAF7D] rounded-xl">
+                            <ShieldCheck className="h-6 w-6 text-white" />
+                        </div>
+                        <span className="font-black text-xl tracking-tight">SALONEVAULT</span>
+                    </div>
+                    <button onClick={() => setMobileMenuOpen(false)} className="p-2 hover:bg-white/5 rounded-xl border border-white/10">
+                        <X size={20} />
+                    </button>
+                </div>
+                <div className="space-y-2 overflow-y-auto h-[calc(100vh-140px)] no-scrollbar">
+                    <NavItem icon={Activity} label="My Wallet" active={false} />
+                    <NavItem icon={FolderInput} label="My Folders" active={!viewingSharedAlbum} onClick={handleBackToMyVault} />
+                    <NavItem icon={Users} label="Shared With Me" active={!!viewingSharedAlbum} />
+                    <NavItem icon={FileText} label="Verification" />
+                    <NavItem icon={Settings} label="Settings" />
+                    <div className="mt-8 px-2">
+                        <FolderList
+                            folders={folders}
+                            selectedFolderId={selectedFolderId}
+                            onSelectFolder={(id) => { setSelectedFolderId(id); setMobileMenuOpen(false); }}
+                            onCreateFolder={handleCreateFolder}
+                            onUpdateFolder={handleUpdateFolder}
+                            onDeleteFolder={handleDeleteFolder}
+                        />
+                    </div>
+                </div>
+            </aside>
+
+            {/* Main Wrapper */}
+            <div className="flex-1 flex flex-col lg:pl-72 relative min-h-screen">
+                <Toast
+                    message={toast.message}
+                    type={toast.type}
+                    isVisible={toast.isVisible}
+                    onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
+                />
+
+                {/* Top Bar */}
+                <header className="sticky top-0 z-40 bg-[#02353C] lg:bg-white/80 lg:backdrop-blur-md border-b border-gray-100 px-4 sm:px-8 py-4 flex items-center justify-between h-20 transition-colors">
+                    <button onClick={() => setMobileMenuOpen(true)} className="lg:hidden p-2 text-white hover:bg-white/10 rounded-xl transition-colors">
+                        <Menu size={24} />
+                    </button>
+
+                    <div className="flex items-center gap-3 flex-1 max-w-xl mx-4 lg:mx-0">
+                        <div className="relative w-full group">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-[#3FD0C9] transition-colors" />
+                            <input
+                                type="text"
+                                placeholder="Search national digital vault..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full bg-gray-100 lg:bg-gray-50/50 border-none rounded-2xl pl-12 pr-4 py-3 text-sm focus:ring-2 focus:ring-[#3FD0C9]/20 focus:bg-white transition-all text-[#02353C]"
+                            />
                         </div>
                     </div>
 
-                    {/* Main Content */}
-                    <div className="flex-1">
-                        {/* Stats */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="font-medium text-gray-500">Total Documents</h3>
-                                    <FileText className="h-5 w-5 text-[#02353C]" />
-                                </div>
-                                <p className="text-3xl font-bold text-gray-900">{documents.length}</p>
+                    <div className="flex items-center gap-3">
+                        <button className="hidden sm:flex p-3 text-gray-400 hover:text-[#02353C] hover:bg-gray-100 rounded-2xl transition-all relative">
+                            <Bell size={20} />
+                            <span className="absolute top-3 right-3 h-2 w-2 bg-[#2EAF7D] rounded-full border-2 border-white" />
+                        </button>
+
+                        <div className="h-10 w-[1px] bg-gray-100 mx-2 hidden sm:block" />
+
+                        <div className="flex items-center gap-3 pl-2">
+                            <div className="hidden sm:block text-right">
+                                <p className="text-sm font-bold text-[#02353C] leading-none mb-1">{user?.user_metadata?.full_name || 'Authorized User'}</p>
+                                <p className="text-[10px] font-bold text-[#3FD0C9] uppercase tracking-widest">{user?.email?.split('@')[1] === 'gov.sl' ? 'Official' : 'Resident'}</p>
                             </div>
-                            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="font-medium text-gray-500">Verified</h3>
-                                    <CheckCircle className="h-5 w-5 text-[#2EAF7D]" />
-                                </div>
-                                <p className="text-3xl font-bold text-gray-900">
-                                    {documents.filter(d => d.status === 'verified').length}
+                            <button className="h-12 w-12 bg-[#C1F6ED] rounded-2xl flex items-center justify-center text-[#02353C] border-2 border-white shadow-sm transition-transform hover:scale-110 active:scale-95 overflow-hidden">
+                                {user?.user_metadata?.avatar_url ? (
+                                    <img src={user.user_metadata.avatar_url} alt="Profile" className="h-full w-full object-cover" />
+                                ) : (
+                                    <UserIcon size={24} strokeWidth={2.5} />
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </header>
+
+                {/* Content Area */}
+                <main className="flex-1 p-4 sm:p-8 relative overflow-hidden">
+                    {/* Background Pattern */}
+                    <div className="absolute inset-0 opacity-[0.05] pointer-events-none">
+                        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <pattern id="dashboard-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                    <circle cx="2" cy="2" r="1.5" fill="#02353C" />
+                                </pattern>
+                            </defs>
+                            <rect width="100%" height="100%" fill="url(#dashboard-grid)" />
+                        </svg>
+                    </div>
+
+                    <div className="relative z-10 max-w-7xl mx-auto">
+                        {/* Header Section */}
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
+                            <div className="animate-in fade-in slide-in-from-left duration-700">
+                                <h1 className="text-4xl font-black text-[#02353C] tracking-tight mb-2">
+                                    {getWelcomeMessage()}
+                                </h1>
+                                <p className="text-[#02353C]/60 font-semibold flex items-center gap-2">
+                                    <ShieldCheck size={18} className="text-[#2EAF7D]" />
+                                    Your personal state-secured digital document vault.
                                 </p>
                             </div>
-                            <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="font-medium text-gray-500">Pending</h3>
-                                    <Clock className="h-5 w-5 text-[#3FD0C9]" />
-                                </div>
-                                <p className="text-3xl font-bold text-gray-900">
-                                    {documents.filter(d => d.status === 'pending').length}
-                                </p>
+                            <div className="flex items-center gap-3 flex-wrap animate-in fade-in slide-in-from-right duration-700">
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    className="hidden"
+                                    accept=".pdf,.jpg,.jpeg,.png"
+                                    onChange={handleFileUpload}
+                                    disabled={isUploading}
+                                />
+                                <button
+                                    onClick={handleUploadClick}
+                                    className="bg-[#2EAF7D] hover:bg-[#2EAF7D]/90 text-white px-6 py-4 rounded-2xl shadow-lg shadow-[#2EAF7D]/20 transition-all flex items-center gap-3 font-bold active:scale-95 disabled:opacity-50"
+                                    disabled={isUploading}
+                                >
+                                    {isUploading ? (
+                                        <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
+                                    ) : (
+                                        <Plus size={20} strokeWidth={3} />
+                                    )}
+                                    {isUploading ? 'Uploading...' : 'Upload New Document'}
+                                </button>
+                                <button
+                                    onClick={() => navigate('/activity-logs')}
+                                    className="bg-white hover:bg-gray-50 text-[#02353C] px-6 py-4 rounded-2xl shadow-sm border border-gray-100 transition-all flex items-center gap-3 font-bold active:scale-95"
+                                >
+                                    <Activity size={20} />
+                                    Activity
+                                </button>
                             </div>
                         </div>
 
-                        {/* Document List */}
-                        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                            <div className="p-6 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
-                                <div className="flex items-center gap-4 w-full">
-                                    <h2 className="text-lg font-bold text-gray-900 flex-1">
-                                        {viewingSharedAlbum ? (
-                                            <div className="flex items-center gap-3">
-                                                <span className="flex items-center gap-2">
-                                                    <span className="text-[#02353C] font-semibold">Shared Album:</span>
-                                                    {viewingSharedAlbum.name}
-                                                </span>
-                                                <button onClick={() => setAlbumSettingsOpen(true)} className="flex items-center gap-1 text-xs bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors font-medium">
-                                                    <Users size={14} /> Add People
-                                                </button>
-                                                <button onClick={handleBackToMyVault} className="text-xs bg-gray-100 px-2 py-1 rounded hover:bg-gray-200 text-gray-600 font-normal">Back to My Vault</button>
-                                            </div>
-                                        ) : (
-                                            selectedFolderId
-                                                ? folders.find(f => f.id === selectedFolderId)?.name || 'Folder'
-                                                : 'All Documents'
-                                        )}
-                                    </h2>
+                        {error && (
+                            <div className="mb-8 p-6 bg-red-50 border border-red-100 rounded-[2rem] flex items-start gap-4 animate-in slide-in-from-top duration-500 shadow-sm">
+                                <AlertCircle className="h-6 w-6 text-red-500 flex-shrink-0" />
+                                <div>
+                                    <p className="text-sm font-black text-red-800 uppercase tracking-widest mb-1">System Alert</p>
+                                    <p className="text-sm text-red-700 font-medium">{error}</p>
+                                </div>
+                            </div>
+                        )}
 
-                                    {/* Selection toolbar */}
-                                    {selectedCount > 0 ? (
+                        {/* Stats Cards */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                            {[
+                                { label: 'Vault Items', value: documents.length, icon: FileText, color: '#02353C' },
+                                { label: 'State Verified', value: documents.filter(d => d.status === 'verified').length, icon: CheckCircle, color: '#449342' },
+                                { label: 'Awaiting Verification', value: documents.filter(d => d.status === 'pending').length, icon: Clock, color: '#2EAF7D' },
+                                { label: 'Security Score', value: '100%', icon: ShieldCheck, color: '#3FD0C9' },
+                            ].map((stat, i) => (
+                                <div key={i} className="bg-white/80 backdrop-blur-sm p-6 rounded-[2.5rem] border border-white shadow-sm hover:shadow-xl transition-all duration-300 group hover:-translate-y-1">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="p-3 rounded-2xl transition-colors duration-300" style={{ backgroundColor: `rgba(${stat.color === '#02353C' ? '2, 53, 60' : i === 1 ? '68, 147, 66' : i === 2 ? '46, 175, 125' : '63, 208, 201'}, 0.1)` }}>
+                                            <stat.icon size={20} style={{ color: stat.color }} />
+                                        </div>
+                                    </div>
+                                    <p className="text-3xl font-black text-[#02353C] tracking-tighter mb-1">{stat.value}</p>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#02353C]/40">{stat.label}</p>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Document List Header */}
+                        <div className="bg-white/40 backdrop-blur-sm p-8 rounded-t-[3rem] border-x border-t border-white flex flex-col sm:flex-row justify-between items-center gap-6">
+                            <div className="flex items-center gap-6 w-full">
+                                <h2 className="text-2xl font-black text-[#02353C] tracking-tight">
+                                    {viewingSharedAlbum ? (
+                                        <span className="flex items-center gap-3">
+                                            <Users size={24} className="text-[#3FD0C9]" />
+                                            {viewingSharedAlbum.name}
+                                        </span>
+                                    ) : selectedFolderId ? (
+                                        <span className="flex items-center gap-3 text-[#3FD0C9]">
+                                            <FolderInput size={24} />
+                                            {folders.find(f => f.id === selectedFolderId)?.name}
+                                        </span>
+                                    ) : 'All Vault Items'}
+                                </h2>
+                                {selectedCount > 0 && (
+                                    <div className="animate-in zoom-in duration-300">
                                         <BulkToolbar
                                             selectedCount={selectedCount}
                                             selectAll={() => selectAll(filteredDocuments.map(d => d.id))}
@@ -973,426 +1080,418 @@ export function Dashboard() {
                                             onOpenMove={() => setBulkMoveOpen(true)}
                                             onOpenShare={() => setBulkShareOpen(true)}
                                         />
-                                    ) : null}
-                                </div>
-
-                                <div className="relative w-full sm:w-64">
-                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                    <input
-                                        type="text"
-                                        placeholder="Search documents..."
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9]"
-                                    />
-                                </div>
+                                    </div>
+                                )}
                             </div>
 
+                            <div className="flex items-center gap-3 w-full sm:w-auto">
+                                <div className="flex bg-white/50 p-1 rounded-2xl border border-white">
+                                    <button className="px-4 py-2 bg-white rounded-xl shadow-sm text-xs font-bold text-[#02353C] tracking-widest uppercase">All</button>
+                                    <button className="px-4 py-2 text-xs font-bold text-[#02353C]/40 tracking-widest uppercase hover:text-[#02353C]">Verified</button>
+                                    <button className="px-4 py-2 text-xs font-bold text-[#02353C]/40 tracking-widest uppercase hover:text-[#02353C]">Pending</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Document Grid Container */}
+                        <div className="bg-white/40 backdrop-blur-sm p-8 rounded-b-[3rem] border-x border-b border-white min-h-[500px]">
                             {filteredDocuments.length === 0 ? (
-                                <div className="p-12 text-center">
-                                    <UploadIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                                    <h3 className="text-lg font-medium text-gray-900 mb-2">
-                                        {documents.length === 0 ? 'No documents yet' : 'No matching documents'}
+                                <div className="flex flex-col items-center justify-center py-20 text-center animate-in fade-in duration-1000">
+                                    <div className="h-24 w-24 bg-[#C1F6ED]/50 rounded-full flex items-center justify-center mb-6">
+                                        <UploadIcon className="h-10 w-10 text-[#2EAF7D]" />
+                                    </div>
+                                    <h3 className="text-xl font-black text-[#02353C] mb-2 uppercase tracking-widest">
+                                        {documents.length === 0 ? 'Vault Empty' : 'No Matches Found'}
                                     </h3>
-                                    <p className="text-gray-600 mb-6">
+                                    <p className="text-[#02353C]/40 font-bold text-sm max-w-xs mx-auto mb-8">
                                         {documents.length === 0
-                                            ? 'Upload your first document to get started'
-                                            : 'Try a different search term or folder'}
+                                            ? 'Start securing your essential national documents by uploading them now.'
+                                            : 'Try adjusting your search criteria or switching folders.'}
                                     </p>
                                     {documents.length === 0 && (
-                                        <Button onClick={handleUploadClick}>
-                                            <Plus className="h-4 w-4 mr-2" />
-                                            Upload Document
-                                        </Button>
+                                        <button onClick={handleUploadClick} className="bg-[#2EAF7D] text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:scale-105 transition-transform shadow-lg shadow-[#2EAF7D]/20">
+                                            Initialize Upload
+                                        </button>
                                     )}
                                 </div>
                             ) : (
-                                <>
-                                    <div className="flex flex-col xl:flex-row gap-6">
-                                        <div className="flex-1 min-w-0">
-                                            <DocumentsTable
-                                                documents={documents}
-                                                selectedIds={selectedDocIds}
-                                                onToggleSelect={toggleSelect}
-                                                onSelectAll={(ids) => selectAll(ids)}
-                                                onDeselectAll={() => deselectAll()}
-                                                onView={(doc) => handleViewDocument(doc)}
-                                                onDelete={(doc) => handleDeleteDocument(doc)}
-                                                onShare={(doc) => { setNewShareTargetDocument(doc); setNewShareModalOpen(true); }}
-                                                searchQuery={searchQuery}
+                                <div className="flex flex-col xl:flex-row gap-8">
+                                    <div className="flex-1 min-w-0">
+                                        <DocumentsTable
+                                            documents={documents}
+                                            selectedIds={selectedDocIds}
+                                            onToggleSelect={toggleSelect}
+                                            onSelectAll={(ids) => selectAll(ids)}
+                                            onDeselectAll={() => deselectAll()}
+                                            onView={(doc) => handleViewDocument(doc)}
+                                            onDelete={(doc) => handleDeleteDocument(doc)}
+                                            onShare={(doc) => { setNewShareTargetDocument(doc); setNewShareModalOpen(true); }}
+                                            searchQuery={searchQuery}
+                                        />
+                                    </div>
+
+                                    {/* Shared Albums integrated as a sidebar within content if needed, but we have them in main sidebar too */}
+                                    <div className="w-full xl:w-80 flex-shrink-0 space-y-6">
+                                        <div className="bg-white/50 p-6 rounded-[2rem] border border-white">
+                                            <h3 className="text-sm font-black text-[#02353C] uppercase tracking-widest mb-4">Manage Albums</h3>
+                                            <SharedAlbumsSidebar
+                                                userId={user!.id}
+                                                onSelectAlbum={handleSelectSharedAlbum}
+                                                onOpenShareFolder={(folderId) => { setShareFolderId(folderId); setShareFolderModalOpen(true); }}
                                             />
                                         </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </main>
+                {showUploadModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                        <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-6 mx-4">
+                            <div className="flex justify-between items-start mb-4">
+                                <h3 className="text-lg font-bold">
+                                    {uploadModalStep === 'info' ? 'Upload Document' : 'Document Upload — Next Steps'}
+                                </h3>
+                                <button onClick={handleCloseModal} className="text-gray-500 hover:text-gray-800">✕</button>
+                            </div>
 
-                                        {/* Shared Albums sidebar - Side on XL+, integrated below on smaller */}
-                                        <div className="w-full xl:w-72 flex-shrink-0">
-                                            <div className="bg-gray-50 p-4 rounded-lg xl:bg-white xl:p-0 xl:border-l xl:pl-6 xl:rounded-none">
-                                                <h3 className="xl:hidden font-bold mb-3">Manage Albums</h3>
-                                                <SharedAlbumsSidebar
-                                                    userId={user!.id}
-                                                    onSelectAlbum={handleSelectSharedAlbum}
-                                                    onOpenShareFolder={(folderId) => { setShareFolderId(folderId); setShareFolderModalOpen(true); }}
+                            {uploadModalStep === 'info' ? (
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Document Name <span className="text-red-500">*</span></label>
+                                        <input
+                                            type="text"
+                                            value={documentName}
+                                            onChange={(e) => setDocumentName(e.target.value)}
+                                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9]"
+                                            placeholder="e.g., My Birth Certificate"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Document Type</label>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                            {[
+                                                'Birth Certificate',
+                                                'National ID Card',
+                                                'Passport',
+                                                'Voter ID',
+                                                "Driver’s License",
+                                                'Academic Certificate',
+                                                'Other',
+                                            ].map((opt) => (
+                                                <label key={opt} className="flex items-center gap-2 p-2 border rounded-md hover:bg-gray-50 cursor-pointer">
+                                                    <input
+                                                        type="radio"
+                                                        name="docType"
+                                                        value={opt}
+                                                        checked={selectedDocType === opt}
+                                                        onChange={() => setSelectedDocType(opt)}
+                                                        className="text-[#3FD0C9] focus:ring-[#3FD0C9]"
+                                                    />
+                                                    <span className="text-sm">{opt}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                        {selectedDocType === 'Other' && (
+                                            <input
+                                                type="text"
+                                                placeholder="Please specify"
+                                                value={otherDocType}
+                                                onChange={(e) => setOtherDocType(e.target.value)}
+                                                className="mt-2 w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9]"
+                                            />
+                                        )}
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Folder (optional)</label>
+                                            <div className="flex gap-2">
+                                                <select
+                                                    value={uploadSelectedFolderId}
+                                                    onChange={(e) => { setUploadSelectedFolderId(e.target.value); setUploadNewFolderName(''); }}
+                                                    className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9]"
+                                                >
+                                                    <option value="">— No folder —</option>
+                                                    {folders.map((f) => (
+                                                        <option key={f.id} value={f.id}>{f.name}</option>
+                                                    ))}
+                                                </select>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Or create new folder"
+                                                    value={uploadNewFolderName}
+                                                    onChange={(e) => { setUploadNewFolderName(e.target.value); setUploadSelectedFolderId(''); }}
+                                                    className="w-48 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9]"
                                                 />
+                                            </div>
+                                            {suggestedFolderName && !uploadSelectedFolderId && !uploadNewFolderName && (
+                                                <div className="mt-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const existing = folders.find(f => f.name === suggestedFolderName);
+                                                            if (existing) {
+                                                                setUploadSelectedFolderId(existing.id);
+                                                            } else {
+                                                                setUploadNewFolderName(suggestedFolderName);
+                                                            }
+                                                        }}
+                                                        className="text-xs text-[#3FD0C9] hover:underline flex items-center gap-1"
+                                                    >
+                                                        <span className="bg-[#CFF4D2] px-2 py-0.5 rounded-full font-medium text-[#02353C]">
+                                                            Suggested: {suggestedFolderName}
+                                                        </span>
+                                                        <span className="text-gray-500">(Click to apply)</span>
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-end gap-3 pt-4 border-t">
+                                        <Button variant="outline" onClick={handleCloseModal}>Cancel</Button>
+                                        <Button onClick={handleConfirmUpload} disabled={isUploading || !documentName.trim()}>
+                                            {isUploading ? (
+                                                <span className="flex items-center gap-2">
+                                                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                                                    {uploadStatus || 'Uploading...'}
+                                                </span>
+                                            ) : (
+                                                'Upload'
+                                            )}
+                                        </Button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <>
+                                    {/* Step 2: Preview prompt */}
+                                    <div className="mb-4">
+                                        <p className="font-medium mb-2">Your document has been uploaded successfully. Would you like to preview it now?</p>
+                                        <div className="flex gap-3">
+                                            <Button onClick={handlePreviewNow}>View Document</Button>
+                                            <Button variant="outline" onClick={handleUploadAnother}>Upload Another Document</Button>
+                                        </div>
+                                    </div>
+
+                                    {/* Step 4: Blockchain address */}
+                                    <div className="mb-4 border-t pt-4">
+                                        <p className="font-medium mb-2">Your document has been securely stored. A unique blockchain address has been generated for verification:</p>
+                                        <div className="bg-gray-50 p-3 rounded-md font-mono">
+                                            <div className="flex items-center justify-between gap-4">
+                                                <span className="truncate">{blockchainAddress}</span>
+                                                <div className="flex items-center gap-2">
+                                                    <Button onClick={handleCopyAddress}>Copy Address</Button>
+                                                    {uploadedDocument && (
+                                                        <Button variant="outline" onClick={() => openShareModal(uploadedDocument)}>
+                                                            Create Verification Link
+                                                        </Button>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* Debug toggle (dev only) */}
-                                    {import.meta.env.VITE_DEBUG === 'true' && (
-                                        <>
-                                            <button onClick={() => setShowDebugPanel(s => !s)} className="fixed left-4 bottom-20 z-50 bg-white border rounded-full p-2 shadow-lg text-sm hidden lg:block">Debug</button>
-                                        </>
-                                    )}
+                                    <div className="flex justify-end gap-3">
+                                        <Button onClick={handleCloseModal}>Close</Button>
+                                    </div>
                                 </>
                             )}
                         </div>
                     </div>
-                </div>
-            </main>
-            {showUploadModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                    <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-6 mx-4">
-                        <div className="flex justify-between items-start mb-4">
-                            <h3 className="text-lg font-bold">
-                                {uploadModalStep === 'info' ? 'Upload Document' : 'Document Upload — Next Steps'}
-                            </h3>
-                            <button onClick={handleCloseModal} className="text-gray-500 hover:text-gray-800">✕</button>
-                        </div>
+                )}
+                {shareModalOpen && shareTargetDocument && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                        <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6 mx-4">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-bold">Share Verification Link</h3>
+                                <button onClick={closeShareModal} className="text-gray-500 hover:text-gray-800">✕</button>
+                            </div>
 
-                        {uploadModalStep === 'info' ? (
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Document Name <span className="text-red-500">*</span></label>
-                                    <input
-                                        type="text"
-                                        value={documentName}
-                                        onChange={(e) => setDocumentName(e.target.value)}
-                                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9]"
-                                        placeholder="e.g., My Birth Certificate"
-                                    />
-                                </div>
+                            <p className="mb-3 text-sm text-gray-700">Create a shareable verification link for <span className="font-medium">{shareTargetDocument.name}</span></p>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Document Type</label>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                        {[
-                                            'Birth Certificate',
-                                            'National ID Card',
-                                            'Passport',
-                                            'Voter ID',
-                                            "Driver’s License",
-                                            'Academic Certificate',
-                                            'Other',
-                                        ].map((opt) => (
-                                            <label key={opt} className="flex items-center gap-2 p-2 border rounded-md hover:bg-gray-50 cursor-pointer">
-                                                <input
-                                                    type="radio"
-                                                    name="docType"
-                                                    value={opt}
-                                                    checked={selectedDocType === opt}
-                                                    onChange={() => setSelectedDocType(opt)}
-                                                    className="text-[#3FD0C9] focus:ring-[#3FD0C9]"
-                                                />
-                                                <span className="text-sm">{opt}</span>
-                                            </label>
-                                        ))}
-                                    </div>
-                                    {selectedDocType === 'Other' && (
-                                        <input
-                                            type="text"
-                                            placeholder="Please specify"
-                                            value={otherDocType}
-                                            onChange={(e) => setOtherDocType(e.target.value)}
-                                            className="mt-2 w-full border border-gray-300 px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9]"
-                                        />
-                                    )}
-
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">Folder (optional)</label>
-                                        <div className="flex gap-2">
-                                            <select
-                                                value={uploadSelectedFolderId}
-                                                onChange={(e) => { setUploadSelectedFolderId(e.target.value); setUploadNewFolderName(''); }}
-                                                className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9]"
-                                            >
-                                                <option value="">— No folder —</option>
-                                                {folders.map((f) => (
-                                                    <option key={f.id} value={f.id}>{f.name}</option>
-                                                ))}
-                                            </select>
-                                            <input
-                                                type="text"
-                                                placeholder="Or create new folder"
-                                                value={uploadNewFolderName}
-                                                onChange={(e) => { setUploadNewFolderName(e.target.value); setUploadSelectedFolderId(''); }}
-                                                className="w-48 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:border-[#3FD0C9]"
-                                            />
-                                        </div>
-                                        {suggestedFolderName && !uploadSelectedFolderId && !uploadNewFolderName && (
-                                            <div className="mt-2">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        const existing = folders.find(f => f.name === suggestedFolderName);
-                                                        if (existing) {
-                                                            setUploadSelectedFolderId(existing.id);
-                                                        } else {
-                                                            setUploadNewFolderName(suggestedFolderName);
-                                                        }
-                                                    }}
-                                                    className="text-xs text-[#3FD0C9] hover:underline flex items-center gap-1"
-                                                >
-                                                    <span className="bg-[#CFF4D2] px-2 py-0.5 rounded-full font-medium text-[#02353C]">
-                                                        Suggested: {suggestedFolderName}
-                                                    </span>
-                                                    <span className="text-gray-500">(Click to apply)</span>
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="flex justify-end gap-3 pt-4 border-t">
-                                    <Button variant="outline" onClick={handleCloseModal}>Cancel</Button>
-                                    <Button onClick={handleConfirmUpload} disabled={isUploading || !documentName.trim()}>
-                                        {isUploading ? (
-                                            <span className="flex items-center gap-2">
-                                                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
-                                                {uploadStatus || 'Uploading...'}
-                                            </span>
-                                        ) : (
-                                            'Upload'
-                                        )}
-                                    </Button>
+                            <div className="mb-4">
+                                <p className="font-medium mb-2">Choose when the shared link should expire:</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {['10 minutes', '1 hour', '24 hours', '7 days', '30 days', 'Never expires'].map((opt) => (
+                                        <button
+                                            key={opt}
+                                            onClick={() => setShareExpiry(opt)}
+                                            className={`px-3 py-1 rounded-md border ${shareExpiry === opt ? 'bg-brand-teal text-white' : 'bg-white'}`}
+                                        >{opt}</button>
+                                    ))}
                                 </div>
                             </div>
-                        ) : (
-                            <>
-                                {/* Step 2: Preview prompt */}
-                                <div className="mb-4">
-                                    <p className="font-medium mb-2">Your document has been uploaded successfully. Would you like to preview it now?</p>
-                                    <div className="flex gap-3">
-                                        <Button onClick={handlePreviewNow}>View Document</Button>
-                                        <Button variant="outline" onClick={handleUploadAnother}>Upload Another Document</Button>
-                                    </div>
-                                </div>
 
-                                {/* Step 4: Blockchain address */}
-                                <div className="mb-4 border-t pt-4">
-                                    <p className="font-medium mb-2">Your document has been securely stored. A unique blockchain address has been generated for verification:</p>
-                                    <div className="bg-gray-50 p-3 rounded-md font-mono">
-                                        <div className="flex items-center justify-between gap-4">
-                                            <span className="truncate">{blockchainAddress}</span>
-                                            <div className="flex items-center gap-2">
-                                                <Button onClick={handleCopyAddress}>Copy Address</Button>
-                                                {uploadedDocument && (
-                                                    <Button variant="outline" onClick={() => openShareModal(uploadedDocument)}>
-                                                        Create Verification Link
-                                                    </Button>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="flex justify-end gap-3">
-                                    <Button onClick={handleCloseModal}>Close</Button>
-                                </div>
-                            </>
-                        )}
-                    </div>
-                </div>
-            )}
-            {shareModalOpen && shareTargetDocument && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                    <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6 mx-4">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-bold">Share Verification Link</h3>
-                            <button onClick={closeShareModal} className="text-gray-500 hover:text-gray-800">✕</button>
-                        </div>
-
-                        <p className="mb-3 text-sm text-gray-700">Create a shareable verification link for <span className="font-medium">{shareTargetDocument.name}</span></p>
-
-                        <div className="mb-4">
-                            <p className="font-medium mb-2">Choose when the shared link should expire:</p>
-                            <div className="flex flex-wrap gap-2">
-                                {['10 minutes', '1 hour', '24 hours', '7 days', '30 days', 'Never expires'].map((opt) => (
-                                    <button
-                                        key={opt}
-                                        onClick={() => setShareExpiry(opt)}
-                                        className={`px-3 py-1 rounded-md border ${shareExpiry === opt ? 'bg-brand-teal text-white' : 'bg-white'}`}
-                                    >{opt}</button>
-                                ))}
+                            <div className="flex justify-end gap-3">
+                                <Button onClick={handleCreateShareLink}>Create Share Link</Button>
+                                <Button variant="outline" onClick={closeShareModal}>Cancel</Button>
                             </div>
                         </div>
-
-                        <div className="flex justify-end gap-3">
-                            <Button onClick={handleCreateShareLink}>Create Share Link</Button>
-                            <Button variant="outline" onClick={closeShareModal}>Cancel</Button>
-                        </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {/* Bulk Delete Confirm Modal */}
-            {bulkDeleteOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                    <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6 mx-4">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-bold text-red-600">Delete {selectedCount} documents?</h3>
-                            <button onClick={() => setBulkDeleteOpen(false)} className="text-gray-500 hover:text-gray-800">✕</button>
-                        </div>
-                        <p className="text-sm text-gray-700 mb-4">This action cannot be undone. Documents will be removed from your vault and storage.</p>
-                        <div className="flex justify-end gap-3">
-                            <Button variant="outline" onClick={() => setBulkDeleteOpen(false)}>Cancel</Button>
-                            <Button onClick={handleConfirmBulkDelete} className="bg-red-600">Delete</Button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Bulk Share Modal */}
-            {bulkShareOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                    <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6 mx-4">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-bold">Share {selectedCount} documents</h3>
-                            <button onClick={() => setBulkShareOpen(false)} className="text-gray-500 hover:text-gray-800">✕</button>
-                        </div>
-
-                        <p className="mb-3 text-sm text-gray-700">Create verification tokens for the selected documents and copy them to your clipboard.</p>
-
-                        <div className="mb-4">
-                            <p className="font-medium mb-2">Choose when the shared links should expire:</p>
-                            <div className="flex flex-wrap gap-2">
-                                {['10 minutes', '1 hour', '24 hours', '7 days', '30 days', 'Never expires'].map((opt) => (
-                                    <button
-                                        key={opt}
-                                        onClick={() => setBulkShareExpiry(opt)}
-                                        className={`px-3 py-1 rounded-md border ${bulkShareExpiry === opt ? 'bg-brand-teal text-white' : 'bg-white'}`}
-                                    >{opt}</button>
-                                ))}
+                {/* Bulk Delete Confirm Modal */}
+                {bulkDeleteOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                        <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6 mx-4">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-bold text-red-600">Delete {selectedCount} documents?</h3>
+                                <button onClick={() => setBulkDeleteOpen(false)} className="text-gray-500 hover:text-gray-800">✕</button>
+                            </div>
+                            <p className="text-sm text-gray-700 mb-4">This action cannot be undone. Documents will be removed from your vault and storage.</p>
+                            <div className="flex justify-end gap-3">
+                                <Button variant="outline" onClick={() => setBulkDeleteOpen(false)}>Cancel</Button>
+                                <Button onClick={handleConfirmBulkDelete} className="bg-red-600">Delete</Button>
                             </div>
                         </div>
+                    </div>
+                )}
 
-                        <div className="mb-4 text-sm text-gray-700">
-                            <ul className="list-disc list-inside max-h-40 overflow-auto">
-                                {documents.filter(d => selectedDocIds.includes(d.id)).map(d => (
-                                    <li key={d.id}>{d.name}</li>
-                                ))}
-                            </ul>
-                        </div>
+                {/* Bulk Share Modal */}
+                {bulkShareOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                        <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6 mx-4">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-bold">Share {selectedCount} documents</h3>
+                                <button onClick={() => setBulkShareOpen(false)} className="text-gray-500 hover:text-gray-800">✕</button>
+                            </div>
 
-                        <div className="flex justify-end gap-3">
-                            <Button variant="outline" onClick={() => setBulkShareOpen(false)}>Cancel</Button>
-                            <Button onClick={handleConfirmBulkShare}>Create Tokens</Button>
+                            <p className="mb-3 text-sm text-gray-700">Create verification tokens for the selected documents and copy them to your clipboard.</p>
+
+                            <div className="mb-4">
+                                <p className="font-medium mb-2">Choose when the shared links should expire:</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {['10 minutes', '1 hour', '24 hours', '7 days', '30 days', 'Never expires'].map((opt) => (
+                                        <button
+                                            key={opt}
+                                            onClick={() => setBulkShareExpiry(opt)}
+                                            className={`px-3 py-1 rounded-md border ${bulkShareExpiry === opt ? 'bg-brand-teal text-white' : 'bg-white'}`}
+                                        >{opt}</button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="mb-4 text-sm text-gray-700">
+                                <ul className="list-disc list-inside max-h-40 overflow-auto">
+                                    {documents.filter(d => selectedDocIds.includes(d.id)).map(d => (
+                                        <li key={d.id}>{d.name}</li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            <div className="flex justify-end gap-3">
+                                <Button variant="outline" onClick={() => setBulkShareOpen(false)}>Cancel</Button>
+                                <Button onClick={handleConfirmBulkShare}>Create Tokens</Button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            {/* Bulk Move Modal */}
-            {bulkMoveOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-                    <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6 mx-4">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-lg font-bold">Add {selectedCount} documents to folder</h3>
-                            <button onClick={() => setBulkMoveOpen(false)} className="text-gray-500 hover:text-gray-800">✕</button>
-                        </div>
+                {/* Bulk Move Modal */}
+                {bulkMoveOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                        <div className="w-full max-w-md bg-white rounded-lg shadow-lg p-6 mx-4">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-bold">Add {selectedCount} documents to folder</h3>
+                                <button onClick={() => setBulkMoveOpen(false)} className="text-gray-500 hover:text-gray-800">✕</button>
+                            </div>
 
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Choose Folder</label>
-                            <select value={bulkMoveFolderId ?? ''} onChange={(e) => setBulkMoveFolderId(e.target.value || null)} className="w-full border border-gray-300 rounded-md px-3 py-2">
-                                <option value="">— Select existing folder —</option>
-                                {folders.map(f => (
-                                    <option key={f.id} value={f.id}>{f.name}</option>
-                                ))}
-                            </select>
-                            <p className="text-sm text-gray-500 mt-2">Or create a new folder</p>
-                            <input value={bulkMoveNewFolderName} onChange={(e) => setBulkMoveNewFolderName(e.target.value)} className="mt-2 w-full border border-gray-300 rounded-md px-3 py-2" placeholder="New folder name" />
-                        </div>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Choose Folder</label>
+                                <select value={bulkMoveFolderId ?? ''} onChange={(e) => setBulkMoveFolderId(e.target.value || null)} className="w-full border border-gray-300 rounded-md px-3 py-2">
+                                    <option value="">— Select existing folder —</option>
+                                    {folders.map(f => (
+                                        <option key={f.id} value={f.id}>{f.name}</option>
+                                    ))}
+                                </select>
+                                <p className="text-sm text-gray-500 mt-2">Or create a new folder</p>
+                                <input value={bulkMoveNewFolderName} onChange={(e) => setBulkMoveNewFolderName(e.target.value)} className="mt-2 w-full border border-gray-300 rounded-md px-3 py-2" placeholder="New folder name" />
+                            </div>
 
-                        <div className="flex justify-end gap-3">
-                            <Button variant="outline" onClick={() => setBulkMoveOpen(false)}>Cancel</Button>
-                            <Button onClick={handleConfirmBulkMove}>Move</Button>
+                            <div className="flex justify-end gap-3">
+                                <Button variant="outline" onClick={() => setBulkMoveOpen(false)}>Cancel</Button>
+                                <Button onClick={handleConfirmBulkMove}>Move</Button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )}
 
-            <ShareFolderModal
-                isOpen={shareFolderModalOpen}
-                onClose={() => setShareFolderModalOpen(false)}
-                folderId={shareFolderId}
-                userId={user!.id}
-                folders={folders}
-                onAlbumsUpdated={(a) => setSharedAlbums(a)}
-                showToast={showToast}
-            />
-            {/* New Share Modal */}
-            {newShareModalOpen && newShareTargetDocument && user && (
-                <ShareModal
-                    document={newShareTargetDocument}
-                    isOpen={newShareModalOpen}
-                    onClose={() => {
-                        setNewShareModalOpen(false);
-                        setNewShareTargetDocument(null);
-                    }}
-                    userId={user.id}
-                />
-            )}
-
-            {/* Debug Panel (dev-only) */}
-            {import.meta.env.VITE_DEBUG === 'true' && showDebugPanel && (
-                <DebugPanel
-                    documents={documents}
-                    selectedIds={selectedDocIds}
-                    clearSelection={clear}
-                    onRevalidate={async () => {
-                        try {
-                            const d = await getUserDocuments(user!.id);
-                            setDocuments(d || []);
-                            showToast('Documents revalidated', 'success');
-                        } catch (err) {
-                            showToast('Failed to revalidate', 'error');
-                        }
-                    }}
-                    onDeleteSelected={async () => {
-                        // Reuse the existing bulk delete logic but without requiring modal confirmation
-                        try {
-                            // make a shallow copy of selected ids
-                            const idsToDelete = [...selectedDocIds];
-                            if (idsToDelete.length === 0) return;
-
-                            // Delete tokens
-                            await supabase.from('verification_tokens').delete().in('document_id', idsToDelete);
-                            // Delete documents
-                            await supabase.from('documents').delete().in('id', idsToDelete);
-
-                            // Remove from UI
-                            setDocuments(prev => prev.filter(d => !idsToDelete.includes(d.id)));
-                            clear();
-                        } catch (err) {
-                            console.error('Debug bulk delete failed', err);
-                            throw err;
-                        }
-                    }}
+                <ShareFolderModal
+                    isOpen={shareFolderModalOpen}
+                    onClose={() => setShareFolderModalOpen(false)}
+                    folderId={shareFolderId}
+                    userId={user!.id}
+                    folders={folders}
+                    onAlbumsUpdated={(a) => setSharedAlbums(a)}
                     showToast={showToast}
                 />
-            )}
+                {/* New Share Modal */}
+                {newShareModalOpen && newShareTargetDocument && user && (
+                    <ShareModal
+                        document={newShareTargetDocument}
+                        isOpen={newShareModalOpen}
+                        onClose={() => {
+                            setNewShareModalOpen(false);
+                            setNewShareTargetDocument(null);
+                        }}
+                        userId={user.id}
+                    />
+                )}
 
-            {/* PDF Viewer */}
-            {viewingDocument && user && (
-                <PDFViewer
-                    url={viewingDocUrl}
-                    documentId={viewingDocument.id}
-                    documentName={viewingDocument.name}
-                    userId={user.id}
-                    onClose={() => {
-                        setViewingDocument(null);
-                        setViewingDocUrl(null);
-                    }}
-                />
-            )}
+                {/* Debug Panel (dev-only) */}
+                {import.meta.env.VITE_DEBUG === 'true' && showDebugPanel && (
+                    <DebugPanel
+                        documents={documents}
+                        selectedIds={selectedDocIds}
+                        clearSelection={clear}
+                        onRevalidate={async () => {
+                            try {
+                                const d = await getUserDocuments(user!.id);
+                                setDocuments(d || []);
+                                showToast('Documents revalidated', 'success');
+                            } catch (err) {
+                                showToast('Failed to revalidate', 'error');
+                            }
+                        }}
+                        onDeleteSelected={async () => {
+                            // Reuse the existing bulk delete logic but without requiring modal confirmation
+                            try {
+                                // make a shallow copy of selected ids
+                                const idsToDelete = [...selectedDocIds];
+                                if (idsToDelete.length === 0) return;
+
+                                // Delete tokens
+                                await supabase.from('verification_tokens').delete().in('document_id', idsToDelete);
+                                // Delete documents
+                                await supabase.from('documents').delete().in('id', idsToDelete);
+
+                                // Remove from UI
+                                setDocuments(prev => prev.filter(d => !idsToDelete.includes(d.id)));
+                                clear();
+                            } catch (err) {
+                                console.error('Debug bulk delete failed', err);
+                                throw err;
+                            }
+                        }}
+                        showToast={showToast}
+                    />
+                )}
+
+                {/* PDF Viewer */}
+                {viewingDocument && user && (
+                    <PDFViewer
+                        url={viewingDocUrl}
+                        documentId={viewingDocument.id}
+                        documentName={viewingDocument.name}
+                        userId={user.id}
+                        onClose={() => {
+                            setViewingDocument(null);
+                            setViewingDocUrl(null);
+                        }}
+                    />
+                )}
+            </div>
         </div>
     );
 }

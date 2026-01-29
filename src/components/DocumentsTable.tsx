@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Document } from '../lib/supabase';
-import { CheckCircle, Eye, Trash2, Share2 } from 'lucide-react';
+import { CheckCircle, Eye, Trash2, Share2, Clock, FileText } from 'lucide-react';
 
 interface Props {
   documents: Document[];
@@ -34,139 +34,103 @@ export const DocumentsTable: React.FC<Props> = ({
   const allFilteredIds = filtered.map(d => d.id);
   const allSelected = allFilteredIds.length > 0 && allFilteredIds.every(id => selectedIds.includes(id));
 
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'verified':
+        return (
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-[#449342]/10 text-[#449342] border border-[#449342]/20">
+            <CheckCircle className="w-3 h-3 mr-1.5" />
+            Verified
+          </span>
+        );
+      case 'pending':
+        return (
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-[#2EAF7D]/10 text-[#2EAF7D] border border-[#2EAF7D]/20">
+            <Clock className="w-3 h-3 mr-1.5" />
+            Pending
+          </span>
+        );
+      default:
+        return (
+          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-600 border border-gray-200">
+            Not Verified
+          </span>
+        );
+    }
+  };
+
   return (
     <>
-      {/* Mobile Card View */}
-      <div className="md:hidden space-y-4">
+      {/* Mobile & Grid Card View */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filtered.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">No documents found</div>
+          <div className="col-span-full text-center py-12 bg-white/50 backdrop-blur-sm rounded-3xl border border-white uppercase tracking-widest text-xs font-bold text-gray-400">
+            No documents found
+          </div>
         ) : (
           filtered.map((doc) => (
-            <div key={doc.id} className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-              <div className="flex items-start justify-between mb-3">
+            <div key={doc.id} className="group bg-white p-6 rounded-[2rem] border border-white/50 shadow-sm hover:shadow-xl transition-all duration-300 hover:scale-[1.02] flex flex-col h-full relative overflow-hidden">
+              {/* Subtle background icon */}
+              <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
+                <FileText size={120} />
+              </div>
+
+              <div className="flex items-start justify-between mb-4 relative z-10">
                 <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    className="h-5 w-5 rounded border-gray-300 text-[#3FD0C9] focus:ring-[#3FD0C9]"
-                    checked={selectedIds.includes(doc.id)}
-                    onChange={() => onToggleSelect(doc.id)}
-                  />
-                  <div className="p-2 bg-blue-50 rounded-lg">
-                    <svg className="h-6 w-6 text-[#02353C]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 7v10a2 2 0 0 0 2 2h14" /></svg>
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      className="h-5 w-5 rounded-lg border-gray-200 text-[#3FD0C9] focus:ring-[#3FD0C9] transition-all cursor-pointer"
+                      checked={selectedIds.includes(doc.id)}
+                      onChange={() => onToggleSelect(doc.id)}
+                    />
+                  </div>
+                  <div className="p-3 bg-[#C1F6ED]/30 rounded-2xl text-[#02353C] group-hover:bg-[#3FD0C9] group-hover:text-white transition-colors duration-300">
+                    <FileText className="h-6 w-6" />
                   </div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <button onClick={() => onView(doc)} className="p-2 text-gray-400 hover:text-[#3FD0C9]">
+                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onClick={() => onView(doc)} className="p-2 text-gray-400 hover:text-[#3FD0C9] hover:bg-[#3FD0C9]/10 rounded-xl transition-all" title="Quick View">
                     <Eye className="h-5 w-5" />
                   </button>
-                  <button onClick={() => onShare(doc)} className="p-2 text-gray-400 hover:text-[#3FD0C9]">
+                  <button onClick={() => onShare(doc)} className="p-2 text-gray-400 hover:text-[#3FD0C9] hover:bg-[#3FD0C9]/10 rounded-xl transition-all" title="Share Document">
                     <Share2 className="h-5 w-5" />
                   </button>
-                  <button onClick={() => onDelete(doc)} className="p-2 text-gray-400 hover:text-red-600">
+                  <button onClick={() => onDelete(doc)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Delete Document">
                     <Trash2 className="h-5 w-5" />
                   </button>
                 </div>
               </div>
 
-              <div onClick={() => onView(doc)} className="cursor-pointer">
-                <h3 className="font-medium text-gray-900 mb-1">{doc.name}</h3>
-                <div className="text-xs text-gray-500 font-mono mb-2 truncate">{doc.hash}</div>
-
-                <div className="flex items-center justify-between text-sm">
-                  <div className="text-gray-600">{doc.type}</div>
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${doc.status === 'verified' ? 'bg-[#CFF4D2] text-[#02353C]' : 'bg-yellow-100 text-yellow-800'}`}>
-                    {doc.status === 'verified' && <CheckCircle className="w-3 h-3 mr-1" />}
-                    {doc.status === 'verified' ? 'Verified' : 'Pending'}
+              <div onClick={() => onView(doc)} className="cursor-pointer flex-1 relative z-10">
+                <h3 className="font-bold text-[#02353C] text-lg mb-1 group-hover:text-[#3FD0C9] transition-colors truncate">
+                  {doc.name}
+                </h3>
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-[10px] bg-gray-50 px-2 py-0.5 rounded text-gray-500 font-mono tracking-tighter uppercase font-bold">
+                    Hash: {doc.hash.slice(0, 12)}...
                   </span>
                 </div>
-                <div className="mt-2 text-xs text-gray-400">
-                  {new Date(doc.created_at).toLocaleDateString()}
+
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-500 font-medium">{doc.type}</span>
+                    {getStatusBadge(doc.status)}
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-50 mt-auto">
+                    <div className="flex items-center gap-2 text-gray-400">
+                      <Clock size={12} />
+                      <span className="text-[10px] font-bold uppercase tracking-wider">
+                        {new Date(doc.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           ))
         )}
-      </div>
-
-      {/* Desktop Table View */}
-      <div className="hidden md:block overflow-x-auto">
-        <table className="w-full text-left">
-          <thead className="bg-gray-50 text-gray-500 text-sm uppercase">
-            <tr>
-              <th className="px-6 py-4 font-medium">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4"
-                  onChange={(e) => (e.target.checked ? onSelectAll(allFilteredIds) : onDeselectAll())}
-                  checked={allSelected}
-                  aria-label="Select all documents"
-                />
-              </th>
-              <th className="px-6 py-4 font-medium">Document Name</th>
-              <th className="px-6 py-4 font-medium">Type</th>
-              <th className="px-6 py-4 font-medium">Date Uploaded</th>
-              <th className="px-6 py-4 font-medium">Status</th>
-              <th className="px-6 py-4 font-medium text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {filtered.length === 0 ? (
-              <tr>
-                <td className="px-6 py-8 text-center" colSpan={6}>
-                  <div className="text-gray-600">No documents yet</div>
-                </td>
-              </tr>
-            ) : (
-              filtered.map((doc) => (
-                <tr key={doc.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4">
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4"
-                      checked={selectedIds.includes(doc.id)}
-                      onChange={() => onToggleSelect(doc.id)}
-                      aria-label={`Select ${doc.name}`}
-                    />
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 bg-blue-50 rounded-lg text-[#02353C]">
-                        <svg className="h-5 w-5 text-[#02353C]" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 7v10a2 2 0 0 0 2 2h14" /></svg>
-                      </div>
-                      <div>
-                        <button onClick={() => onView(doc)} className="font-medium text-gray-900 hover:underline text-left">
-                          {doc.name}
-                        </button>
-                        <p className="text-xs text-gray-500 font-mono">{doc.hash}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{doc.type}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{new Date(doc.created_at).toLocaleDateString()}</td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${doc.status === 'verified' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                      {doc.status === 'verified' && <CheckCircle className="w-3 h-3 mr-1" />}
-                      {doc.status === 'verified' ? 'Verified' : 'Pending'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button onClick={() => onView(doc)} className="p-2 text-gray-400 hover:text-[#3FD0C9] transition-colors" title="View Document">
-                        <Eye className="h-4 w-4" />
-                      </button>
-                      <button onClick={() => onShare(doc)} className="p-2 text-gray-400 hover:text-[#3FD0C9] transition-colors" title="Share Document">
-                        <Share2 className="h-4 w-4" />
-                      </button>
-                      <button onClick={() => onDelete(doc)} className="p-2 text-gray-400 hover:text-red-600 transition-colors" title="Delete Document">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
       </div>
     </>
   );
