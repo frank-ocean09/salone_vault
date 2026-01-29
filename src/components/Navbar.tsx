@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, X, LogOut } from 'lucide-react';
+import { Menu, X, LogOut, ShieldCheck } from 'lucide-react';
 import { Button } from './Button';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -37,47 +37,46 @@ export function Navbar() {
     }, []);
 
     const isActive = (path: string) => {
-        return location.pathname === path || location.hash === path ? 'text-brand-teal' : 'text-white';
+        return location.pathname === path || location.hash === path ? 'text-[#3FD0C9]' : 'text-white/80';
     };
 
     return (
-        <nav className={`bg-primary-dark border-b border-gray-800 sticky top-0 z-50 transform transition-transform duration-300 ${hidden && !isOpen ? '-translate-y-full' : 'translate-y-0'}`}>
+        <nav className={`bg-[#02353C] border-b border-white/5 sticky top-0 z-50 transform transition-transform duration-300 shadow-lg ${hidden && !isOpen ? '-translate-y-full' : 'translate-y-0'}`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between h-16">
+                <div className="flex justify-between h-20">
                     <div className="flex items-center">
-                        <Link to="/" className="flex items-center gap-2">
-                            <img src="/nddv-logo.png" alt="NDDV Logo" className="h-10 w-10" />
-                            <span className="font-heading font-bold text-xl text-white hidden sm:block">
-                                Salone Vault
-                            </span>
-                            <span className="font-heading font-bold text-xl text-white sm:hidden">
-                                Salone Vault
+                        <Link to="/" className="flex items-center gap-3">
+                            <div className="p-2 bg-[#2EAF7D] rounded-xl">
+                                <ShieldCheck className="h-6 w-6 text-white" />
+                            </div>
+                            <span className="font-black text-2xl text-white tracking-tighter">
+                                SALONEVAULT
                             </span>
                         </Link>
                     </div>
 
                     <div className="hidden md:flex items-center gap-8">
-                        <Link to="/" className={`${isActive('/')} hover:text-brand-teal font-medium transition-colors`}>
+                        <Link to="/" className={`${isActive('/')} hover:text-[#3FD0C9] font-bold text-xs uppercase tracking-widest transition-colors`}>
                             Home
                         </Link>
-                        <a href="/#features" className={`${isActive('#features')} hover:text-brand-teal font-medium transition-colors`}>
+                        <a href="/#features" className={`${isActive('#features')} hover:text-[#3FD0C9] font-bold text-xs uppercase tracking-widest transition-colors`}>
                             Features
                         </a>
-                        <a href="/#how-it-works" className={`${isActive('#how-it-works')} hover:text-brand-teal font-medium transition-colors`}>
+                        <a href="/#how-it-works" className={`${isActive('#how-it-works')} hover:text-[#3FD0C9] font-bold text-xs uppercase tracking-widest transition-colors`}>
                             How It Works
                         </a>
-                        <Link to="/verify" className={`${isActive('/verify')} hover:text-brand-teal font-medium transition-colors`}>
+                        <Link to="/verify" className={`${isActive('/verify')} hover:text-[#3FD0C9] font-bold text-xs uppercase tracking-widest transition-colors`}>
                             Verify Document
                         </Link>
 
                         {user ? (
                             <>
-                                <Link to="/dashboard" className={`${isActive('/dashboard')} hover:text-brand-teal font-medium transition-colors`}>
+                                <Link to="/dashboard" className="px-6 py-2 bg-[#2EAF7D] text-white font-black text-xs uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-lg shadow-[#2EAF7D]/20">
                                     My Vault
                                 </Link>
                                 <button
                                     onClick={handleSignOut}
-                                    className="flex items-center gap-2 text-white hover:text-brand-teal font-medium transition-colors"
+                                    className="flex items-center gap-2 text-white/60 hover:text-white font-bold text-xs uppercase tracking-widest transition-colors"
                                 >
                                     <LogOut className="h-4 w-4" />
                                     Sign Out
@@ -89,13 +88,17 @@ export function Navbar() {
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        className="border-brand-cyan text-brand-cyan hover:bg-brand-cyan/10 hover:text-brand-cyan"
+                                        className="border-[#3FD0C9] text-[#3FD0C9] hover:bg-[#3FD0C9]/10 font-bold text-xs uppercase tracking-widest px-6 py-2 h-auto rounded-xl"
                                     >
                                         Login
                                     </Button>
                                 </Link>
                                 <Link to="/auth?mode=signup">
-                                    <Button variant="primary" size="sm">
+                                    <Button
+                                        variant="primary"
+                                        size="sm"
+                                        className="bg-[#2EAF7D] hover:bg-[#2EAF7D]/90 text-white font-bold text-xs uppercase tracking-widest px-6 py-2 h-auto rounded-xl shadow-lg shadow-[#2EAF7D]/20"
+                                    >
                                         Sign Up
                                     </Button>
                                 </Link>
@@ -106,7 +109,7 @@ export function Navbar() {
                     <div className="flex items-center md:hidden">
                         <button
                             onClick={() => setIsOpen(!isOpen)}
-                            className="text-white hover:text-brand-teal"
+                            className="text-white p-2 hover:bg-white/10 rounded-xl transition-colors"
                         >
                             {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                         </button>
@@ -116,41 +119,41 @@ export function Navbar() {
 
             {/* Mobile menu */}
             {isOpen && (
-                <div className="md:hidden bg-primary-dark border-b border-gray-800">
-                    <div className="px-2 pt-2 pb-3 space-y-1">
+                <div className="md:hidden bg-[#02353C] border-b border-white/5 animate-in fade-in slide-in-from-top-4 duration-300">
+                    <div className="px-4 pt-2 pb-6 space-y-2">
                         <Link
                             to="/"
-                            className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-brand-teal hover:bg-white/5"
+                            className="block px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-white/60 hover:text-white hover:bg-white/5 transition-all"
                             onClick={() => setIsOpen(false)}
                         >
                             Home
                         </Link>
                         <a
                             href="/#features"
-                            className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-brand-teal hover:bg-white/5"
+                            className="block px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-white/60 hover:text-white hover:bg-white/5 transition-all"
                             onClick={() => setIsOpen(false)}
                         >
                             Features
                         </a>
                         <a
                             href="/#how-it-works"
-                            className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-brand-teal hover:bg-white/5"
+                            className="block px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-white/60 hover:text-white hover:bg-white/5 transition-all"
                             onClick={() => setIsOpen(false)}
                         >
                             How It Works
                         </a>
                         <Link
                             to="/verify"
-                            className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-brand-teal hover:bg-white/5"
+                            className="block px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-white/60 hover:text-white hover:bg-white/5 transition-all"
                             onClick={() => setIsOpen(false)}
                         >
                             Verify Document
                         </Link>
                         {user ? (
-                            <>
+                            <div className="space-y-2 pt-4 border-t border-white/5">
                                 <Link
                                     to="/dashboard"
-                                    className="block px-3 py-2 rounded-md text-base font-medium text-white hover:text-brand-teal hover:bg-white/5"
+                                    className="block px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest bg-[#2EAF7D] text-white shadow-lg shadow-[#2EAF7D]/20"
                                     onClick={() => setIsOpen(false)}
                                 >
                                     My Vault
@@ -160,13 +163,14 @@ export function Navbar() {
                                         handleSignOut();
                                         setIsOpen(false);
                                     }}
-                                    className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-white hover:text-brand-teal hover:bg-white/5"
+                                    className="w-full text-left px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-white/40 hover:text-white transition-all flex items-center gap-2"
                                 >
+                                    <LogOut className="h-4 w-4" />
                                     Sign Out
                                 </button>
-                            </>
+                            </div>
                         ) : (
-                            <div className="space-y-2 pt-2 px-3">
+                            <div className="space-y-3 pt-4 border-t border-white/5">
                                 <Link
                                     to="/auth?mode=login"
                                     className="block w-full"
@@ -174,7 +178,7 @@ export function Navbar() {
                                 >
                                     <Button
                                         variant="outline"
-                                        className="w-full border-brand-cyan text-brand-cyan hover:bg-brand-cyan/10"
+                                        className="w-full border-[#3FD0C9] text-[#3FD0C9] hover:bg-[#3FD0C9]/10 font-black text-xs uppercase tracking-widest py-4 rounded-xl"
                                     >
                                         Login
                                     </Button>
@@ -184,7 +188,10 @@ export function Navbar() {
                                     className="block w-full"
                                     onClick={() => setIsOpen(false)}
                                 >
-                                    <Button variant="primary" className="w-full">
+                                    <Button
+                                        variant="primary"
+                                        className="w-full bg-[#2EAF7D] text-white font-black text-xs uppercase tracking-widest py-4 rounded-xl shadow-lg shadow-[#2EAF7D]/20"
+                                    >
                                         Sign Up
                                     </Button>
                                 </Link>

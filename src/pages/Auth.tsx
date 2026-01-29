@@ -1,16 +1,16 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
 import { Button } from '../components/Button';
 import { GoogleLoginButton } from '../components/GoogleLoginButton';
-import { Shield, Mail, Lock, User, Phone, AlertCircle, ShieldCheck } from 'lucide-react';
+import { Shield, Mail, Lock, User, Phone, AlertCircle, ShieldCheck, ArrowRight, CheckCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 
 export function Auth() {
     const navigate = useNavigate();
     const { signUp, signIn } = useAuth();
-    const [isLogin, setIsLogin] = useState(false);
+    const [isLogin, setIsLogin] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
@@ -43,14 +43,12 @@ export function Auth() {
 
         try {
             if (isLogin) {
-                // Sign in
                 const { error, session } = await signIn(formData.email, formData.password);
                 if (error) throw error;
 
                 if (session) {
                     navigate('/dashboard');
                 } else {
-                    setIsLoading(true);
                     const start = Date.now();
                     while (Date.now() - start < 5000) {
                         const { data: { session: current } } = await supabase.auth.getSession();
@@ -60,7 +58,6 @@ export function Auth() {
                     navigate('/dashboard');
                 }
             } else {
-                // Sign up
                 const { error } = await signUp(
                     formData.email,
                     formData.password,
@@ -87,191 +84,188 @@ export function Auth() {
     };
 
     return (
-        <div className="min-h-screen bg-[#C1F6ED] relative overflow-hidden flex flex-col">
-            <Navbar />
-
-            {/* Subtle Background Pattern */}
-            <div className="absolute inset-0 opacity-[0.2] pointer-events-none">
-                <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <pattern id="auth-grid" width="60" height="60" patternUnits="userSpaceOnUse">
-                            <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#2EAF7D" strokeWidth="0.5" />
-                        </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill="url(#auth-grid)" />
-                </svg>
+        <div className="min-h-screen bg-[#C1F6ED] flex flex-col items-center justify-center p-4 relative overflow-hidden font-sans">
+            {/* Technical Grid Pattern Background */}
+            <div className="absolute inset-0 opacity-[0.4] pointer-events-none"
+                style={{ backgroundImage: 'linear-gradient(#02353C 1px, transparent 1px), linear-gradient(90deg, #02353C 1px, transparent 1px)', backgroundSize: '40px 40px' }}>
             </div>
 
-            <main className="flex-1 flex items-center justify-center px-4 py-20 relative z-10">
-                <div className="max-w-xl w-full">
-                    <div className="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/50 backdrop-blur-sm">
+            {/* Abstract Glows */}
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#3FD0C9] rounded-full blur-[120px] opacity-20 translate-x-1/2 -translate-y-1/2" />
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#2EAF7D] rounded-full blur-[120px] opacity-20 -translate-x-1/2 translate-y-1/2" />
 
-                        <div className="p-10 sm:p-12">
-                            {/* Logo and Header */}
-                            <div className="text-center mb-10">
-                                <div className="inline-block p-4 rounded-3xl bg-[#C1F6ED]/30 mb-6 transition-transform hover:scale-105 duration-300">
-                                    <ShieldCheck className="h-12 w-12 text-[#2EAF7D]" />
-                                </div>
-                                <h1 className="text-3xl font-bold text-[#02353C] tracking-tight">
-                                    {isLogin ? 'Welcome Back' : 'Create Your Account'}
-                                </h1>
-                                <p className="text-[#02353C]/60 mt-2 font-medium">
-                                    {isLogin ? 'Access your national digital vault' : 'Join the official document platform of Sierra Leone'}
-                                </p>
+            <div className="w-full max-w-xl relative z-10 transition-all duration-500">
+                <div className="bg-white rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(2,53,60,0.1)] p-8 sm:p-12 border border-white relative overflow-hidden group">
+                    {/* Subtle top accent line */}
+                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#3FD0C9] via-[#2EAF7D] to-[#449342]" />
+
+                    <div className="mb-10 text-center">
+                        <Link to="/" className="inline-flex items-center gap-3 mb-8 group/logo">
+                            <div className="p-3 bg-[#2EAF7D] rounded-2xl group-hover/logo:scale-110 transition-transform shadow-lg shadow-[#2EAF7D]/20">
+                                <ShieldCheck className="h-6 w-6 text-white" />
                             </div>
+                            <span className="font-black text-2xl text-[#02353C] tracking-tighter">SALONEVAULT</span>
+                        </Link>
+                        <h1 className="text-3xl font-black text-[#02353C] tracking-tight mb-3">
+                            {isLogin ? 'Welcome Back' : 'Create Secure Vault'}
+                        </h1>
+                        <p className="text-[#02353C]/40 font-bold">
+                            {isLogin
+                                ? 'Access your official digital records securely.'
+                                : 'Join the national digital document infrastructure.'}
+                        </p>
+                    </div>
 
-                            {error && (
-                                <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                                    <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
-                                    <p className="text-sm text-red-800 font-medium">{error}</p>
-                                </div>
-                            )}
-
-                            {success && (
-                                <div className="mb-6 p-4 bg-[#449342]/10 border border-[#449342]/20 rounded-2xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
-                                    <ShieldCheck className="h-5 w-5 text-[#449342] flex-shrink-0 mt-0.5" />
-                                    <p className="text-sm text-[#449342] font-semibold">{success}</p>
-                                </div>
-                            )}
-
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                {!isLogin && (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                        <div className="space-y-2">
-                                            <label htmlFor="name" className="block text-sm font-bold text-[#02353C] ml-1">Full Name</label>
-                                            <div className="relative group">
-                                                <User className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-[#3FD0C9] transition-colors" />
-                                                <input
-                                                    type="text" id="name" name="name"
-                                                    value={formData.name} onChange={handleChange} required={!isLogin}
-                                                    placeholder="John Doe"
-                                                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:bg-white focus:border-[#3FD0C9] transition-all"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label htmlFor="phone" className="block text-sm font-bold text-[#02353C] ml-1">Phone Number</label>
-                                            <div className="relative group">
-                                                <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-[#3FD0C9] transition-colors" />
-                                                <input
-                                                    type="tel" id="phone" name="phone"
-                                                    value={formData.phone} onChange={handleChange} required={!isLogin}
-                                                    placeholder="+232 XX XXX XXXX"
-                                                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:bg-white focus:border-[#3FD0C9] transition-all"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {!isLogin && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <label htmlFor="email" className="block text-sm font-bold text-[#02353C] ml-1">Email Address</label>
-                                    <div className="relative group">
-                                        <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-[#3FD0C9] transition-colors" />
+                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#02353C]/60 ml-4">Full Name</label>
+                                    <div className="relative">
+                                        <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#02353C]/20" />
                                         <input
-                                            type="email" id="email" name="email"
-                                            value={formData.email} onChange={handleChange} required
-                                            placeholder="you@example.sl"
-                                            className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:bg-white focus:border-[#3FD0C9] transition-all"
+                                            type="text" name="name" required
+                                            className="w-full pl-12 pr-4 py-4 bg-[#C1F6ED]/20 border-2 border-transparent rounded-[1.5rem] focus:bg-white focus:border-[#3FD0C9] focus:outline-none transition-all font-bold text-[#02353C]"
+                                            placeholder="John Doe"
+                                            value={formData.name}
+                                            onChange={handleChange}
                                         />
                                     </div>
                                 </div>
-
-                                <div className={!isLogin ? "grid grid-cols-1 sm:grid-cols-2 gap-6" : "space-y-2"}>
-                                    <div className="space-y-2">
-                                        <label htmlFor="password" className="block text-sm font-bold text-[#02353C] ml-1">Password</label>
-                                        <div className="relative group">
-                                            <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-[#3FD0C9] transition-colors" />
-                                            <input
-                                                type="password" id="password" name="password"
-                                                value={formData.password} onChange={handleChange} required
-                                                placeholder="••••••••" minLength={6}
-                                                className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:bg-white focus:border-[#3FD0C9] transition-all"
-                                            />
-                                        </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#02353C]/60 ml-4">Phone Number</label>
+                                    <div className="relative">
+                                        <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#02353C]/20" />
+                                        <input
+                                            type="tel" name="phone" required
+                                            className="w-full pl-12 pr-4 py-4 bg-[#C1F6ED]/20 border-2 border-transparent rounded-[1.5rem] focus:bg-white focus:border-[#3FD0C9] focus:outline-none transition-all font-bold text-[#02353C]"
+                                            placeholder="+232 00 000 000"
+                                            value={formData.phone}
+                                            onChange={handleChange}
+                                        />
                                     </div>
-                                    {!isLogin && (
-                                        <div className="space-y-2">
-                                            <label htmlFor="confirmPassword" className="block text-sm font-bold text-[#02353C] ml-1">Confirm Password</label>
-                                            <div className="relative group">
-                                                <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-[#3FD0C9] transition-colors" />
-                                                <input
-                                                    type="password" id="confirmPassword" name="confirmPassword"
-                                                    value={formData.confirmPassword} onChange={handleChange} required={!isLogin}
-                                                    placeholder="••••••••" minLength={6}
-                                                    className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-transparent rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#3FD0C9]/20 focus:bg-white focus:border-[#3FD0C9] transition-all"
-                                                />
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {isLogin && (
-                                    <div className="text-right">
-                                        <button type="button" onClick={() => navigate('/auth/forgot-password')} className="text-sm font-semibold text-[#3FD0C9] hover:underline">
-                                            Forgot Password?
-                                        </button>
-                                    </div>
-                                )}
-
-                                {!isLogin && (
-                                    <div className="flex items-start gap-3 ml-1">
-                                        <div className="flex items-center h-6">
-                                            <input
-                                                id="acceptTerms" name="acceptTerms" type="checkbox"
-                                                checked={formData.acceptTerms} onChange={handleChange} required
-                                                className="h-5 w-5 text-[#2EAF7D] border-gray-300 rounded-lg focus:ring-[#2EAF7D] transition-colors cursor-pointer"
-                                            />
-                                        </div>
-                                        <label htmlFor="acceptTerms" className="text-sm text-[#02353C]/70">
-                                            I accept the <a href="#" className="font-bold text-[#02353C] hover:underline">Terms & Conditions</a> and consent to my data being secured and verified.
-                                        </label>
-                                    </div>
-                                )}
-
-                                <Button type="submit" className="w-full bg-[#2EAF7D] hover:bg-[#2EAF7D]/90 py-4 h-auto text-lg rounded-2xl shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]" disabled={isLoading}>
-                                    {isLoading ? (
-                                        <span className="flex items-center justify-center gap-2">
-                                            <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
-                                            {isLogin ? 'Authenticating...' : 'Registering...'}
-                                        </span>
-                                    ) : (
-                                        isLogin ? 'Sign In' : 'Create Account'
-                                    )}
-                                </Button>
-                            </form>
-
-                            <div className="relative my-10">
-                                <div className="absolute inset-0 flex items-center">
-                                    <div className="w-full border-t border-gray-100"></div>
-                                </div>
-                                <div className="relative flex justify-center text-xs uppercase tracking-widest font-bold">
-                                    <span className="px-4 bg-white text-gray-400">Or continue with</span>
                                 </div>
                             </div>
+                        )}
 
-                            <GoogleLoginButton />
-
-                            <div className="mt-10 text-center">
-                                <p className="text-[#02353C]/60 font-medium">
-                                    {isLogin ? "New to SaloneVault? " : 'Already have an account? '}
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setIsLogin(!isLogin);
-                                            setError(null);
-                                            setSuccess(null);
-                                        }}
-                                        className="text-[#3FD0C9] font-bold hover:underline"
-                                    >
-                                        {isLogin ? 'Sign Up' : 'Sign In'}
-                                    </button>
-                                </p>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#02353C]/60 ml-4">Email Address</label>
+                            <div className="relative">
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#02353C]/20" />
+                                <input
+                                    type="email" name="email" required
+                                    className="w-full pl-12 pr-4 py-4 bg-[#C1F6ED]/20 border-2 border-transparent rounded-[1.5rem] focus:bg-white focus:border-[#3FD0C9] focus:outline-none transition-all font-bold text-[#02353C]"
+                                    placeholder="name@example.sl"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                />
                             </div>
                         </div>
+
+                        <div className={!isLogin ? "grid grid-cols-1 sm:grid-cols-2 gap-6" : "space-y-2"}>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#02353C]/60 ml-4">Password</label>
+                                <div className="relative">
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#02353C]/20" />
+                                    <input
+                                        type="password" name="password" required
+                                        className="w-full pl-12 pr-4 py-4 bg-[#C1F6ED]/20 border-2 border-transparent rounded-[1.5rem] focus:bg-white focus:border-[#3FD0C9] focus:outline-none transition-all font-bold text-[#02353C]"
+                                        placeholder="••••••••"
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+                            </div>
+                            {!isLogin && (
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-[#02353C]/60 ml-4">Confirm Password</label>
+                                    <div className="relative">
+                                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#02353C]/20" />
+                                        <input
+                                            type="password" name="confirmPassword" required
+                                            className="w-full pl-12 pr-4 py-4 bg-[#C1F6ED]/20 border-2 border-transparent rounded-[1.5rem] focus:bg-white focus:border-[#3FD0C9] focus:outline-none transition-all font-bold text-[#02353C]"
+                                            placeholder="••••••••"
+                                            value={formData.confirmPassword}
+                                            onChange={handleChange}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {!isLogin && (
+                            <div className="flex items-center gap-3 ml-4">
+                                <input
+                                    type="checkbox" name="acceptTerms" id="acceptTerms"
+                                    checked={formData.acceptTerms} onChange={handleChange}
+                                    className="w-5 h-5 rounded-lg border-2 border-[#2EAF7D] text-[#2EAF7D] focus:ring-[#3FD0C9]"
+                                />
+                                <label htmlFor="acceptTerms" className="text-xs font-bold text-[#02353C]/60 cursor-pointer">
+                                    I accept the <a href="#" className="text-[#2EAF7D] underline">Terms & Conditions</a>
+                                </label>
+                            </div>
+                        )}
+
+                        {error && (
+                            <div className="flex items-center gap-2 p-4 bg-red-50 rounded-2xl border border-red-100 animate-in fade-in slide-in-from-top-2 duration-300">
+                                <AlertCircle className="h-5 w-5 text-red-500" />
+                                <p className="text-sm font-bold text-red-600">{error}</p>
+                            </div>
+                        )}
+
+                        {success && (
+                            <div className="flex items-center gap-2 p-4 bg-[#449342]/10 rounded-2xl border border-[#449342]/20 animate-in fade-in slide-in-from-top-2 duration-300">
+                                <CheckCircle className="h-5 w-5 text-[#449342]" />
+                                <p className="text-sm font-bold text-[#449342]">{success}</p>
+                            </div>
+                        )}
+
+                        <Button
+                            type="submit"
+                            className="w-full py-5 bg-[#2EAF7D] hover:bg-[#2EAF7D]/90 text-white font-black uppercase tracking-widest text-sm rounded-[1.5rem] shadow-xl shadow-[#2EAF7D]/20 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:hover:scale-100 border-none"
+                            loading={isLoading}
+                        >
+                            {isLogin ? 'Enter Vault' : 'Create Account'}
+                        </Button>
+                    </form>
+
+                    <div className="mt-8">
+                        <div className="relative flex items-center justify-center mb-8">
+                            <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-[#02353C]/5" />
+                            </div>
+                            <span className="relative px-4 bg-white text-[10px] font-black uppercase tracking-[0.2em] text-[#02353C]/20">Or continue with</span>
+                        </div>
+                        <GoogleLoginButton />
+                    </div>
+
+                    <div className="mt-10 text-center">
+                        <p className="text-[#02353C]/40 font-bold mb-6 italic text-sm">
+                            {isLogin ? "Don't have a vault yet?" : "Already have a vault?"}
+                        </p>
+                        <button
+                            onClick={() => setIsLogin(!isLogin)}
+                            className="inline-flex items-center gap-2 text-[#02353C] font-black uppercase tracking-widest text-xs hover:text-[#2EAF7D] transition-colors"
+                        >
+                            {isLogin ? 'Start Free Application' : 'Back to Login'}
+                            <ArrowRight className="h-4 w-4" />
+                        </button>
                     </div>
                 </div>
-            </main>
+
+                {/* Verification Badge */}
+                <div className="mt-8 flex items-center justify-center gap-6 opacity-30 grayscale hover:grayscale-0 transition-all cursor-default">
+                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#02353C]">
+                        <ShieldCheck className="h-4 w-4" />
+                        Official Platform
+                    </div>
+                    <div className="w-px h-4 bg-[#02353C]/20" />
+                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-[#02353C]">
+                        <Lock className="h-4 w-4" />
+                        SSL Secured
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

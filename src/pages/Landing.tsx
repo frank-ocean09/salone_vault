@@ -5,49 +5,51 @@ import { Navbar } from '../components/Navbar';
 
 export function Landing() {
     return (
-        <div className="min-h-screen flex flex-col bg-white overflow-hidden font-sans">
+        <div className="min-h-screen flex flex-col bg-white overflow-hidden font-sans selection:bg-[#3FD0C9] selection:text-[#02353C]">
             <Navbar />
 
-            {/* Hero Section - Redesigned */}
+            {/* Hero Section */}
             <section className="relative text-white pt-32 pb-48 overflow-hidden">
                 {/* Main Gradient Background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[#02353C] via-[#0D4448] to-[#3FD0C9] z-0" />
+                <div className="absolute inset-0 bg-gradient-to-br from-[#02353C] via-[#02353C] to-[#3FD0C9] z-0" />
 
                 {/* Abstract Geometric Elements */}
-                {/* Large Circle Right */}
-                <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[#2EAF7D] rounded-full blur-3xl opacity-10 translate-x-1/3 -translate-y-1/4 animate-pulse" />
-                {/* Small Glow Bottom Left */}
-                <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#3FD0C9] rounded-full blur-3xl opacity-10 -translate-x-1/2 translate-y-1/2" />
+                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#3FD0C9] rounded-full blur-[120px] opacity-10 translate-x-1/4 -translate-y-1/4" />
+                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#2EAF7D] rounded-full blur-[100px] opacity-10 -translate-x-1/2 translate-y-1/2" />
 
-                {/* Fine lines/grid (optional detail) */}
-                <div className="absolute inset-0 opacity-[0.03]"
-                    style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '50px 50px' }}>
+                {/* Technical Grid Pattern */}
+                <div className="absolute inset-0 opacity-[0.05]"
+                    style={{ backgroundImage: 'linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px)', backgroundSize: '60px 60px' }}>
                 </div>
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 h-full flex flex-col justify-center">
-                    <div className="max-w-3xl">
-                        <h1 className="text-6xl md:text-7xl font-bold text-white leading-tight tracking-tight mb-8">
+                    <div className="max-w-4xl">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                            <span className="w-2 h-2 rounded-full bg-[#2EAF7D] animate-pulse" />
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#C1F6ED]">National Digital Vault</span>
+                        </div>
+                        <h1 className="text-6xl md:text-8xl font-black text-white leading-[0.9] tracking-tighter mb-8 animate-in fade-in slide-in-from-bottom-6 duration-1000">
                             Secure. Verify.<br />
-                            Protect your <span className="text-[#3FD0C9]">documents digitally.</span>
+                            <span className="text-[#3FD0C9]">Protect your records.</span>
                         </h1>
-                        <p className="text-xl md:text-2xl text-[#C1F6ED] mb-10 leading-relaxed max-w-2xl font-light">
-                            A trusted digital vault for official and personal records in Sierra Leone.
+                        <p className="text-xl md:text-2xl text-[#C1F6ED]/80 mb-12 leading-relaxed max-w-2xl font-bold animate-in fade-in slide-in-from-bottom-8 duration-1000">
+                            A trusted digital infrastructure for official and personal documents in Sierra Leone.
                         </p>
 
-                        <div className="flex flex-col sm:flex-row gap-5">
+                        <div className="flex flex-col sm:flex-row gap-6 animate-in fade-in slide-in-from-bottom-10 duration-1000">
                             <Link to="/auth?mode=signup">
                                 <Button
                                     variant="primary"
-                                    className="bg-[#2EAF7D] hover:bg-[#2EAF7D]/90 text-white px-8 py-4 h-auto text-lg rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center gap-2"
+                                    className="bg-[#2EAF7D] hover:bg-[#2EAF7D]/90 text-white px-10 py-5 h-auto text-sm font-black uppercase tracking-widest rounded-2xl shadow-2xl shadow-[#2EAF7D]/30 transition-all hover:scale-105 active:scale-95 flex items-center gap-3 border-none"
                                 >
                                     Create Account
-                                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                    <ArrowRight className="w-5 h-5" />
                                 </Button>
                             </Link>
                             <Link to="/verify">
                                 <Button
                                     variant="outline"
-                                    className="border-[#3FD0C9] text-[#3FD0C9] hover:bg-[#3FD0C9]/10 px-8 py-4 h-auto text-lg rounded-full"
+                                    className="border-2 border-[#3FD0C9] text-[#3FD0C9] hover:bg-[#3FD0C9]/10 px-10 py-5 h-auto text-sm font-black uppercase tracking-widest rounded-2xl transition-all hover:scale-105 active:scale-95 shadow-lg shadow-[#3FD0C9]/10"
                                 >
                                     Verify a Document
                                 </Button>
@@ -55,87 +57,75 @@ export function Landing() {
                         </div>
                     </div>
 
-                    {/* Floating Abstract "Platform" Visual (Right Side) */}
-                    <div className="hidden lg:block absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/6 w-[700px] h-[700px] pointer-events-none">
-                        {/* Semi-abstract dashboard composition */}
-                        <div className="relative w-full h-full perspective-1000">
-                            {/* Central Card */}
-                            <div className="absolute top-1/2 left-1/2 w-[400px] h-[300px] bg-[#02353C]/80 backdrop-blur-xl border border-[#3FD0C9]/30 rounded-2xl transform -translate-x-1/2 -translate-y-1/2 rotate-y-[-10deg] rotate-x-[5deg] shadow-2xl z-20 overflow-hidden group">
-                                <div className="absolute top-0 left-0 w-full h-8 bg-[#0D4448] border-b border-[#3FD0C9]/20 flex items-center px-4 gap-2">
-                                    <div className="w-3 h-3 rounded-full bg-red-500/50"></div>
-                                    <div className="w-3 h-3 rounded-full bg-yellow-500/50"></div>
-                                    <div className="w-3 h-3 rounded-full bg-green-500/50"></div>
+                    {/* Dashboard Preview Layered UI (Right Side) */}
+                    <div className="hidden lg:block absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 w-[600px] h-[500px] pointer-events-none perspective-1000">
+                        <div className="relative w-full h-full">
+                            <div className="absolute top-0 right-0 w-[500px] h-[350px] bg-[#02353C]/60 backdrop-blur-3xl border border-white/10 rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] rotate-y-[-15deg] rotate-x-[10deg] z-20 p-8">
+                                <div className="flex items-center justify-between mb-8">
+                                    <div className="flex gap-2">
+                                        <div className="w-3 h-3 rounded-full bg-white/10" />
+                                        <div className="w-3 h-3 rounded-full bg-white/10" />
+                                        <div className="w-3 h-3 rounded-full bg-white/10" />
+                                    </div>
+                                    <div className="h-2 w-32 bg-white/5 rounded-full" />
                                 </div>
-                                <div className="p-6 pt-12 space-y-4">
-                                    <div className="h-4 w-3/4 bg-[#3FD0C9]/20 rounded animate-pulse"></div>
-                                    <div className="h-4 w-1/2 bg-[#3FD0C9]/10 rounded"></div>
-                                    <div className="flex gap-3 mt-8">
-                                        <div className="h-24 w-20 bg-[#2EAF7D]/10 rounded border border-[#2EAF7D]/20 flex items-center justify-center">
-                                            <ShieldCheck className="text-[#2EAF7D] w-8 h-8 opacity-80" />
+                                <div className="space-y-4">
+                                    <div className="h-8 w-1/2 bg-[#3FD0C9]/20 rounded-xl" />
+                                    <div className="h-4 w-3/4 bg-white/5 rounded-lg" />
+                                    <div className="grid grid-cols-2 gap-4 mt-8">
+                                        <div className="aspect-square bg-[#2EAF7D]/10 rounded-3xl border border-[#2EAF7D]/20 flex items-center justify-center">
+                                            <ShieldCheck className="text-[#2EAF7D] w-12 h-12" />
                                         </div>
-                                        <div className="h-24 w-20 bg-[#3FD0C9]/10 rounded border border-[#3FD0C9]/20 flex items-center justify-center">
-                                            <FileCheck className="text-[#3FD0C9] w-8 h-8 opacity-80" />
+                                        <div className="aspect-square bg-[#3FD0C9]/10 rounded-3xl border border-[#3FD0C9]/20 flex items-center justify-center">
+                                            <FileCheck className="text-[#3FD0C9] w-12 h-12" />
                                         </div>
                                     </div>
                                 </div>
-                                {/* Scanning effect */}
-                                <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-[#3FD0C9]/10 to-transparent -translate-y-full animate-[scan_3s_ease-in-out_infinite]" />
                             </div>
-
-                            {/* Back Card */}
-                            <div className="absolute top-1/2 left-1/2 w-[350px] h-[250px] bg-[#0D4448]/80 backdrop-blur-md border border-[#2EAF7D]/20 rounded-2xl transform -translate-x-[40%] -translate-y-[60%] rotate-y-[-10deg] rotate-x-[5deg] z-10 scale-90 opacity-60"></div>
-
-                            {/* Decorative Elements */}
-                            <div className="absolute top-[20%] right-[20%] w-16 h-16 border-2 border-[#2EAF7D]/30 rounded-full animate-[spin_10s_linear_infinite]" />
-                            <div className="absolute bottom-[30%] left-[20%] w-4 h-4 bg-[#3FD0C9] rounded-full animate-bounce shadow-[0_0_20px_#3FD0C9]" />
+                            <div className="absolute bottom-0 right-20 w-[400px] h-[250px] bg-[#02353C]/40 backdrop-blur-md border border-white/5 rounded-[3rem] rotate-y-[-15deg] rotate-x-[10deg] z-10 translate-y-12 shadow-2xl" />
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Trusted/Stats Section */}
-            <section className="bg-[#02353C] border-t border-white/10 py-12 text-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                        {[
-                            { label: 'Documents Secured', value: '50K+' },
-                            { label: 'Active Users', value: '10K+' },
-                            { label: 'Uptime', value: '99.9%' },
-                            { label: 'Trust Score', value: 'A+' },
-                        ].map((stat, i) => (
-                            <div key={i} className="text-center">
-                                <div className="text-4xl font-bold text-[#3FD0C9] mb-1">{stat.value}</div>
-                                <div className="text-sm uppercase tracking-wider opacity-70 font-medium">{stat.label}</div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
             {/* Trust & Security Section */}
-            <section className="py-24 bg-[#C1F6ED]">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-16">
-                        <span className="text-[#449342] font-bold tracking-wider uppercase text-sm">Trust & Security</span>
-                        <h2 className="text-4xl font-bold text-[#02353C] mt-2 mb-4">Bank-Grade Security & Control</h2>
-                        <p className="text-gray-600 max-w-2xl mx-auto">
-                            We use advanced encryption and blockchain technology to ensure your documents are tamper-proof and permanently accessible.
+            <section className="py-24 bg-[#C1F6ED] relative overflow-hidden">
+                {/* Subtle pattern for tech feel */}
+                <div className="absolute inset-0 opacity-[0.1] pointer-events-none">
+                    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                        <pattern id="dot-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
+                            <circle cx="2" cy="2" r="1.5" fill="#02353C" />
+                        </pattern>
+                        <rect width="100%" height="100%" fill="url(#dot-pattern)" />
+                    </svg>
+                </div>
+
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                    <div className="text-center mb-20">
+                        <div className="inline-block px-4 py-1.5 rounded-full bg-[#449342]/10 border border-[#449342]/20 mb-6">
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#449342]">Security Infrastructure</span>
+                        </div>
+                        <h2 className="text-4xl md:text-5xl font-black text-[#02353C] tracking-tighter mb-6">
+                            Verified. Secure. Official.
+                        </h2>
+                        <p className="text-[#02353C]/60 max-w-2xl mx-auto font-bold text-lg">
+                            Utilizing high-grade encryption and immutable blockchain technology to establish a national standard for document integrity.
                         </p>
                     </div>
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {[
-                            { icon: Lock, title: "Encrypted Storage", desc: "Your documents are encrypted using AES-256 protocols." },
-                            { icon: ShieldCheck, title: "Blockchain Verification", desc: "Tamper-proof verification on the Ethereum Sepolia network." },
-                            { icon: Users, title: "User Control", desc: "Complete control over who views or accesses your documents." },
-                            { icon: FileCheck, title: "Data Protection", desc: "Redundant backups and strict data separation policies." }
+                            { icon: Lock, title: "Encrypted Storage", desc: "Local-first encryption ensuring your sensitive documents stay private at all times." },
+                            { icon: ShieldCheck, title: "Blockchain Storage", desc: "Tamper-proof verification records anchored to global blockchain networks." },
+                            { icon: Users, title: "Access Control", desc: "Granular permission systems to control who can view and verify your records." },
+                            { icon: FileCheck, title: "Official Validation", desc: "Built to match national standards for digital identity and document security." }
                         ].map((item, i) => (
-                            <div key={i} className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-shadow">
-                                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-transparent mb-6">
-                                    <item.icon className="w-8 h-8 text-[#449342]" />
+                            <div key={i} className="group bg-white p-10 rounded-[3rem] shadow-sm border border-white hover:shadow-2xl hover:shadow-[#02353C]/10 transition-all duration-500 hover:-translate-y-2">
+                                <div className="w-16 h-16 rounded-3xl flex items-center justify-center bg-[#C1F6ED]/50 mb-8 group-hover:bg-[#02353C] group-hover:text-white transition-all duration-300">
+                                    <item.icon className="w-8 h-8 text-[#449342] group-hover:text-[#3FD0C9]" />
                                 </div>
-                                <h3 className="text-xl font-bold text-[#02353C] mb-3">{item.title}</h3>
-                                <p className="text-gray-600 leading-relaxed text-sm">{item.desc}</p>
+                                <h3 className="text-xl font-black text-[#02353C] mb-4 tracking-tight">{item.title}</h3>
+                                <p className="text-[#02353C]/40 font-bold leading-relaxed text-sm group-hover:text-[#02353C]/60">{item.desc}</p>
                             </div>
                         ))}
                     </div>
@@ -143,29 +133,31 @@ export function Landing() {
             </section>
 
             {/* Features Section */}
-            <section id="features" className="py-24 bg-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-16">
-                        <span className="text-[#2EAF7D] font-bold tracking-wider uppercase text-sm">Key Features</span>
-                        <h2 className="text-4xl font-bold text-[#02353C] mt-2 mb-4">Everything You Need</h2>
-                        <p className="text-gray-600 max-w-2xl mx-auto">
-                            Comprehensive tools to manage, verify, and share your important documents securely.
+            <section id="features" className="py-24 bg-white relative">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                    <div className="text-center mb-20">
+                        <div className="inline-block px-4 py-1.5 rounded-full bg-[#2EAF7D]/10 border border-[#2EAF7D]/20 mb-6">
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#2EAF7D]">Core Capabilities</span>
+                        </div>
+                        <h2 className="text-4xl md:text-5xl font-black text-[#02353C] tracking-tighter mb-6">Built for Reliability.</h2>
+                        <p className="text-[#02353C]/60 max-w-2xl mx-auto font-bold text-lg">
+                            Comprehensive digital infrastructure to manage, verify, and protect your most important assets.
                         </p>
                     </div>
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {[
-                            { icon: Wallet, title: "Secure Wallet", desc: "Store your official documents in a personal, encrypted digital wallet." },
-                            { icon: CheckCircle, title: "Document Verification", desc: "Instantly verify the authenticity of any document issued on the platform." },
-                            { icon: Share2, title: "Permission Sharing", desc: "Share documents temporarily with institutions or individuals securely." },
-                            { icon: Database, title: "Blockchain Proof", desc: "Every document is hashed and anchored to the blockchain for immutable proof." }
+                            { icon: Wallet, title: "State Wallet", desc: "A secure, encrypted vault for all your official national identification records." },
+                            { icon: CheckCircle, title: "Instant Verification", desc: "Third-party entities can verify document authenticity in seconds via secure protocols." },
+                            { icon: Share2, title: "Granular Sharing", desc: "Issue temporary, secure access tokens for specific documents without revealing the contents." },
+                            { icon: Database, title: "Blockchain Ledger", desc: "Immutable records of verification events ensuring a permanent, auditable history." }
                         ].map((item, i) => (
-                            <div key={i} className="bg-white p-8 rounded-2xl shadow-sm border border-[#3FD0C9] hover:shadow-md transition-shadow">
-                                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-transparent mb-6">
-                                    <item.icon className="w-8 h-8 text-[#2EAF7D]" />
+                            <div key={i} className="bg-white p-10 rounded-[3rem] shadow-sm border border-[#3FD0C9]/30 hover:shadow-xl hover:shadow-[#3FD0C9]/10 transition-all duration-500 hover:-translate-y-2 group">
+                                <div className="w-16 h-16 rounded-3xl flex items-center justify-center bg-[#C1F6ED]/50 mb-8 group-hover:bg-[#3FD0C9] group-hover:text-white transition-all duration-300">
+                                    <item.icon className="w-8 h-8 text-[#2EAF7D] group-hover:text-white" />
                                 </div>
-                                <h3 className="text-xl font-bold text-[#02353C] mb-3">{item.title}</h3>
-                                <p className="text-[#02353C] leading-relaxed text-sm">{item.desc}</p>
+                                <h3 className="text-xl font-black text-[#02353C] mb-4 tracking-tight">{item.title}</h3>
+                                <p className="text-[#02353C]/40 font-bold leading-relaxed text-sm group-hover:text-[#02353C]/60">{item.desc}</p>
                             </div>
                         ))}
                     </div>
@@ -173,61 +165,115 @@ export function Landing() {
             </section>
 
             {/* How It Works Section */}
-            <section id="how-it-works" className="py-24 bg-[#C1F6ED]">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-16">
-                        <span className="text-[#2EAF7D] font-bold tracking-wider uppercase text-sm">How It Works</span>
-                        <h2 className="text-4xl font-bold text-[#02353C] mt-2 mb-4">Simple, Secure Process</h2>
-                        <p className="text-gray-600 max-w-2xl mx-auto">
-                            Getting your documents secured on the blockchain in three easy steps.
+            <section id="how-it-works" className="py-24 bg-[#02353C] relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#3FD0C9]/20 to-transparent" />
+                <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#2EAF7D]/20 to-transparent" />
+
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                    <div className="text-center mb-20 text-white">
+                        <div className="inline-block px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mb-6 font-black uppercase tracking-[0.3em] text-[10px] text-[#3FD0C9]">Process Overview</div>
+                        <h2 className="text-4xl md:text-5xl font-black tracking-tighter mb-6">Simple. Secure. Systematic.</h2>
+                        <p className="text-[#C1F6ED]/60 max-w-2xl mx-auto font-bold text-lg">
+                            Our streamlined workflow ensures your records are protected on the blockchain in minutes.
                         </p>
                     </div>
 
-                    <div className="relative">
-                        {/* Connecting Line (Desktop) */}
-                        <div className="hidden md:block absolute top-8 left-0 w-full h-0.5 bg-[#3FD0C9] -z-0 transform translate-y-4"></div>
+                    <div className="grid md:grid-cols-3 gap-16 relative">
+                        <div className="hidden md:block absolute top-16 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#3FD0C9]/20 to-transparent -translate-y-4" />
 
-                        <div className="grid md:grid-cols-3 gap-12 relative z-10">
-                            {/* Step 1 */}
-                            <div className="flex flex-col items-center text-center">
-                                <div className="w-24 h-24 bg-[#2EAF7D] rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg mb-6 border-4 border-white">
-                                    <Upload className="w-10 h-10" />
+                        {[
+                            { step: '01', icon: Upload, title: 'Upload & Encrypt', desc: 'Securely upload records to your vault. Files are encrypted locally before being stored.' },
+                            { step: '02', icon: ShieldCheck, title: 'Network Validation', desc: 'Documents are hashed and recorded on the blockchain for permanent authenticity.' },
+                            { step: '03', icon: Share2, title: 'Controlled Access', desc: 'Share your verified documents with trusted institutions with full permission control.' }
+                        ].map((step, i) => (
+                            <div key={i} className="flex flex-col items-center text-center relative group">
+                                <div className="w-24 h-24 bg-[#02353C] border-2 border-[#2EAF7D] rounded-[2.5rem] flex items-center justify-center text-white mb-8 group-hover:bg-[#2EAF7D] transition-all duration-500 relative z-10">
+                                    <step.icon className="w-10 h-10 text-[#2EAF7D] group-hover:text-white" />
+                                    <div className="absolute -top-3 -right-3 w-10 h-10 bg-[#3FD0C9] rounded-2xl flex items-center justify-center text-[#02353C] text-xs font-black shadow-lg shadow-[#3FD0C9]/20">
+                                        {step.step}
+                                    </div>
                                 </div>
-                                <h3 className="text-xl font-bold text-[#02353C] mb-3">1. Upload Document</h3>
-                                <p className="text-gray-600 leading-relaxed">
-                                    Securely upload your official records to your private vault. Files are encrypted locally before transmission.
-                                </p>
+                                <h3 className="text-2xl font-black text-white mb-4 tracking-tight">{step.title}</h3>
+                                <p className="text-[#C1F6ED]/40 font-bold leading-relaxed">{step.desc}</p>
                             </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
 
-                            {/* Step 2 */}
-                            <div className="flex flex-col items-center text-center">
-                                <div className="w-24 h-24 bg-[#2EAF7D] rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg mb-6 border-4 border-white">
-                                    <ShieldCheck className="w-10 h-10" />
-                                </div>
-                                <h3 className="text-xl font-bold text-[#02353C] mb-3">2. Request Verification</h3>
-                                <p className="text-gray-600 leading-relaxed">
-                                    Our system checks with issuing authorities to manually or automatically verify authenticity.
-                                </p>
+            {/* National Identity Section */}
+            <section className="py-32 bg-white relative overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-col lg:flex-row items-center gap-16">
+                        <div className="lg:w-1/2">
+                            <div className="inline-block px-4 py-1.5 rounded-full bg-[#449342]/10 border border-[#449342]/20 mb-8">
+                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#449342]">National Initiative</span>
                             </div>
-
-                            {/* Step 3 */}
-                            <div className="flex flex-col items-center text-center">
-                                <div className="w-24 h-24 bg-[#2EAF7D] rounded-full flex items-center justify-center text-white text-3xl font-bold shadow-lg mb-6 border-4 border-white">
-                                    <Share2 className="w-10 h-10" />
+                            <h2 className="text-5xl font-black text-[#02353C] tracking-tighter leading-tight mb-8">
+                                A Trusted Digital Future for <br />
+                                <span className="text-[#449342]">Sierra Leone.</span>
+                            </h2>
+                            <p className="text-xl text-[#02353C]/60 font-bold leading-relaxed mb-10">
+                                Building the digital bridge for citizens and institutions. SaloneVault is the cornerstone of national document verification and secure digital identity.
+                            </p>
+                            <div className="flex items-center gap-8">
+                                <div className="flex -space-x-4">
+                                    {[1, 2, 3, 4].map(i => (
+                                        <div key={i} className="w-12 h-12 rounded-full border-4 border-white bg-gray-100 flex items-center justify-center overflow-hidden">
+                                            <div className="w-full h-full bg-[#C1F6ED]" />
+                                        </div>
+                                    ))}
                                 </div>
-                                <h3 className="text-xl font-bold text-[#02353C] mb-3">3. Store & Share</h3>
-                                <p className="text-gray-600 leading-relaxed">
-                                    Once verified, the hash is stored on-chain. Store indefinitely or share with secure one-time links.
+                                <p className="text-sm font-black text-[#02353C] uppercase tracking-widest">
+                                    Over <span className="text-[#2EAF7D]">10,000+</span> citizens secured
                                 </p>
                             </div>
                         </div>
+                        <div className="lg:w-1/2 w-full">
+                            <div className="relative aspect-video rounded-[3rem] bg-[#02353C] overflow-hidden shadow-2xl group border border-[#3FD0C9]/20">
+                                <div className="absolute inset-0 bg-gradient-to-br from-[#02353C] to-[#2EAF7D]/30 opacity-60" />
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="w-20 h-20 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center border border-white/20 group-hover:scale-110 transition-transform cursor-pointer">
+                                        <div className="w-12 h-12 bg-[#2EAF7D] rounded-full flex items-center justify-center shadow-xl shadow-[#2EAF7D]/40">
+                                            <ShieldCheck className="text-white w-6 h-6" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="absolute bottom-10 left-10 p-6 bg-white/10 backdrop-blur-3xl rounded-[2rem] border border-white/10">
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-3 bg-white rounded-2xl">
+                                            <ShieldCheck className="h-6 w-6 text-[#2EAF7D]" />
+                                        </div>
+                                        <div>
+                                            <p className="text-white font-black text-xs uppercase tracking-widest mb-1">Status</p>
+                                            <p className="text-[#3FD0C9] font-black">Secure Infrastructure</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-                        <div className="mt-16 text-center">
+            {/* CTA Section */}
+            <section className="py-24 px-4">
+                <div className="max-w-7xl mx-auto">
+                    <div className="relative bg-[#02353C] rounded-[4rem] px-8 py-20 text-center overflow-hidden shadow-2xl border border-white/10">
+                        <div className="absolute inset-0 bg-gradient-to-br from-[#02353C] via-[#0D4448] to-[#2EAF7D]/20 z-0" />
+                        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#3FD0C9] rounded-full blur-[100px] opacity-10 translate-x-1/2 -translate-y-1/2" />
+
+                        <div className="relative z-10 max-w-2xl mx-auto">
+                            <h2 className="text-4xl md:text-5xl font-black text-white tracking-tighter mb-8 leading-tight">
+                                Ready to Secure Your Digital <br /> Official Records?
+                            </h2>
+                            <p className="text-[#C1F6ED]/60 text-lg font-bold mb-12">
+                                Join the thousands of citizens securing their document future on the official SaloneVault platform.
+                            </p>
                             <Link to="/auth?mode=signup">
                                 <Button
                                     variant="primary"
-                                    size="lg"
-                                    className="bg-[#2EAF7D] hover:bg-[#2EAF7D]/90 text-white px-8 py-4 h-auto text-lg rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105"
+                                    className="bg-[#2EAF7D] hover:bg-[#2EAF7D]/90 text-white px-12 py-6 h-auto text-sm font-black uppercase tracking-widest rounded-2xl shadow-2xl shadow-[#2EAF7D]/30 transition-all hover:scale-105 border-none"
                                 >
                                     Get Started Now
                                 </Button>
@@ -237,202 +283,65 @@ export function Landing() {
                 </div>
             </section>
 
-            {/* National Value Section */}
-            <section id="national-value" className="py-24 bg-white relative overflow-hidden">
-                {/* Subtle Background Pattern */}
-                <div className="absolute inset-0 opacity-[0.4] pointer-events-none">
-                    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#C1F6ED" strokeWidth="1" />
-                            </pattern>
-                        </defs>
-                        <rect width="100%" height="100%" fill="url(#grid)" />
-                    </svg>
-                </div>
-
-                <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-                    <h2 className="text-3xl md:text-4xl font-bold text-[#02353C] leading-tight mb-6">
-                        Building a trusted <span className="text-[#2EAF7D]">national digital document system</span> for Sierra Leone.
-                    </h2>
-
-                    <div className="w-24 h-1.5 bg-[#2EAF7D] mx-auto rounded-full mb-8"></div>
-
-                    <p className="text-lg md:text-xl text-[#02353C]/80 leading-relaxed font-medium">
-                        Designed to support citizens, institutions, and future digital services with bank-grade security and transparency.
-                    </p>
-                </div>
-            </section>
-
-            {/* Platform Preview Section */}
-            <section id="platform-preview" className="py-24 bg-[#C1F6ED]">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="relative max-w-5xl mx-auto">
-                        {/* Browser-like Window Frame */}
-                        <div className="bg-[#02353C] rounded-t-xl p-3 flex items-center gap-2 border-x border-t border-white/10 shadow-t-xl">
-                            <div className="flex gap-1.5">
-                                <div className="w-3 h-3 rounded-full bg-red-500/40"></div>
-                                <div className="w-3 h-3 rounded-full bg-yellow-500/40"></div>
-                                <div className="w-3 h-3 rounded-full bg-green-500/40"></div>
-                            </div>
-                            <div className="flex-1 bg-white/5 rounded-md h-6 mx-4"></div>
-                        </div>
-
-                        {/* Mockup Content */}
-                        <div className="bg-white rounded-b-xl shadow-2xl overflow-hidden border-x border-b border-gray-200 aspect-[16/10] flex">
-                            {/* Sidebar Mockup */}
-                            <div className="w-1/4 bg-gray-50 border-r border-gray-100 p-6 hidden sm:block">
-                                <div className="space-y-4">
-                                    <div className="h-4 w-2/3 bg-gray-200 rounded"></div>
-                                    <div className="h-10 w-full bg-[#3FD0C9]/10 rounded-lg border border-[#3FD0C9]/20"></div>
-                                    <div className="h-4 w-1/2 bg-gray-100 rounded"></div>
-                                    <div className="h-4 w-3/4 bg-gray-100 rounded"></div>
-                                    <div className="h-4 w-2/3 bg-gray-100 rounded pt-8"></div>
-                                    <div className="h-4 w-1/2 bg-gray-100 rounded"></div>
-                                </div>
-                            </div>
-
-                            {/* Main Grid Mockup */}
-                            <div className="flex-1 p-8">
-                                <div className="flex justify-between items-center mb-8">
-                                    <div className="h-8 w-48 bg-gray-100 rounded"></div>
-                                    <div className="h-10 w-32 bg-[#2EAF7D] rounded-full"></div>
-                                </div>
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                                    {[1, 2, 3, 4, 5, 6].map((i) => (
-                                        <div key={i} className="aspect-square bg-gray-50 rounded-xl border border-gray-100 p-4 relative group hover:border-[#3FD0C9]/30 transition-colors">
-                                            <div className="w-10 h-10 bg-white rounded-lg mb-3 shadow-sm border border-gray-50 flex items-center justify-center">
-                                                <FileText className="w-5 h-5 text-gray-400" />
-                                            </div>
-                                            <div className="h-3 w-3/4 bg-gray-200 rounded mb-2"></div>
-                                            <div className="h-2 w-1/2 bg-gray-100 rounded"></div>
-
-                                            {/* Status Badge Mockup */}
-                                            {i % 2 === 0 && (
-                                                <div className="absolute top-4 right-4 px-2 py-1 bg-[#2EAF7D]/10 text-[#2EAF7D] text-[10px] font-bold rounded flex items-center gap-1">
-                                                    <ShieldCheck className="w-3 h-3" />
-                                                    VERIFIED
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Caption below visual */}
-                        <div className="mt-12 text-center">
-                            <p className="text-xl md:text-2xl font-bold text-[#02353C]">
-                                Manage, verify, and protect your documents from one secure platform.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Call to Action Section */}
-            <section id="cta" className="py-24 bg-[#02353C] relative overflow-hidden">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-                    <div className="text-center">
-                        <h2 className="text-3xl md:text-5xl font-bold text-white mb-8">
-                            Start securing your documents today
-                        </h2>
-                        <div className="flex flex-col sm:flex-row justify-center gap-4">
-                            <Link to="/auth?mode=signup">
-                                <Button
-                                    variant="primary"
-                                    size="lg"
-                                    className="bg-[#2EAF7D] hover:bg-[#2EAF7D]/90 text-white px-10 py-4 h-auto text-xl rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105"
-                                >
-                                    Create Account
-                                </Button>
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Subtle Decorative Elements */}
-                <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-[#2EAF7D]/10 rounded-full blur-3xl font-bold"></div>
-                <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-96 h-96 bg-[#3FD0C9]/10 rounded-full blur-3xl"></div>
-            </section>
-
-            {/* Color Palette Strip (Visual Reference only, per user request to "use this color scheme") */}
-            <div className="grid grid-cols-5 h-2">
-                <div className="bg-[#C1F6ED]" title="#C1F6ED" />
-                <div className="bg-[#02353C]" title="#02353C" />
-                <div className="bg-[#449342]" title="#449342" />
-                <div className="bg-[#2EAF7D]" title="#2EAF7D" />
-                <div className="bg-[#3FD0C9]" title="#3FD0C9" />
-            </div>
-
             {/* Footer */}
             <footer className="bg-[#02353C] text-white pt-24 pb-12 border-t border-white/5">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-                        {/* Column 1: Branding */}
                         <div className="col-span-1 md:col-span-1">
-                            <div className="flex items-center gap-2 mb-6">
-                                <ShieldCheck className="w-8 h-8 text-[#2EAF7D]" />
-                                <span className="font-bold text-2xl tracking-tight text-white">SaloneVault</span>
-                            </div>
-                            <p className="text-gray-400 leading-relaxed mb-6">
-                                The national digital document vault for Sierra Leone. Secure, immutable, and trusted by the citizens.
+                            <Link to="/" className="flex items-center gap-3 mb-8">
+                                <div className="p-2 bg-[#2EAF7D] rounded-xl">
+                                    <ShieldCheck className="h-6 w-6 text-white" />
+                                </div>
+                                <span className="font-black text-2xl tracking-tighter">SALONEVAULT</span>
+                            </Link>
+                            <p className="text-white/40 font-bold leading-relaxed mb-8">
+                                The official national digital document repository and verification platform for Sierra Leone.
                             </p>
                             <div className="flex gap-4">
-                                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#3FD0C9]/20 transition-colors cursor-pointer group">
-                                    <div className="w-5 h-5 bg-gray-400 group-hover:bg-[#3FD0C9] transition-colors rounded-sm"></div> {/* Placeholder for Social Icon */}
-                                </div>
-                                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#3FD0C9]/20 transition-colors cursor-pointer group">
-                                    <div className="w-5 h-5 bg-gray-400 group-hover:bg-[#3FD0C9] transition-colors rounded-sm"></div> {/* Placeholder for Social Icon */}
-                                </div>
+                                {[Globe, Mail, MapPin].map((Icon, i) => (
+                                    <a key={i} href="#" className="w-10 h-10 bg-white/5 rounded-xl flex items-center justify-center hover:bg-[#3FD0C9] hover:text-[#02353C] transition-all">
+                                        <Icon className="w-5 h-5" />
+                                    </a>
+                                ))}
                             </div>
                         </div>
 
-                        {/* Column 2: Platform Links */}
                         <div>
-                            <h3 className="font-bold text-lg mb-6">Platform</h3>
-                            <ul className="space-y-4 text-gray-400">
-                                <li><a href="#features" className="hover:text-[#3FD0C9] transition-colors">Features</a></li>
-                                <li><a href="#how-it-works" className="hover:text-[#3FD0C9] transition-colors">How It Works</a></li>
-                                <li><Link to="/verify" className="hover:text-[#3FD0C9] transition-colors">Verify Document</Link></li>
-                                <li><Link to="/auth?mode=signup" className="hover:text-[#3FD0C9] transition-colors">Create Account</Link></li>
+                            <h4 className="text-sm font-black uppercase tracking-[0.2em] text-[#3FD0C9] mb-8">Platform</h4>
+                            <ul className="space-y-4 font-bold text-white/40">
+                                {['Features', 'Security', 'Verification', 'How It Works'].map(item => (
+                                    <li key={item}><a href="#" className="hover:text-white transition-colors">{item}</a></li>
+                                ))}
                             </ul>
                         </div>
 
-                        {/* Column 3: Legal & Support */}
                         <div>
-                            <h3 className="font-bold text-lg mb-6">Legal & Support</h3>
-                            <ul className="space-y-4 text-gray-400">
-                                <li><a href="#" className="hover:text-[#3FD0C9] transition-colors">About Us</a></li>
-                                <li><a href="#" className="hover:text-[#3FD0C9] transition-colors">Privacy Policy</a></li>
-                                <li><a href="#" className="hover:text-[#3FD0C9] transition-colors">Terms of Service</a></li>
-                                <li><a href="#" className="hover:text-[#3FD0C9] transition-colors">Documentation</a></li>
+                            <h4 className="text-sm font-black uppercase tracking-[0.2em] text-[#3FD0C9] mb-8">Legal</h4>
+                            <ul className="space-y-4 font-bold text-white/40">
+                                {['Privacy Policy', 'Terms of Service', 'Data Governance', 'Compliance'].map(item => (
+                                    <li key={item}><a href="#" className="hover:text-white transition-colors">{item}</a></li>
+                                ))}
                             </ul>
                         </div>
 
-                        {/* Column 4: Contact */}
                         <div>
-                            <h3 className="font-bold text-lg mb-6">Contact</h3>
-                            <ul className="space-y-4 text-gray-400">
-                                <li className="flex items-center gap-3">
-                                    <Mail className="w-5 h-5 text-[#3FD0C9]" />
-                                    <span>support@salonevault.sl</span>
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <MapPin className="w-5 h-5 text-[#3FD0C9]" />
-                                    <span>Freetown, Sierra Leone</span>
-                                </li>
+                            <h4 className="text-sm font-black uppercase tracking-[0.2em] text-[#3FD0C9] mb-8">Resources</h4>
+                            <ul className="space-y-4 font-bold text-white/40">
+                                {['Documentation', 'Help Center', 'API Reference', 'Status'].map(item => (
+                                    <li key={item}><a href="#" className="hover:text-white transition-colors">{item}</a></li>
+                                ))}
                             </ul>
                         </div>
                     </div>
 
                     <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-                        <div className="text-sm text-gray-500">
-                            &copy; {new Date().getFullYear()} SaloneVault. All rights reserved.
-                        </div>
-                        <div className="flex gap-8 text-sm text-gray-500">
-                            <span className="flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-green-500"></div> System Status: Operational
+                        <p className="text-white/20 font-bold text-sm">
+                            © {new Date().getFullYear()} SaloneVault. National Digital Document Repository.
+                        </p>
+                        <div className="flex items-center gap-8">
+                            <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/20">
+                                <span className="w-2 h-2 rounded-full bg-[#2EAF7D]" />
+                                Systems Operational
                             </span>
                         </div>
                     </div>
