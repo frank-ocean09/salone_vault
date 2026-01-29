@@ -330,6 +330,32 @@ export function Landing() {
                 </div>
             </section>
 
+            {/* Call to Action Section */}
+            <section id="cta" className="py-24 bg-[#02353C] relative overflow-hidden">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                    <div className="text-center">
+                        <h2 className="text-3xl md:text-5xl font-bold text-white mb-8">
+                            Start securing your documents today
+                        </h2>
+                        <div className="flex flex-col sm:flex-row justify-center gap-4">
+                            <Link to="/auth?mode=signup">
+                                <Button
+                                    variant="primary"
+                                    size="lg"
+                                    className="bg-[#2EAF7D] hover:bg-[#2EAF7D]/90 text-white px-10 py-4 h-auto text-xl rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105"
+                                >
+                                    Create Account
+                                </Button>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Subtle Decorative Elements */}
+                <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-[#2EAF7D]/10 rounded-full blur-3xl font-bold"></div>
+                <div className="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-96 h-96 bg-[#3FD0C9]/10 rounded-full blur-3xl"></div>
+            </section>
+
             {/* Color Palette Strip (Visual Reference only, per user request to "use this color scheme") */}
             <div className="grid grid-cols-5 h-2">
                 <div className="bg-[#C1F6ED]" title="#C1F6ED" />
