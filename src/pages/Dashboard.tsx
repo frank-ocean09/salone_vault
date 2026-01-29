@@ -4,7 +4,7 @@ import { Navbar } from '../components/Navbar';
 import { Button } from '../components/Button';
 import { FolderList } from '../components/FolderList';
 import { ShareModal } from '../components/ShareModal';
-import { PDFViewer } from '../components/PDFViewer';
+import { DocumentView } from '../components/DocumentView';
 import { AlbumSettingsModal } from '../components/AlbumSettingsModal';
 import { Plus, FileText, CheckCircle, Clock, Share2, Search, Upload as UploadIcon, AlertCircle, Eye, Trash2, FolderInput, Activity, ChevronDown, ChevronUp, Users, Settings, Wallet, Bell, User as UserIcon, LogOut, Menu, X } from 'lucide-react';
 import { DocumentsTable } from '../components/DocumentsTable';
@@ -210,37 +210,19 @@ export function Dashboard() {
 
     const handleViewDocument = async (doc: Document) => {
         try {
-            // Check if it's a PDF
-            const isPdf = doc.name.toLowerCase().endsWith('.pdf') || doc.type === 'application/pdf';
-
-            if (isPdf) {
-                // If online, get signed URL. If offline, pass null (viewer will try cache)
-                let url = null;
-                if (navigator.onLine) {
-                    url = await getDocumentUrl(doc.file_path);
-                }
-
-                setViewingDocument(doc);
-                setViewingDocUrl(url);
-            } else {
-                // For images, open in new tab (or same tab if preferred)
-                const url = await getDocumentUrl(doc.file_path);
-                window.location.href = url;
+            // For both PDFs and images, we'll open the new DocumentView modal
+            let url = null;
+            if (navigator.onLine) {
+                url = await getDocumentUrl(doc.file_path);
             }
+
+            setViewingDocument(doc);
+            setViewingDocUrl(url);
         } catch (err: any) {
             console.error('Error opening document:', err);
-
-            // If it's a PDF and we failed (maybe offline), try viewer anyway to check cache
-            const isPdf = doc.name.toLowerCase().endsWith('.pdf') || doc.type === 'application/pdf';
-            if (isPdf) {
-                setViewingDocument(doc);
-                setViewingDocUrl(null);
-            } else {
-                setError('Failed to open document');
-            }
+            setError('Failed to open document');
         }
     };
-
     const handleDeleteDocument = async (doc: Document) => {
         if (!confirm(`Are you sure you want to delete "${doc.name}"? This action cannot be undone.`)) {
             return;
@@ -1505,16 +1487,37 @@ export function Dashboard() {
                     />
                 )}
 
-                {/* PDF Viewer */}
+                {/* Document Details View (Redesigned PDF Viewer) */}
                 {viewingDocument && user && (
-                    <PDFViewer
+                    <DocumentView
+                        document={viewingDocument}
                         url={viewingDocUrl}
-                        documentId={viewingDocument.id}
-                        documentName={viewingDocument.name}
                         userId={user.id}
+                        ownerName={user.user_metadata?.full_name || user.email || 'Authorized User'}
+                        folderName={folders.find(f => f.id === viewingDocument.folder_id)?.name || 'Main Vault'}
                         onClose={() => {
                             setViewingDocument(null);
                             setViewingDocUrl(null);
+                        }}
+                        onVerify={(doc) => {
+                            // Link to verify page or trigger on-chain check
+                            window.open(`/verify?token=${doc.hash}`, '_blank');
+                        }}
+                        onShare={(doc) => {
+                            setViewingDocument(null);
+                            openShareModal(doc);
+                        }}
+                        onDownload={async (doc) => {
+                            try {
+                                const url = await getDocumentUrl(doc.file_path);
+                                window.open(url, '_blank');
+                            } catch (err) {
+                                showToast('Failed to download document', 'error');
+                            }
+                        }}
+                        onDelete={(doc) => {
+                            setViewingDocument(null);
+                            handleDeleteDocument(doc);
                         }}
                     />
                 )}
