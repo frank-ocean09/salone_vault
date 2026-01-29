@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Lock, Search, Upload, Users, Globe, Award, Zap, FileText, Star, ArrowRight, ShieldCheck, FileCheck, Wallet, Share2, Database, CheckCircle } from 'lucide-react';
+import { Lock, Search, Upload, Users, Globe, Award, Zap, FileText, Star, ArrowRight, ShieldCheck, FileCheck, Wallet, Share2, Database, CheckCircle, Mail, MapPin } from 'lucide-react';
 import { Button } from '../components/Button';
 import { Navbar } from '../components/Navbar';
 
@@ -366,15 +366,74 @@ export function Landing() {
             </div>
 
             {/* Footer */}
-            <footer className="bg-[#02353C] text-white py-16">
+            <footer className="bg-[#02353C] text-white pt-24 pb-12 border-t border-white/5">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-                        <div className="flex items-center gap-2">
-                            <img src="/nddv-logo.png" alt="Logo" className="h-8 w-8 grayscale brightness-200" />
-                            <span className="font-bold text-xl">Salone Vault</span>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+                        {/* Column 1: Branding */}
+                        <div className="col-span-1 md:col-span-1">
+                            <div className="flex items-center gap-2 mb-6">
+                                <ShieldCheck className="w-8 h-8 text-[#2EAF7D]" />
+                                <span className="font-bold text-2xl tracking-tight text-white">SaloneVault</span>
+                            </div>
+                            <p className="text-gray-400 leading-relaxed mb-6">
+                                The national digital document vault for Sierra Leone. Secure, immutable, and trusted by the citizens.
+                            </p>
+                            <div className="flex gap-4">
+                                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#3FD0C9]/20 transition-colors cursor-pointer group">
+                                    <div className="w-5 h-5 bg-gray-400 group-hover:bg-[#3FD0C9] transition-colors rounded-sm"></div> {/* Placeholder for Social Icon */}
+                                </div>
+                                <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-[#3FD0C9]/20 transition-colors cursor-pointer group">
+                                    <div className="w-5 h-5 bg-gray-400 group-hover:bg-[#3FD0C9] transition-colors rounded-sm"></div> {/* Placeholder for Social Icon */}
+                                </div>
+                            </div>
                         </div>
-                        <div className="text-sm opacity-60">
-                            &copy; 2024 Salone Vault. All rights reserved.
+
+                        {/* Column 2: Platform Links */}
+                        <div>
+                            <h3 className="font-bold text-lg mb-6">Platform</h3>
+                            <ul className="space-y-4 text-gray-400">
+                                <li><a href="#features" className="hover:text-[#3FD0C9] transition-colors">Features</a></li>
+                                <li><a href="#how-it-works" className="hover:text-[#3FD0C9] transition-colors">How It Works</a></li>
+                                <li><Link to="/verify" className="hover:text-[#3FD0C9] transition-colors">Verify Document</Link></li>
+                                <li><Link to="/auth?mode=signup" className="hover:text-[#3FD0C9] transition-colors">Create Account</Link></li>
+                            </ul>
+                        </div>
+
+                        {/* Column 3: Legal & Support */}
+                        <div>
+                            <h3 className="font-bold text-lg mb-6">Legal & Support</h3>
+                            <ul className="space-y-4 text-gray-400">
+                                <li><a href="#" className="hover:text-[#3FD0C9] transition-colors">About Us</a></li>
+                                <li><a href="#" className="hover:text-[#3FD0C9] transition-colors">Privacy Policy</a></li>
+                                <li><a href="#" className="hover:text-[#3FD0C9] transition-colors">Terms of Service</a></li>
+                                <li><a href="#" className="hover:text-[#3FD0C9] transition-colors">Documentation</a></li>
+                            </ul>
+                        </div>
+
+                        {/* Column 4: Contact */}
+                        <div>
+                            <h3 className="font-bold text-lg mb-6">Contact</h3>
+                            <ul className="space-y-4 text-gray-400">
+                                <li className="flex items-center gap-3">
+                                    <Mail className="w-5 h-5 text-[#3FD0C9]" />
+                                    <span>support@salonevault.sl</span>
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <MapPin className="w-5 h-5 text-[#3FD0C9]" />
+                                    <span>Freetown, Sierra Leone</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+                        <div className="text-sm text-gray-500">
+                            &copy; {new Date().getFullYear()} SaloneVault. All rights reserved.
+                        </div>
+                        <div className="flex gap-8 text-sm text-gray-500">
+                            <span className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-green-500"></div> System Status: Operational
+                            </span>
                         </div>
                     </div>
                 </div>
