@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Lock, Search, Upload, Users, Globe, Award, Zap, FileText, Star, ArrowRight, ShieldCheck, FileCheck } from 'lucide-react';
+import { Lock, Search, Upload, Users, Globe, Award, Zap, FileText, Star, ArrowRight, ShieldCheck, FileCheck, Wallet, Share2, Database, CheckCircle } from 'lucide-react';
 import { Button } from '../components/Button';
 import { Navbar } from '../components/Navbar';
 
@@ -136,6 +136,36 @@ export function Landing() {
                                 </div>
                                 <h3 className="text-xl font-bold text-[#02353C] mb-3">{item.title}</h3>
                                 <p className="text-gray-600 leading-relaxed text-sm">{item.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Features Section */}
+            <section id="features" className="py-24 bg-white">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <span className="text-[#2EAF7D] font-bold tracking-wider uppercase text-sm">Key Features</span>
+                        <h2 className="text-4xl font-bold text-[#02353C] mt-2 mb-4">Everything You Need</h2>
+                        <p className="text-gray-600 max-w-2xl mx-auto">
+                            Comprehensive tools to manage, verify, and share your important documents securely.
+                        </p>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {[
+                            { icon: Wallet, title: "Secure Wallet", desc: "Store your official documents in a personal, encrypted digital wallet." },
+                            { icon: CheckCircle, title: "Document Verification", desc: "Instantly verify the authenticity of any document issued on the platform." },
+                            { icon: Share2, title: "Permission Sharing", desc: "Share documents temporarily with institutions or individuals securely." },
+                            { icon: Database, title: "Blockchain Proof", desc: "Every document is hashed and anchored to the blockchain for immutable proof." }
+                        ].map((item, i) => (
+                            <div key={i} className="bg-white p-8 rounded-2xl shadow-sm border border-[#3FD0C9] hover:shadow-md transition-shadow">
+                                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-transparent mb-6">
+                                    <item.icon className="w-8 h-8 text-[#2EAF7D]" />
+                                </div>
+                                <h3 className="text-xl font-bold text-[#02353C] mb-3">{item.title}</h3>
+                                <p className="text-[#02353C] leading-relaxed text-sm">{item.desc}</p>
                             </div>
                         ))}
                     </div>
