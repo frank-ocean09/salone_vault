@@ -61,82 +61,100 @@ export const DocumentsTable: React.FC<Props> = ({
   };
 
   return (
-    <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {documents.length === 0 ? (
-          <div className="col-span-full text-center py-20 bg-white/30 dark:bg-brand-lighter-dark/30 backdrop-blur-sm rounded-[3rem] border border-white/50 dark:border-white/5 uppercase tracking-[0.3em] text-[10px] font-black text-gray-400 dark:text-white/20">
-            No documents found in this section
-          </div>
-        ) : (
-          documents.map((doc) => (
-            <div key={doc.id} className="group bg-white dark:bg-brand-lighter-dark p-6 rounded-[2.5rem] border border-white dark:border-white/5 shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 flex flex-col h-full relative overflow-hidden">
-              {/* Subtle background icon */}
-              <div className="absolute -right-6 -bottom-6 opacity-[0.02] group-hover:opacity-[0.05] transition-all duration-700 rotate-12 group-hover:rotate-0">
-                <FileText size={160} />
-              </div>
-
-              <div className="flex items-start justify-between mb-6 relative z-10">
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <input
-                      type="checkbox"
-                      className="h-6 w-6 rounded-xl border-gray-200 text-[#3FD0C9] focus:ring-[#3FD0C9] transition-all cursor-pointer"
-                      checked={selectedIds.includes(doc.id)}
-                      onChange={() => onToggleSelect(doc.id)}
-                    />
+    <div className="overflow-x-auto">
+      <table className="w-full text-left border-collapse">
+        <thead>
+          <tr className="border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <th className="px-6 py-4 w-10">
+              <input
+                type="checkbox"
+                className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                checked={selectedIds.length > 0 && selectedIds.length === documents.length}
+                onChange={(e) => e.target.checked ? onSelectAll(documents.map(d => d.id)) : onDeselectAll()}
+              />
+            </th>
+            <th className="px-6 py-4">Document Name</th>
+            <th className="px-6 py-4">Type</th>
+            <th className="px-6 py-4">Status</th>
+            <th className="px-6 py-4">Uploaded</th>
+            <th className="px-6 py-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-50">
+          {documents.length === 0 ? (
+            <tr>
+              <td colSpan={6} className="px-6 py-12 text-center text-gray-400 text-sm">
+                No documents found
+              </td>
+            </tr>
+          ) : (
+            documents.map((doc) => (
+              <tr key={doc.id} className="hover:bg-gray-50/50 transition-colors group">
+                <td className="px-6 py-4">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500 cursor-pointer"
+                    checked={selectedIds.includes(doc.id)}
+                    onChange={() => onToggleSelect(doc.id)}
+                  />
+                </td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-green-50 rounded-lg text-green-700">
+                      <FileText size={18} />
+                    </div>
+                    <div>
+                      <div className="font-medium text-slate-900 cursor-pointer hover:text-green-700 transition-colors" onClick={() => onView(doc)}>
+                        {doc.name}
+                      </div>
+                      <div className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
+                        <FolderIcon size={10} />
+                        {getFolderName(doc.folder_id)}
+                      </div>
+                    </div>
                   </div>
-                  <div className="p-4 bg-[#C1F6ED]/20 dark:bg-white/5 rounded-2xl text-[#02353C] dark:text-brand-pale group-hover:bg-[#02353C] group-hover:dark:bg-brand-teal group-hover:text-white transition-all duration-300">
-                    <FileText className="h-6 w-6" strokeWidth={2.5} />
+                </td>
+                <td className="px-6 py-4">
+                  <span className="text-sm text-slate-600">{doc.type}</span>
+                </td>
+                <td className="px-6 py-4">
+                  {getStatusBadge(doc.status)}
+                </td>
+                <td className="px-6 py-4">
+                  <div className="text-sm text-slate-500">
+                    {new Date(doc.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                   </div>
-                </div>
-                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                  <button onClick={() => onView(doc)} className="p-2.5 text-gray-400 hover:text-[#3FD0C9] hover:bg-[#3FD0C9]/10 rounded-xl transition-all" title="Quick View">
-                    <Eye className="h-5 w-5" />
-                  </button>
-                  <button onClick={() => onShare(doc)} className="p-2.5 text-gray-400 hover:text-[#3FD0C9] hover:bg-[#3FD0C9]/10 rounded-xl transition-all" title="Share Document">
-                    <Share2 className="h-5 w-5" />
-                  </button>
-                  <button onClick={() => onDelete(doc)} className="p-2.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all" title="Delete Document">
-                    <Trash2 className="h-5 w-5" />
-                  </button>
-                </div>
-              </div>
-
-              <div onClick={() => onView(doc)} className="cursor-pointer flex-1 relative z-10 flex flex-col">
-                <h3 className="font-black text-[#02353C] dark:text-brand-pale text-xl mb-1 group-hover:text-[#3FD0C9] transition-colors truncate tracking-tight">
-                  {doc.name}
-                </h3>
-
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-gray-50 dark:bg-white/5 rounded-lg border border-gray-100 dark:border-white/5">
-                    <FolderIcon size={10} className="text-gray-400 dark:text-white/40" />
-                    <span className="text-[10px] text-gray-500 dark:text-white/40 font-bold uppercase tracking-wider">
-                      {getFolderName(doc.folder_id)}
-                    </span>
+                </td>
+                <td className="px-6 py-4 text-right">
+                  <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => onView(doc)}
+                      className="p-2 text-slate-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                      title="View"
+                    >
+                      <Eye size={16} />
+                    </button>
+                    <button
+                      onClick={() => onShare(doc)}
+                      className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="Share"
+                    >
+                      <Share2 size={16} />
+                    </button>
+                    <button
+                      onClick={() => onDelete(doc)}
+                      className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Delete"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
-                  <span className="text-[10px] bg-gray-50 dark:bg-white/5 px-2 py-0.5 rounded-lg border border-gray-100 dark:border-white/5 text-gray-400 dark:text-white/40 font-mono tracking-tighter uppercase font-bold">
-                    ID: {doc.hash.slice(0, 8)}
-                  </span>
-                </div>
-
-                <div className="mt-auto pt-6 border-t border-gray-50">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#02353C]/30 dark:text-white/20">{doc.type}</span>
-                    {getStatusBadge(doc.status)}
-                  </div>
-
-                  <div className="flex items-center gap-2 text-gray-300 dark:text-white/20">
-                    <Clock size={12} strokeWidth={3} />
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">
-                      Uploaded {new Date(doc.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
-    </>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
   );
 };

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Folder, Plus, Edit2, Trash2, FolderOpen } from 'lucide-react';
+import { Folder, Plus, Edit2, Trash2 } from 'lucide-react';
 import type { Folder as FolderType } from '../lib/supabase';
 
 interface FolderListProps {
@@ -44,28 +44,28 @@ export function FolderList({
     };
 
     return (
-        <div className="bg-white/5 lg:bg-transparent rounded-2xl p-2 h-full">
-            <div className="flex items-center justify-between mb-6 px-2">
-                <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">My Folders</h2>
+        <div className="bg-white rounded-lg p-4 shadow-sm h-full">
+            <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-gray-800">Folders</h2>
                 <button
                     onClick={() => setIsCreating(true)}
-                    className="p-1.5 hover:bg-white/10 rounded-xl transition-all text-[#3FD0C9]"
+                    className="p-1 hover:bg-gray-100 rounded-lg transition-all text-gray-500 hover:text-gray-700"
                     title="New Folder"
                 >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-5 w-5" />
                 </button>
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-1">
                 <button
                     onClick={() => onSelectFolder(null)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 group ${selectedFolderId === null
-                        ? 'bg-[#3FD0C9] text-white shadow-lg shadow-[#3FD0C9]/20 font-bold'
-                        : 'text-white/60 hover:bg-white/5 hover:text-white'
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-medium ${selectedFolderId === null
+                        ? 'bg-green-50 text-green-700'
+                        : 'text-gray-600 hover:bg-gray-50'
                         }`}
                 >
-                    <FolderOpen className={`h-5 w-5 ${selectedFolderId === null ? 'text-white' : 'group-hover:text-[#3FD0C9] transition-colors'}`} />
-                    <span className="text-sm">All Records</span>
+                    <Folder className={`h-5 w-5 ${selectedFolderId === null ? 'fill-green-200 text-green-600' : 'text-gray-400'}`} />
+                    All Documents
                 </button>
 
                 {folders.map(folder => (
@@ -73,7 +73,7 @@ export function FolderList({
                         {editingFolderId === folder.id ? (
                             <form
                                 onSubmit={(e) => handleUpdateSubmit(e, folder.id)}
-                                className="px-2 py-2"
+                                className="px-2 py-1"
                             >
                                 <input
                                     autoFocus
@@ -81,25 +81,22 @@ export function FolderList({
                                     value={editName}
                                     onChange={(e) => setEditName(e.target.value)}
                                     onBlur={() => setEditingFolderId(null)}
-                                    className="w-full bg-[#02353C] dark:bg-brand-darker text-white px-3 py-2 text-sm border border-white/10 rounded-xl focus:outline-none focus:border-[#3FD0C9] focus:ring-1 focus:ring-[#3FD0C9]"
+                                    className="w-full px-2 py-1 text-sm border rounded focus:outline-none focus:border-green-500"
                                 />
                             </form>
                         ) : (
                             <div
-                                className={`flex items-center justify-between w-full px-4 py-3 rounded-2xl transition-all duration-300 group/item ${selectedFolderId === folder.id
-                                    ? 'bg-[#3FD0C9] text-white shadow-lg shadow-[#3FD0C9]/20 font-bold'
-                                    : 'text-white/60 hover:bg-white/5 hover:text-white'
+                                className={`flex items-center justify-between w-full px-3 py-2.5 rounded-lg transition-all group/item ${selectedFolderId === folder.id
+                                    ? 'bg-green-50 text-green-700'
+                                    : 'text-gray-600 hover:bg-gray-50'
                                     }`}
                             >
                                 <button
                                     onClick={() => onSelectFolder(folder.id)}
                                     className="flex items-center gap-3 flex-1 text-left truncate"
                                 >
-                                    <Folder className={`h-5 w-5 ${selectedFolderId === folder.id ? 'text-white' : 'group-hover:text-[#3FD0C9] transition-colors'}`} />
-                                    <span className="text-sm truncate">{folder.name}</span>
-                                    {(folder as any).shared && (
-                                        <span className="ml-2 text-[8px] bg-[#2EAF7D]/20 text-[#2EAF7D] px-2 py-0.5 rounded-full font-bold uppercase tracking-tight">Shared</span>
-                                    )}
+                                    <Folder className={`h-5 w-5 ${selectedFolderId === folder.id ? 'fill-green-200 text-green-600' : 'text-gray-400'}`} />
+                                    <span className="text-sm font-medium truncate">{folder.name}</span>
                                 </button>
 
                                 <div className="flex opacity-0 group-hover/item:opacity-100 items-center gap-1 transition-opacity">
@@ -109,23 +106,9 @@ export function FolderList({
                                             setEditingFolderId(folder.id);
                                             setEditName(folder.name);
                                         }}
-                                        className="p-1.5 hover:text-[#3FD0C9] hover:bg-white/10 rounded-lg"
-                                        title="Rename"
+                                        className="p-1 hover:text-green-600 hover:bg-green-50 rounded"
                                     >
                                         <Edit2 className="h-3 w-3" />
-                                    </button>
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            e.preventDefault();
-                                            if (typeof onShareFolder === 'function') {
-                                                onShareFolder(folder.id);
-                                            }
-                                        }}
-                                        className="p-1.5 hover:text-[#2EAF7D] hover:bg-white/10 rounded-lg"
-                                        title="Share Folder"
-                                    >
-                                        <FolderOpen className="h-3 w-3" />
                                     </button>
                                     <button
                                         onClick={(e) => {
@@ -134,8 +117,7 @@ export function FolderList({
                                                 onDeleteFolder(folder.id);
                                             }
                                         }}
-                                        className="p-1.5 hover:text-red-400 hover:bg-red-400/10 rounded-lg"
-                                        title="Delete"
+                                        className="p-1 hover:text-red-500 hover:bg-red-50 rounded"
                                     >
                                         <Trash2 className="h-3 w-3" />
                                     </button>
@@ -146,7 +128,7 @@ export function FolderList({
                 ))}
 
                 {isCreating && (
-                    <form onSubmit={handleCreateSubmit} className="px-2 py-2">
+                    <form onSubmit={handleCreateSubmit} className="px-2 py-1">
                         <input
                             autoFocus
                             type="text"
@@ -154,7 +136,7 @@ export function FolderList({
                             value={newFolderName}
                             onChange={(e) => setNewFolderName(e.target.value)}
                             onBlur={() => !newFolderName && setIsCreating(false)}
-                            className="w-full bg-[#02353C] dark:bg-brand-darker text-white px-3 py-2 text-sm border border-white/10 rounded-xl focus:outline-none focus:border-[#3FD0C9] focus:ring-1 focus:ring-[#3FD0C9]"
+                            className="w-full px-2 py-1 text-sm border rounded focus:outline-none focus:border-green-500"
                         />
                     </form>
                 )}
