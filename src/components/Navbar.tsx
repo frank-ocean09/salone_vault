@@ -30,72 +30,74 @@ export function Navbar() {
                         <span className="text-white font-bold text-xl">Salone Vault</span>
                     </Link>
 
-                    {/* Desktop Navigation */}
-                    <div className="hidden md:flex items-center space-x-8">
-                        <Link
-                            to="/"
-                            className={`text-sm font-medium transition-colors ${isActive('/') ? 'text-[#3FD0C9]' : 'text-white/80 hover:text-white'
-                                }`}
-                        >
-                            Home
-                        </Link>
-                        <a
-                            href="/#features"
-                            className={`text-sm font-medium transition-colors ${isActive('#features') ? 'text-[#3FD0C9]' : 'text-white/80 hover:text-white'
-                                }`}
-                        >
-                            Features
-                        </a>
-                        <a
-                            href="/#how-it-works"
-                            className={`text-sm font-medium transition-colors ${isActive('#how-it-works') ? 'text-[#3FD0C9]' : 'text-white/80 hover:text-white'
-                                }`}
-                        >
-                            How It Works
-                        </a>
-                        <Link
-                            to="/verify"
-                            className={`text-sm font-medium transition-colors ${isActive('/verify') ? 'text-[#3FD0C9]' : 'text-white/80 hover:text-white'
-                                }`}
-                        >
-                            Verify Document
-                        </Link>
-                    </div>
+                    <div className="hidden md:flex items-center gap-8">
+                        {/* Desktop Navigation */}
+                        <div className="flex items-center space-x-8">
+                            <Link
+                                to="/"
+                                className={`text-sm font-medium transition-colors ${isActive('/') ? 'text-[#3FD0C9]' : 'text-white/80 hover:text-white'
+                                    }`}
+                            >
+                                Home
+                            </Link>
+                            <a
+                                href="/#features"
+                                className={`text-sm font-medium transition-colors ${isActive('#features') ? 'text-[#3FD0C9]' : 'text-white/80 hover:text-white'
+                                    }`}
+                            >
+                                Features
+                            </a>
+                            <a
+                                href="/#how-it-works"
+                                className={`text-sm font-medium transition-colors ${isActive('#how-it-works') ? 'text-[#3FD0C9]' : 'text-white/80 hover:text-white'
+                                    }`}
+                            >
+                                How It Works
+                            </a>
+                            <Link
+                                to="/verify"
+                                className={`text-sm font-medium transition-colors ${isActive('/verify') ? 'text-[#3FD0C9]' : 'text-white/80 hover:text-white'
+                                    }`}
+                            >
+                                Verify Document
+                            </Link>
+                        </div>
 
-                    {/* Auth Buttons */}
-                    <div className="hidden md:flex items-center space-x-4">
-                        {user ? (
-                            <>
-                                <Link
-                                    to="/dashboard"
-                                    className="px-4 py-2 text-sm font-medium text-white hover:text-[#3FD0C9] transition-colors"
-                                >
-                                    Dashboard
-                                </Link>
-                                <button
-                                    onClick={handleSignOut}
-                                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors"
-                                >
-                                    <LogOut size={16} />
-                                    Sign Out
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <Link
-                                    to="/auth?mode=login"
-                                    className="px-4 py-2 text-sm font-medium text-white border border-white/30 rounded-md hover:bg-white/10 transition-all"
-                                >
-                                    Login
-                                </Link>
-                                <Link
-                                    to="/auth?mode=signup"
-                                    className="px-4 py-2 text-sm font-medium text-white bg-[#2EAF7D] rounded-md hover:bg-[#2EAF7D]/90 transition-all"
-                                >
-                                    Sign Up
-                                </Link>
-                            </>
-                        )}
+                        {/* Auth Buttons */}
+                        <div className="flex items-center space-x-4">
+                            {user ? (
+                                <>
+                                    <Link
+                                        to="/dashboard"
+                                        className="px-4 py-2 text-sm font-medium text-white hover:text-[#3FD0C9] transition-colors"
+                                    >
+                                        Dashboard
+                                    </Link>
+                                    <button
+                                        onClick={handleSignOut}
+                                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white/80 hover:text-white transition-colors"
+                                    >
+                                        <LogOut size={16} />
+                                        Sign Out
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <Link
+                                        to="/auth?mode=login"
+                                        className="px-4 py-2 text-sm font-medium text-white border border-white/30 rounded-md hover:bg-white/10 transition-all"
+                                    >
+                                        Login
+                                    </Link>
+                                    <Link
+                                        to="/auth?mode=signup"
+                                        className="px-4 py-2 text-sm font-medium text-white bg-[#2EAF7D] rounded-md hover:bg-[#2EAF7D]/90 transition-all"
+                                    >
+                                        Sign Up
+                                    </Link>
+                                </>
+                            )}
+                        </div>
                     </div>
 
                     {/* Mobile menu button */}
