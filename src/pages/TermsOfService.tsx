@@ -32,7 +32,7 @@ export default function TermsOfService() {
                                 Acceptance of Terms
                             </h2>
                             <p>
-                                By using SaloneVault, you agree to these Terms of Service and our Privacy Policy. If you do not agree to these terms, please do not use our services.
+                                By using SaloneVault, you agree to these Terms & Conditions and our Privacy Policy. If you do not agree to these terms, please do not use our services.
                             </p>
                         </section>
 

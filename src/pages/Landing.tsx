@@ -23,7 +23,7 @@ export function Landing() {
                 </div>
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 h-full flex flex-col justify-center">
-                    <div className="max-w-4xl">
+                    <div className="max-w-3xl">
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
                             <span className="w-2 h-2 rounded-full bg-[#2EAF7D] animate-pulse" />
                             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#C1F6ED]">National Digital Vault</span>
@@ -58,7 +58,7 @@ export function Landing() {
                     </div>
 
                     {/* Dashboard Preview Layered UI (Right Side) */}
-                    <div className="hidden lg:block absolute right-0 top-1/2 -translate-y-1/2 translate-x-32 w-[450px] h-[400px] pointer-events-none perspective-1000">
+                    <div className="hidden lg:block absolute right-[-5rem] top-1/2 -translate-y-1/2 translate-x-48 w-[450px] h-[400px] pointer-events-none perspective-1000">
                         <div className="relative w-full h-full">
                             <div className="absolute top-0 right-0 w-[500px] h-[350px] bg-[#02353C]/60 backdrop-blur-3xl border border-white/10 rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] rotate-y-[-15deg] rotate-x-[10deg] z-20 p-8">
                                 <div className="flex items-center justify-between mb-8">

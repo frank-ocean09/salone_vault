@@ -207,9 +207,12 @@ export function Auth() {
                                     checked={formData.acceptTerms} onChange={handleChange}
                                     className="w-5 h-5 rounded-lg border-2 border-[#2EAF7D] text-[#2EAF7D] focus:ring-[#3FD0C9] cursor-pointer"
                                 />
-                                <label htmlFor="acceptTerms" className="text-xs font-bold text-[#02353C]/60 cursor-pointer">
-                                    I agree to the <Link to="/privacy" className="text-[#2EAF7D] hover:text-[#3FD0C9] underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</Link> and <Link to="/terms" className="text-[#2EAF7D] hover:text-[#3FD0C9] underline" onClick={(e) => e.stopPropagation()}>Terms & Conditions</Link>.
-                                </label>
+                                <div className="text-xs font-bold text-[#02353C]/60 flex flex-wrap gap-1">
+                                    <label htmlFor="acceptTerms" className="cursor-pointer">I agree to the</label>
+                                    <Link to="/privacy" className="text-[#2EAF7D] hover:text-[#3FD0C9] underline">Privacy Policy</Link>
+                                    <span>and</span>
+                                    <Link to="/terms" className="text-[#2EAF7D] hover:text-[#3FD0C9] underline">Terms & Conditions</Link>.
+                                </div>
                             </div>
                         )}
 
