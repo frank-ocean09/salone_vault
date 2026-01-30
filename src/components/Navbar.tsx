@@ -3,6 +3,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X, LogOut, ShieldCheck } from 'lucide-react';
 import { Button } from './Button';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
+import { Sun, Moon } from 'lucide-react';
 
 export function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
@@ -11,6 +13,7 @@ export function Navbar() {
     const navigate = useNavigate();
     const location = useLocation();
     const lastScrollY = useRef(0);
+    const { isDarkMode, toggleTheme } = useTheme();
 
     const handleSignOut = async () => {
         await signOut();
@@ -71,6 +74,14 @@ export function Navbar() {
                             Verify Document
                         </Link>
 
+                        <button
+                            onClick={toggleTheme}
+                            className="p-2 rounded-xl bg-gray-100 dark:bg-white/10 text-[#02353C] dark:text-brand-pale hover:bg-gray-200 dark:hover:bg-white/20 transition-all"
+                            title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                        >
+                            {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+                        </button>
+
                         {user ? (
                             <>
                                 <Link to="/dashboard" className="px-6 py-2 bg-[#2EAF7D] text-white font-black text-xs uppercase tracking-widest rounded-xl hover:scale-105 transition-all shadow-lg shadow-[#2EAF7D]/20">
@@ -120,88 +131,97 @@ export function Navbar() {
             </div>
 
             {/* Mobile menu */}
-            {isOpen && (
-                <div className="md:hidden bg-white dark:bg-brand-dark border-b border-[#02353C]/5 dark:border-white/5 animate-in fade-in slide-in-from-top-4 duration-300">
-                    <div className="px-4 pt-2 pb-6 space-y-2">
-                        <Link
-                            to="/"
-                            className="block px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-[#02353C]/60 dark:text-white/60 hover:text-[#02353C] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all"
-                            onClick={() => setIsOpen(false)}
-                        >
-                            Home
-                        </Link>
-                        <a
-                            href="/#features"
-                            className="block px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-[#02353C]/60 dark:text-white/60 hover:text-[#02353C] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all"
-                            onClick={() => setIsOpen(false)}
-                        >
-                            Features
-                        </a>
-                        <a
-                            href="/#how-it-works"
-                            className="block px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-[#02353C]/60 dark:text-white/60 hover:text-[#02353C] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all"
-                            onClick={() => setIsOpen(false)}
-                        >
-                            How It Works
-                        </a>
-                        <Link
-                            to="/verify"
-                            className="block px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-[#02353C]/60 dark:text-white/60 hover:text-[#02353C] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all"
-                            onClick={() => setIsOpen(false)}
-                        >
-                            Verify Document
-                        </Link>
-                        {user ? (
-                            <div className="space-y-2 pt-4 border-t border-white/5">
-                                <Link
-                                    to="/dashboard"
-                                    className="block px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest bg-[#2EAF7D] text-white shadow-lg shadow-[#2EAF7D]/20"
-                                    onClick={() => setIsOpen(false)}
-                                >
-                                    My Vault
-                                </Link>
-                                <button
-                                    onClick={() => {
-                                        handleSignOut();
-                                        setIsOpen(false);
-                                    }}
-                                    className="w-full text-left px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-white/40 hover:text-white transition-all flex items-center gap-2"
-                                >
-                                    <LogOut className="h-4 w-4" />
-                                    Sign Out
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="space-y-3 pt-4 border-t border-white/5">
-                                <Link
-                                    to="/auth?mode=login"
-                                    className="block w-full"
-                                    onClick={() => setIsOpen(false)}
-                                >
-                                    <Button
-                                        variant="outline"
-                                        className="w-full border-[#3FD0C9] text-[#3FD0C9] hover:bg-[#3FD0C9]/10 font-black text-xs uppercase tracking-widest py-4 rounded-xl"
+            {
+                isOpen && (
+                    <div className="md:hidden bg-white dark:bg-brand-dark border-b border-[#02353C]/5 dark:border-white/5 animate-in fade-in slide-in-from-top-4 duration-300">
+                        <div className="px-4 pt-2 pb-6 space-y-2">
+                            <Link
+                                to="/"
+                                className="block px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-[#02353C]/60 dark:text-white/60 hover:text-[#02353C] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+                                onClick={() => setIsOpen(false)}
+                            >
+                                Home
+                            </Link>
+                            <a
+                                href="/#features"
+                                className="block px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-[#02353C]/60 dark:text-white/60 hover:text-[#02353C] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+                                onClick={() => setIsOpen(false)}
+                            >
+                                Features
+                            </a>
+                            <a
+                                href="/#how-it-works"
+                                className="block px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-[#02353C]/60 dark:text-white/60 hover:text-[#02353C] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+                                onClick={() => setIsOpen(false)}
+                            >
+                                How It Works
+                            </a>
+                            <Link
+                                to="/verify"
+                                className="block px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-[#02353C]/60 dark:text-white/60 hover:text-[#02353C] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+                                onClick={() => setIsOpen(false)}
+                            >
+                                Verify Document
+                            </Link>
+                            <button
+                                onClick={toggleTheme}
+                                className="w-full flex items-center justify-between px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-[#02353C]/60 dark:text-white/60 hover:text-[#02353C] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+                            >
+                                <span>{isDarkMode ? 'Light Mode' : 'Dark Mode'}</span>
+                                {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+                            </button>
+                            {user ? (
+                                <div className="space-y-2 pt-4 border-t border-white/5">
+                                    <Link
+                                        to="/dashboard"
+                                        className="block px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest bg-[#2EAF7D] text-white shadow-lg shadow-[#2EAF7D]/20"
+                                        onClick={() => setIsOpen(false)}
                                     >
-                                        Login
-                                    </Button>
-                                </Link>
-                                <Link
-                                    to="/auth?mode=signup"
-                                    className="block w-full"
-                                    onClick={() => setIsOpen(false)}
-                                >
-                                    <Button
-                                        variant="primary"
-                                        className="w-full bg-[#2EAF7D] text-white font-black text-xs uppercase tracking-widest py-4 rounded-xl shadow-lg shadow-[#2EAF7D]/20"
+                                        My Vault
+                                    </Link>
+                                    <button
+                                        onClick={() => {
+                                            handleSignOut();
+                                            setIsOpen(false);
+                                        }}
+                                        className="w-full text-left px-3 py-4 rounded-xl text-xs font-black uppercase tracking-widest text-white/40 hover:text-white transition-all flex items-center gap-2"
                                     >
-                                        Sign Up
-                                    </Button>
-                                </Link>
-                            </div>
-                        )}
+                                        <LogOut className="h-4 w-4" />
+                                        Sign Out
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="space-y-3 pt-4 border-t border-white/5">
+                                    <Link
+                                        to="/auth?mode=login"
+                                        className="block w-full"
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        <Button
+                                            variant="outline"
+                                            className="w-full border-[#3FD0C9] text-[#3FD0C9] hover:bg-[#3FD0C9]/10 font-black text-xs uppercase tracking-widest py-4 rounded-xl"
+                                        >
+                                            Login
+                                        </Button>
+                                    </Link>
+                                    <Link
+                                        to="/auth?mode=signup"
+                                        className="block w-full"
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        <Button
+                                            variant="primary"
+                                            className="w-full bg-[#2EAF7D] text-white font-black text-xs uppercase tracking-widest py-4 rounded-xl shadow-lg shadow-[#2EAF7D]/20"
+                                        >
+                                            Sign Up
+                                        </Button>
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                </div>
-            )}
-        </nav>
+                )
+            }
+        </nav >
     );
 }

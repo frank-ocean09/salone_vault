@@ -815,15 +815,15 @@ export function Dashboard() {
     const ThemeToggle = () => (
         <button
             onClick={toggleTheme}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/10 border border-white/20 hover:bg-white/20 transition-all group"
+            className="flex items-center justify-between w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all group"
             title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         >
+            <span className="text-xs font-bold text-white/60 group-hover:text-white uppercase tracking-widest">
+                {isDarkMode ? 'Dark Mode' : 'Light Mode'}
+            </span>
             <div className={`relative w-10 h-5 rounded-full transition-colors duration-300 ${isDarkMode ? 'bg-[#2EAF7D]' : 'bg-white/20'}`}>
                 <div className={`absolute top-1 left-1 w-3 h-3 rounded-full bg-white transition-transform duration-300 ${isDarkMode ? 'translate-x-5' : 'translate-x-0'}`} />
             </div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-white/80 group-hover:text-white">
-                {isDarkMode ? 'Dark' : 'Light'}
-            </span>
         </button>
     );
 
@@ -866,6 +866,9 @@ export function Dashboard() {
                 </div>
 
                 <div className="mt-auto pt-6 border-t border-white/5">
+                    <div className="mb-4">
+                        <ThemeToggle />
+                    </div>
                     <button
                         onClick={() => signOut().then(() => navigate('/auth'))}
                         className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-red-400 hover:bg-red-400/10 transition-all group"
@@ -907,6 +910,9 @@ export function Dashboard() {
                     <NavItem icon={Users} label="Shared With Me" active={!!viewingSharedAlbum} onClick={() => { }} />
                     <NavItem icon={FileText} label="Verification Requests" onClick={() => navigate('/requests')} />
                     <NavItem icon={Settings} label="Settings" onClick={() => navigate('/settings')} />
+                    <div className="px-2 mt-4">
+                        <ThemeToggle />
+                    </div>
                     <div className="mt-8 px-2">
                         <FolderList
                             folders={folders.map(f => ({ ...f, shared: sharedAlbums.some(sa => sa.folder_id === f.id) }))}
@@ -961,9 +967,6 @@ export function Dashboard() {
 
                         <div className="h-10 w-[1px] bg-white/10 mx-2 hidden sm:block" />
 
-                        <div className="hidden sm:flex items-center gap-2 mr-2">
-                            <ThemeToggle />
-                        </div>
 
                         <div className="h-10 w-[1px] bg-white/10 mx-2 hidden sm:block" />
 
