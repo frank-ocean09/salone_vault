@@ -5,11 +5,13 @@ import { Button } from '../components/Button';
 import { GoogleLoginButton } from '../components/GoogleLoginButton';
 import { Shield, Mail, Lock, User, Phone, AlertCircle, ShieldCheck, ArrowRight, CheckCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { supabase } from '../lib/supabase';
 
 export function Auth() {
     const navigate = useNavigate();
     const { signUp, signIn } = useAuth();
+    const { isDarkMode } = useTheme();
     const [isLogin, setIsLogin] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -34,7 +36,7 @@ export function Auth() {
                 return;
             }
             if (!formData.acceptTerms) {
-                setError("You must accept the Terms & Conditions");
+                setError("You must agree to the Privacy Policy and Terms of Service");
                 return;
             }
         }
@@ -84,10 +86,15 @@ export function Auth() {
     };
 
     return (
-        <div className="min-h-screen bg-[#C1F6ED] flex flex-col items-center justify-center p-4 relative overflow-hidden font-sans">
+        <div className="min-h-screen bg-[#C1F6ED] dark:bg-brand-dark flex flex-col items-center justify-center p-4 relative overflow-hidden font-sans transition-colors duration-500">
             {/* Technical Grid Pattern Background */}
-            <div className="absolute inset-0 opacity-[0.4] pointer-events-none"
-                style={{ backgroundImage: 'linear-gradient(#02353C 1px, transparent 1px), linear-gradient(90deg, #02353C 1px, transparent 1px)', backgroundSize: '40px 40px' }}>
+            <div className="absolute inset-0 opacity-[0.4] dark:opacity-[0.1] pointer-events-none"
+                style={{
+                    backgroundImage: isDarkMode
+                        ? 'linear-gradient(rgba(193, 246, 237, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(193, 246, 237, 0.2) 1px, transparent 1px)'
+                        : 'linear-gradient(#02353C 1px, transparent 1px), linear-gradient(90deg, #02353C 1px, transparent 1px)',
+                    backgroundSize: '40px 40px'
+                }}>
             </div>
 
             {/* Abstract Glows */}
@@ -95,7 +102,7 @@ export function Auth() {
             <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#2EAF7D] rounded-full blur-[120px] opacity-20 -translate-x-1/2 translate-y-1/2" />
 
             <div className="w-full max-w-xl relative z-10 transition-all duration-500">
-                <div className="bg-white rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(2,53,60,0.1)] p-8 sm:p-12 border border-white relative overflow-hidden group">
+                <div className="bg-white dark:bg-white/5 rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(2,53,60,0.1)] p-8 sm:p-12 border border-white dark:border-white/10 relative overflow-hidden group">
                     {/* Subtle top accent line */}
                     <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#3FD0C9] via-[#2EAF7D] to-[#449342]" />
 
@@ -104,12 +111,12 @@ export function Auth() {
                             <div className="p-3 bg-[#2EAF7D] rounded-2xl group-hover/logo:scale-110 transition-transform shadow-lg shadow-[#2EAF7D]/20">
                                 <ShieldCheck className="h-6 w-6 text-white" />
                             </div>
-                            <span className="font-black text-2xl text-[#02353C] tracking-tighter">SALONEVAULT</span>
+                            <span className="font-black text-2xl text-[#02353C] dark:text-brand-pale tracking-tighter">SALONEVAULT</span>
                         </Link>
-                        <h1 className="text-3xl font-black text-[#02353C] tracking-tight mb-3">
+                        <h1 className="text-3xl font-black text-[#02353C] dark:text-brand-pale tracking-tight mb-3">
                             {isLogin ? 'Welcome Back' : 'Create Secure Vault'}
                         </h1>
-                        <p className="text-[#02353C]/40 font-bold">
+                        <p className="text-[#02353C]/40 dark:text-white/40 font-bold">
                             {isLogin
                                 ? 'Access your official digital records securely.'
                                 : 'Join the national digital document infrastructure.'}
@@ -198,10 +205,10 @@ export function Auth() {
                                 <input
                                     type="checkbox" name="acceptTerms" id="acceptTerms"
                                     checked={formData.acceptTerms} onChange={handleChange}
-                                    className="w-5 h-5 rounded-lg border-2 border-[#2EAF7D] text-[#2EAF7D] focus:ring-[#3FD0C9]"
+                                    className="w-5 h-5 rounded-lg border-2 border-[#2EAF7D] text-[#2EAF7D] focus:ring-[#3FD0C9] cursor-pointer"
                                 />
                                 <label htmlFor="acceptTerms" className="text-xs font-bold text-[#02353C]/60 cursor-pointer">
-                                    I accept the <a href="#" className="text-[#2EAF7D] underline">Terms & Conditions</a>
+                                    I agree to the <Link to="/privacy" className="text-[#2EAF7D] hover:text-[#3FD0C9] underline">Privacy Policy</Link> and <Link to="/terms" className="text-[#2EAF7D] hover:text-[#3FD0C9] underline">Terms of Service</Link>.
                                 </label>
                             </div>
                         )}
@@ -224,8 +231,9 @@ export function Auth() {
                             type="submit"
                             className="w-full py-5 bg-[#2EAF7D] hover:bg-[#2EAF7D]/90 text-white font-black uppercase tracking-widest text-sm rounded-[1.5rem] shadow-xl shadow-[#2EAF7D]/20 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:hover:scale-100 border-none"
                             loading={isLoading}
+                            disabled={!isLogin && !formData.acceptTerms}
                         >
-                            {isLogin ? 'Enter Vault' : 'Create Account'}
+                            {isLogin ? 'Enter Vault' : 'Sign Up'}
                         </Button>
                     </form>
 

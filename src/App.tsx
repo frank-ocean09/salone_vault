@@ -10,6 +10,8 @@ import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { AuthCallback } from './pages/AuthCallback';
 import { ChangeEmailPage } from './pages/ChangeEmailPage';
 import { ActivityLogs } from './pages/ActivityLogs';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 
 function App() {
   console.log('App rendering');
@@ -27,6 +29,8 @@ function App() {
             <Route path="/activity-logs" element={<ActivityLogs />} />
             <Route path="/verify" element={<Verify />} />
             <Route path="/change-email" element={<ChangeEmailPage />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfService />} />
           </Routes>
         </Router>
       </AuthProvider>
