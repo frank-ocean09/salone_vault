@@ -21,13 +21,13 @@ export function checkSupabaseConfig(): void {
         const maskedKey = supabaseAnonKey ? `${supabaseAnonKey.slice(0, 8)}...` : '(missing)';
         // Short-circuit message
         if (!supabaseUrl || !supabaseAnonKey) {
-            // eslint-disable-next-line no-console
+             
             console.warn('[supabase] Missing configuration.');
-            // eslint-disable-next-line no-console
+             
             console.info('[supabase] VITE_SUPABASE_URL =', supabaseUrl || '(missing)');
-            // eslint-disable-next-line no-console
+             
             console.info('[supabase] VITE_SUPABASE_ANON_KEY =', maskedKey);
-            // eslint-disable-next-line no-console
+             
             console.info(
                 '[supabase] To fix: add a `.env.local` with VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY and restart dev server.'
             );
@@ -35,16 +35,16 @@ export function checkSupabaseConfig(): void {
         }
 
         // If present, print a concise confirmation (don't log the full key)
-        // eslint-disable-next-line no-console
+         
         console.info('[supabase] Config detected. URL =', supabaseUrl);
-        // eslint-disable-next-line no-console
+         
         console.info('[supabase] ANON_KEY (masked) =', maskedKey);
-        // eslint-disable-next-line no-console
+         
         console.info(
             '[supabase] If you still get 401s, check Row-Level Security (RLS) policies on the Supabase table.'
         );
     } catch (err) {
-        // eslint-disable-next-line no-console
+         
         console.error('[supabase] Error while checking config:', err);
     }
 }

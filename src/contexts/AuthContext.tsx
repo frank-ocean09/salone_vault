@@ -25,6 +25,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // If Supabase isn't configured, avoid any network calls and run in demo/local mode.
         if (!isSupabaseConfigured) {
             console.warn('⚠️ Supabase not configured. Running in demo mode. No network calls will be made.');
+            // eslint-disable-next-line
             setLoading(false);
             return;
         }

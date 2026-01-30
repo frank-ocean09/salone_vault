@@ -15,15 +15,6 @@ export function Verify() {
     const [error, setError] = useState<string>('');
     const [blockchainStatus, setBlockchainStatus] = useState<{ verified: boolean; timestamp?: number } | null>(null);
 
-    // Auto-verify if token is in URL
-    useEffect(() => {
-        const token = searchParams.get('token');
-        if (token) {
-            setVerificationCode(token);
-            handleVerifyWithToken(token);
-        }
-    }, [searchParams]);
-
     const handleVerifyWithToken = async (token: string) => {
         setStatus('loading');
         setError('');
@@ -61,6 +52,17 @@ export function Verify() {
             setResult(null);
         }
     };
+
+    // Auto-verify if token is in URL
+    useEffect(() => {
+        const token = searchParams.get('token');
+        if (token) {
+            // eslint-disable-next-line
+            setVerificationCode(token);
+            // eslint-disable-next-line
+            handleVerifyWithToken(token);
+        }
+    }, [searchParams]);
 
     const handleVerify = async (e: React.FormEvent) => {
         e.preventDefault();

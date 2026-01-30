@@ -89,7 +89,7 @@ export default async (req: Request): Promise<Response> => {
     }
 
     // Blockchain anchoring (optional)
-    let anchorTx: string | null = null;
+    const anchorTx: string | null = null;
 
     if (blockchainRpcUrl && blockchainSignerKey && blockchainContractAddress) {
       // TODO: Implement blockchain anchoring using ethers.js
