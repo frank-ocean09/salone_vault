@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 export default function TermsOfService() {
     return (
-        <div className="min-h-screen bg-white dark:bg-brand-dark transition-colors duration-500">
+        <div className="min-h-screen bg-white">
             <Navbar />
 
             <main className="max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
@@ -14,20 +14,20 @@ export default function TermsOfService() {
                     Back to Sign Up
                 </Link>
 
-                <div className="bg-gray-50 dark:bg-white/5 rounded-[2.5rem] p-8 sm:p-12 border border-gray-100 dark:border-white/5 shadow-xl">
+                <div className="bg-gray-50 rounded-[2.5rem] p-8 sm:p-12 border border-gray-100 shadow-xl">
                     <div className="flex items-center gap-4 mb-12">
                         <div className="p-3 bg-[#3FD0C9] rounded-2xl shadow-lg shadow-[#3FD0C9]/20">
                             <FileText className="h-8 w-8 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-black text-[#02353C] dark:text-brand-pale tracking-tight">Terms & Conditions</h1>
-                            <p className="text-[#02353C]/40 dark:text-white/40 font-bold text-sm uppercase tracking-widest">Last Updated: January 2026</p>
+                            <h1 className="text-3xl font-black text-[#02353C] tracking-tight">Terms & Conditions</h1>
+                            <p className="text-[#02353C]/40 font-bold text-sm uppercase tracking-widest">Last Updated: January 2026</p>
                         </div>
                     </div>
 
-                    <div className="space-y-12 text-[#02353C]/80 dark:text-white/70 leading-relaxed">
+                    <div className="space-y-12 text-[#02353C]/80 leading-relaxed">
                         <section>
-                            <h2 className="text-xl font-black text-[#02353C] dark:text-brand-pale mb-4 flex items-center gap-3">
+                            <h2 className="text-xl font-black text-[#02353C] mb-4 flex items-center gap-3">
                                 <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#3FD0C9]/10 text-[#3FD0C9] text-sm font-black">1</span>
                                 Acceptance of Terms
                             </h2>
@@ -37,7 +37,7 @@ export default function TermsOfService() {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-black text-[#02353C] dark:text-brand-pale mb-4 flex items-center gap-3">
+                            <h2 className="text-xl font-black text-[#02353C] mb-4 flex items-center gap-3">
                                 <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#3FD0C9]/10 text-[#3FD0C9] text-sm font-black">2</span>
                                 Use of the Platform
                             </h2>
@@ -58,7 +58,7 @@ export default function TermsOfService() {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-black text-[#02353C] dark:text-brand-pale mb-4 flex items-center gap-3">
+                            <h2 className="text-xl font-black text-[#02353C] mb-4 flex items-center gap-3">
                                 <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#3FD0C9]/10 text-[#3FD0C9] text-sm font-black">3</span>
                                 Account Security
                             </h2>
@@ -75,7 +75,7 @@ export default function TermsOfService() {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-black text-[#02353C] dark:text-brand-pale mb-4 flex items-center gap-3">
+                            <h2 className="text-xl font-black text-[#02353C] mb-4 flex items-center gap-3">
                                 <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#3FD0C9]/10 text-[#3FD0C9] text-sm font-black">4</span>
                                 Intellectual Property
                             </h2>
@@ -92,7 +92,7 @@ export default function TermsOfService() {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-black text-[#02353C] dark:text-brand-pale mb-4 flex items-center gap-3">
+                            <h2 className="text-xl font-black text-[#02353C] mb-4 flex items-center gap-3">
                                 <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#3FD0C9]/10 text-[#3FD0C9] text-sm font-black">5</span>
                                 Limitation of Liability
                             </h2>
@@ -102,7 +102,7 @@ export default function TermsOfService() {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-black text-[#02353C] dark:text-brand-pale mb-4 flex items-center gap-3">
+                            <h2 className="text-xl font-black text-[#02353C] mb-4 flex items-center gap-3">
                                 <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#3FD0C9]/10 text-[#3FD0C9] text-sm font-black">6</span>
                                 Changes to Terms
                             </h2>
@@ -111,17 +111,17 @@ export default function TermsOfService() {
                             </p>
                         </section>
 
-                        <section className="pt-8 border-t border-gray-100 dark:border-white/10">
-                            <h2 className="text-xl font-black text-[#02353C] dark:text-brand-pale mb-4 flex items-center gap-3">
+                        <section className="pt-8 border-t border-gray-100">
+                            <h2 className="text-xl font-black text-[#02353C] mb-4 flex items-center gap-3">
                                 <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#3FD0C9]/10 text-[#3FD0C9] text-sm font-black">7</span>
                                 Contact
                             </h2>
-                            <div className="flex items-center gap-4 p-6 bg-white dark:bg-black/20 rounded-2xl border border-gray-100 dark:border-white/5">
+                            <div className="flex items-center gap-4 p-6 bg-white rounded-2xl border border-gray-100">
                                 <div className="p-3 bg-[#2EAF7D]/10 rounded-xl">
                                     <Mail className="h-6 w-6 text-[#2EAF7D]" />
                                 </div>
                                 <div>
-                                    <p className="text-xs font-black uppercase tracking-widest text-[#02353C]/40 dark:text-white/40 mb-1">Legal Inquiries</p>
+                                    <p className="text-xs font-black uppercase tracking-widest text-[#02353C]/40 mb-1">Legal Inquiries</p>
                                     <a href="mailto:support.salonevault@gmail.com" className="font-bold text-[#3FD0C9] hover:text-[#2EAF7D] transition-colors">
                                         support.salonevault@gmail.com
                                     </a>
@@ -132,9 +132,9 @@ export default function TermsOfService() {
                 </div>
             </main>
 
-            <footer className="py-12 border-t border-gray-100 dark:border-white/5">
+            <footer className="py-12 border-t border-gray-100">
                 <div className="max-w-4xl mx-auto px-4 text-center">
-                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#02353C]/20 dark:text-white/20">
+                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#02353C]/20">
                         &copy; {new Date().getFullYear()} SaloneVault National Digital Repository
                     </p>
                 </div>
