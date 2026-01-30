@@ -1,0 +1,7 @@
+﻿src/App.tsx(13,27): error TS2307: Cannot find module './pages/PrivacyPolicy' or its corresponding type declarations.
+src/contexts/ThemeContext.tsx(1,65): error TS1484: 'ReactNode' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/pages/Dashboard.tsx(46,13): error TS2339: Property 'theme' does not exist on type 'ThemeContextType'.
+src/pages/Dashboard.tsx(836,26): error TS2304: Cannot find name 'ShieldCheck'.
+src/pages/Dashboard.tsx(899,30): error TS2304: Cannot find name 'ShieldCheck'.
+src/pages/Dashboard.tsx(1012,38): error TS2304: Cannot find name 'ShieldCheck'.
+src/pages/Dashboard.tsx(1063,81): error TS2304: Cannot find name 'ShieldCheck'.

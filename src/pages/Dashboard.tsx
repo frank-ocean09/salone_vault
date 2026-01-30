@@ -6,7 +6,7 @@ import { FolderList } from '../components/FolderList';
 import { ShareModal } from '../components/ShareModal';
 import { DocumentView } from '../components/DocumentView';
 import { AlbumSettingsModal } from '../components/AlbumSettingsModal';
-import { Plus, FileText, CheckCircle, Clock, Share2, Search, Upload as UploadIcon, AlertCircle, Eye, Trash2, FolderInput, Activity, ChevronDown, ChevronUp, Users, Settings, Wallet, Bell, User as UserIcon, LogOut, Menu, X } from 'lucide-react';
+import { Plus, FileText, CheckCircle, Clock, Share2, Search, Upload as UploadIcon, AlertCircle, Eye, Trash2, FolderInput, Activity, ChevronDown, ChevronUp, Users, Settings, Wallet, Bell, User as UserIcon, LogOut, Menu, X, ShieldCheck } from 'lucide-react';
 import { DocumentsTable } from '../components/DocumentsTable';
 import { BulkToolbar } from '../components/BulkToolbar';
 import { SharedAlbumsSidebar } from '../components/SharedAlbumsSidebar';
@@ -43,7 +43,7 @@ import type { Document, Folder } from '../lib/supabase';
 export function Dashboard() {
     const navigate = useNavigate();
     const { user, loading: authLoading, signOut } = useAuth();
-    const { theme, toggleTheme, isDarkMode } = useTheme();
+    const { toggleTheme, isDarkMode } = useTheme();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [documents, setDocuments] = useState<Document[]>([]);
     const [folders, setFolders] = useState<Folder[]>([]);
