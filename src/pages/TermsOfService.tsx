@@ -20,7 +20,7 @@ export default function TermsOfService() {
                             <FileText className="h-8 w-8 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-black text-[#02353C] dark:text-brand-pale tracking-tight">Terms of Service</h1>
+                            <h1 className="text-3xl font-black text-[#02353C] dark:text-brand-pale tracking-tight">Terms & Conditions</h1>
                             <p className="text-[#02353C]/40 dark:text-white/40 font-bold text-sm uppercase tracking-widest">Last Updated: January 2026</p>
                         </div>
                     </div>

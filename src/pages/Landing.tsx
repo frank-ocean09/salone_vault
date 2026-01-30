@@ -30,7 +30,7 @@ export function Landing() {
                         </div>
                         <h1 className="text-6xl md:text-8xl font-black text-white leading-[0.9] tracking-tighter mb-8 animate-in fade-in slide-in-from-bottom-6 duration-1000">
                             Secure. Verify.<br />
-                            <span className="text-[#3FD0C9]">Protect your records.</span>
+                            <span className="text-[#3FD0C9]">Protect your documents digitally</span>
                         </h1>
                         <p className="text-xl md:text-2xl text-[#C1F6ED]/80 mb-12 leading-relaxed max-w-2xl font-bold animate-in fade-in slide-in-from-bottom-8 duration-1000">
                             A trusted digital infrastructure for official and personal documents in Sierra Leone.
@@ -58,7 +58,7 @@ export function Landing() {
                     </div>
 
                     {/* Dashboard Preview Layered UI (Right Side) */}
-                    <div className="hidden lg:block absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 w-[600px] h-[500px] pointer-events-none perspective-1000">
+                    <div className="hidden lg:block absolute right-0 top-1/2 -translate-y-1/2 translate-x-32 w-[450px] h-[400px] pointer-events-none perspective-1000">
                         <div className="relative w-full h-full">
                             <div className="absolute top-0 right-0 w-[500px] h-[350px] bg-[#02353C]/60 backdrop-blur-3xl border border-white/10 rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] rotate-y-[-15deg] rotate-x-[10deg] z-20 p-8">
                                 <div className="flex items-center justify-between mb-8">
@@ -318,9 +318,10 @@ export function Landing() {
                         <div>
                             <h4 className="text-sm font-black uppercase tracking-[0.2em] text-[#3FD0C9] mb-8">Legal</h4>
                             <ul className="space-y-4 font-bold text-white/40">
-                                {['Privacy Policy', 'Terms of Service', 'Data Governance', 'Compliance'].map(item => (
-                                    <li key={item}><a href="#" className="hover:text-white transition-colors">{item}</a></li>
-                                ))}
+                                <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+                                <li><Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
+                                <li><a href="#" className="hover:text-white transition-colors">Data Governance</a></li>
+                                <li><a href="#" className="hover:text-white transition-colors">Compliance</a></li>
                             </ul>
                         </div>
 
