@@ -233,37 +233,116 @@ export async function moveDocumentToFolder(documentId: string, folderId: string 
 
 // --- Shared Albums (Collaborative Folders) ---
 
+// --- Shared Albums (Collaborative Folders) ---
+
+export async function logAlbumActivity(albumId: string, action: string, details: any = {}) {
+    try {
+        const { error } = await supabase
+            .from('activity_logs')
+            .insert({ album_id: albumId, action, details });
+        if (error) console.error('Failed to log activity:', error);
+    } catch (err) {
+        console.error('Failed to log activity:', err);
+    }
+}
+
 export async function createSharedAlbum(ownerId: string, folderId: string, name: string) {
-    const { data, error } = await supabase
+    const { data: album, error } = await supabase
         .from('shared_albums')
         .insert({ owner_id: ownerId, folder_id: folderId, name })
         .select()
         .single();
 
     if (error) throw error;
-    return data;
+
+    // Log creation
+    await logAlbumActivity(album.id, 'created', { name });
+
+    return album;
 }
 
 export async function inviteToSharedAlbum(sharedAlbumId: string, email: string, role: 'viewer' | 'uploader' = 'viewer') {
-    const { data, error } = await supabase
+    const { data: member, error } = await supabase
         .from('shared_album_members')
         .insert({ shared_album_id: sharedAlbumId, email, role })
         .select()
         .single();
 
     if (error) throw error;
+
+    // Log invite
+    await logAlbumActivity(sharedAlbumId, 'invited', { email, role });
+
+    return member;
+}
+
+export async function removeAlbumMember(albumId: string, memberId: string) { // memberId is the ID from shared_album_members table
+    // Get member details first for logging
+    const { data: member } = await supabase.from('shared_album_members').select('email').eq('id', memberId).single();
+
+    const { error } = await supabase
+        .from('shared_album_members')
+        .delete()
+        .eq('id', memberId);
+
+    if (error) throw error;
+
+    if (member) {
+        await logAlbumActivity(albumId, 'removed', { email: member.email });
+    }
+}
+
+export async function updateAlbumMemberRole(albumId: string, memberId: string, newRole: 'viewer' | 'uploader') {
+    const { data: member } = await supabase.from('shared_album_members').select('email').eq('id', memberId).single();
+
+    const { data, error } = await supabase
+        .from('shared_album_members')
+        .update({ role: newRole })
+        .eq('id', memberId)
+        .select()
+        .single();
+
+    if (error) throw error;
+
+    if (member) {
+        await logAlbumActivity(albumId, 'permission_changed', { email: member.email, newRole });
+    }
     return data;
 }
 
 export async function getSharedAlbumsForUser(userId: string) {
-    // Simple fetch: albums owned by the user (memberships can be added in RPC later)
-    const { data, error } = await supabase
+    // 1. Get albums owned by user
+    const { data: ownedAlbums, error: ownedError } = await supabase
         .from('shared_albums')
         .select('*')
         .eq('owner_id', userId)
         .order('created_at', { ascending: false });
-    if (error) throw error;
-    return data;
+
+    if (ownedError) throw ownedError;
+
+    // 2. Get albums shared with user (where user_id matches OR email matches)
+    // We'll need the user's email for this.
+    const { data: { user } } = await supabase.auth.getUser();
+    const userEmail = user?.email;
+
+    let sharedAlbums: any[] = [];
+    if (userEmail) {
+        const { data: memberRecords, error: memberError } = await supabase
+            .from('shared_album_members')
+            .select('shared_album_id, shared_albums(*)')
+            .or(`user_id.eq.${userId},email.eq.${userEmail}`);
+
+        if (memberError) throw memberError;
+
+        sharedAlbums = memberRecords
+            .map((m: any) => m.shared_albums)
+            .filter((album: any) => album && album.owner_id !== userId); // Exclude if we are owner (already fetched)
+    }
+
+    return {
+        owned: ownedAlbums || [],
+        shared: sharedAlbums || []
+    };
 }
 
 export async function getSharedAlbumMembers(sharedAlbumId: string) {
@@ -276,9 +355,31 @@ export async function getSharedAlbumMembers(sharedAlbumId: string) {
 }
 
 export async function getSharedAlbumDocuments(albumId: string) {
+    // We can just use standard select with filter now that RLS is set up, 
+    // but the RPC might still be useful if it does complex joining. 
+    // Taking a mental check: The migration `20260110153000_get_shared_documents.sql` (implied name) probably has valid logic.
+    // But let's stick to simple select if possible to avoid RPC dependnecy issues if not needed.
+    // Actually, let's use the RPC if it exists, or fallback to simple query.
+    // The previous code used RPC `get_shared_album_documents`. I'll keep it to avoid breaking changes if that RPC does something specific.
+
+    // However, if we want to ensure we get proper RLS filtered docs:
     const { data, error } = await supabase
-        .rpc('get_shared_album_documents', { album_id: albumId });
+        .from('documents')
+        .select('*')
+        .eq('shared_album_id', albumId)
+        .order('created_at', { ascending: false });
 
     if (error) throw error;
     return data as Document[];
+}
+
+export async function getAlbumActivityLogs(albumId: string) {
+    const { data, error } = await supabase
+        .from('activity_logs')
+        .select('*')
+        .eq('album_id', albumId)
+        .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
 }
