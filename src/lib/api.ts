@@ -235,18 +235,23 @@ export async function moveDocumentToFolder(documentId: string, folderId: string 
 
 // --- Shared Albums (Collaborative Folders) ---
 
-export async function logAlbumActivity(albumId: string, action: string, details: any = {}) {
+export async function logAlbumActivity(albumId: string, action: string, userId: string | null, details: any = {}) {
     try {
         const { error } = await supabase
             .from('activity_logs')
-            .insert({ album_id: albumId, action, details });
+            .insert({
+                album_id: albumId,
+                action,
+                user_id: userId,
+                details
+            });
         if (error) console.error('Failed to log activity:', error);
     } catch (err) {
         console.error('Failed to log activity:', err);
     }
 }
 
-export async function createSharedAlbum(ownerId: string, folderId: string, name: string) {
+export async function createSharedAlbum(ownerId: string, folderId: string | null, name: string) {
     const { data: album, error } = await supabase
         .from('shared_albums')
         .insert({ owner_id: ownerId, folder_id: folderId, name })
@@ -256,12 +261,14 @@ export async function createSharedAlbum(ownerId: string, folderId: string, name:
     if (error) throw error;
 
     // Log creation
-    await logAlbumActivity(album.id, 'created', { name });
+    await logAlbumActivity(album.id, 'created', ownerId, { name });
 
     return album;
 }
 
 export async function inviteToSharedAlbum(sharedAlbumId: string, email: string, role: 'viewer' | 'uploader' = 'viewer') {
+    const { data: { user } } = await supabase.auth.getUser();
+
     const { data: member, error } = await supabase
         .from('shared_album_members')
         .insert({ shared_album_id: sharedAlbumId, email, role })
@@ -271,12 +278,14 @@ export async function inviteToSharedAlbum(sharedAlbumId: string, email: string, 
     if (error) throw error;
 
     // Log invite
-    await logAlbumActivity(sharedAlbumId, 'invited', { email, role });
+    await logAlbumActivity(sharedAlbumId, 'invited', user?.id || null, { email, role });
 
     return member;
 }
 
 export async function removeAlbumMember(albumId: string, memberId: string) { // memberId is the ID from shared_album_members table
+    const { data: { user } } = await supabase.auth.getUser();
+
     // Get member details first for logging
     const { data: member } = await supabase.from('shared_album_members').select('email').eq('id', memberId).single();
 
@@ -288,11 +297,12 @@ export async function removeAlbumMember(albumId: string, memberId: string) { // 
     if (error) throw error;
 
     if (member) {
-        await logAlbumActivity(albumId, 'removed', { email: member.email });
+        await logAlbumActivity(albumId, 'removed', user?.id || null, { email: member.email });
     }
 }
 
 export async function updateAlbumMemberRole(albumId: string, memberId: string, newRole: 'viewer' | 'uploader') {
+    const { data: { user } } = await supabase.auth.getUser();
     const { data: member } = await supabase.from('shared_album_members').select('email').eq('id', memberId).single();
 
     const { data, error } = await supabase
@@ -305,7 +315,7 @@ export async function updateAlbumMemberRole(albumId: string, memberId: string, n
     if (error) throw error;
 
     if (member) {
-        await logAlbumActivity(albumId, 'permission_changed', { email: member.email, newRole });
+        await logAlbumActivity(albumId, 'permission_changed', user?.id || null, { email: member.email, newRole });
     }
     return data;
 }

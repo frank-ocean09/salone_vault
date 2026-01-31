@@ -23,15 +23,20 @@ export const SharedAlbumsSidebar: React.FC<Props> = ({ userId, onOpenShareFolder
   const [error, setError] = useState<string | null>(null);
 
   const handleCreate = async () => {
-    if (!newName.trim()) return;
+    const trimmedName = newName.trim();
+    if (!trimmedName) {
+      setError('Please enter an album name');
+      return;
+    }
+
     setCreating(true);
+    setError(null);
     try {
-      const dummyFolderId = null;
-      // @ts-ignore
-      await createSharedAlbum(userId, dummyFolderId, newName.trim());
+      await createSharedAlbum(userId, null, trimmedName);
       setNewName('');
       onUpdate(); // Trigger parent refresh
     } catch (err: any) {
+      console.error('Failed to create album:', err);
       setError(err.message || 'Failed to create album');
     } finally {
       setCreating(false);
