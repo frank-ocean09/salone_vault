@@ -13,6 +13,8 @@ interface Props {
   onDelete: (doc: Document) => void;
   onShare: (doc: Document) => void;
   searchQuery?: string;
+  hideDelete?: boolean;
+  hideShare?: boolean;
 }
 
 export const DocumentsTable: React.FC<Props> = ({
@@ -24,7 +26,9 @@ export const DocumentsTable: React.FC<Props> = ({
   onDeselectAll,
   onView,
   onDelete,
-  onShare
+  onShare,
+  hideDelete = false,
+  hideShare = false
 }) => {
   const allFilteredIds = documents.map(d => d.id);
   const allSelected = allFilteredIds.length > 0 && allFilteredIds.every(id => selectedIds.includes(id));
@@ -134,20 +138,24 @@ export const DocumentsTable: React.FC<Props> = ({
                     >
                       <Eye size={16} />
                     </button>
-                    <button
-                      onClick={() => onShare(doc)}
-                      className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      title="Share"
-                    >
-                      <Share2 size={16} />
-                    </button>
-                    <button
-                      onClick={() => onDelete(doc)}
-                      className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                    {!hideShare && (
+                      <button
+                        onClick={() => onShare(doc)}
+                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Share"
+                      >
+                        <Share2 size={16} />
+                      </button>
+                    )}
+                    {!hideDelete && (
+                      <button
+                        onClick={() => onDelete(doc)}
+                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>

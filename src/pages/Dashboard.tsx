@@ -96,6 +96,7 @@ export function Dashboard() {
     // Folder sharing state
     const [shareFolderId, setShareFolderId] = useState<string | null>(null);
     const [shareFolderModalOpen, setShareFolderModalOpen] = useState(false);
+    const [sharedWithMeFolders, setSharedWithMeFolders] = useState<(Folder & { permission_level: string; is_shared: boolean })[]>([]);
 
     // Shared albums list
     const [sharedAlbums, setSharedAlbums] = useState<{ owned: any[]; shared: any[] }>({ owned: [], shared: [] });
@@ -130,19 +131,47 @@ export function Dashboard() {
         }
     }, [user]);
 
+    // Handle folder selection and document fetching
+    useEffect(() => {
+        if (!user) return;
+
+        const fetchFolderDocs = async () => {
+            try {
+                setLoading(true);
+                if (selectedFolderId) {
+                    const { getFolderDocuments } = await import('../lib/api');
+                    const folderDocs = await getFolderDocuments(selectedFolderId);
+                    setDocuments(folderDocs);
+                } else {
+                    const docs = await getUserDocuments(user.id);
+                    setDocuments(docs);
+                }
+            } catch (err: any) {
+                console.error('Failed to fetch folder documents', err);
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchFolderDocs();
+    }, [selectedFolderId, user]);
+
     const loadDocuments = async () => {
         if (!user) return;
 
         try {
             setLoading(true);
-            const [docs, userFolders, userSharedAlbums] = await Promise.all([
+            const [docs, userFolders, userSharedAlbums, sharedWithMe] = await Promise.all([
                 getUserDocuments(user.id),
                 getFolders(user.id),
-                getSharedAlbumsForUser(user.id)
+                getSharedAlbumsForUser(user.id),
+                import('../lib/api').then(m => m.getSharedWithMeFolders(user.id))
             ]);
             setDocuments(docs);
             setFolders(userFolders);
             setSharedAlbums(userSharedAlbums || { owned: [], shared: [] });
+            setSharedWithMeFolders(sharedWithMe || []);
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -587,7 +616,7 @@ export function Dashboard() {
             <main className="max-w-[1600px] mx-auto px-4 sm:px-6 py-8">
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Left Sidebar - Folders */}
-                    <aside className="w-full lg:w-64 flex-shrink-0">
+                    <aside className="w-full lg:w-64 flex-shrink-0 space-y-6">
                         <FolderList
                             folders={folders}
                             selectedFolderId={selectedFolderId}
@@ -597,6 +626,35 @@ export function Dashboard() {
                             onDeleteFolder={handleDeleteFolder}
                             onShareFolder={(folderId) => { setShareFolderId(folderId); setShareFolderModalOpen(true); }}
                         />
+
+                        {sharedWithMeFolders.length > 0 && (
+                            <div className="bg-white rounded-lg p-4 shadow-sm">
+                                <h3 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                    <Users size={16} className="text-[#2EAF7D]" />
+                                    Shared With Me
+                                </h3>
+                                <div className="space-y-1">
+                                    {sharedWithMeFolders.map(folder => (
+                                        <button
+                                            key={folder.id}
+                                            onClick={() => setSelectedFolderId(folder.id)}
+                                            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all text-sm font-medium ${selectedFolderId === folder.id
+                                                ? 'bg-green-50 text-green-700'
+                                                : 'text-gray-600 hover:bg-gray-50'
+                                                }`}
+                                        >
+                                            <div className="flex items-center gap-3 truncate">
+                                                <Shield className={`h-4 w-4 ${selectedFolderId === folder.id ? 'text-[#2EAF7D]' : 'text-gray-400'}`} />
+                                                <span className="truncate">{folder.name}</span>
+                                            </div>
+                                            <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded uppercase">
+                                                {folder.permission_level.replace('_', ' ')}
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </aside>
 
                     {/* Main Content */}
@@ -697,18 +755,28 @@ export function Dashboard() {
                             </div>
 
                             <div className="p-0">
-                                <DocumentsTable
-                                    documents={filteredDocuments}
-                                    folders={folders}
-                                    selectedIds={selectedDocIds}
-                                    onToggleSelect={toggleSelect}
-                                    onSelectAll={selectAll}
-                                    onDeselectAll={deselectAll}
-                                    onView={handleViewDocument}
-                                    onDelete={handleDeleteDocument}
-                                    onShare={openShareModal}
-                                    searchQuery={searchQuery}
-                                />
+                                {(() => {
+                                    const sharedFolder = sharedWithMeFolders.find(f => f.id === selectedFolderId);
+                                    const isViewOnly = sharedFolder?.permission_level === 'view_only';
+                                    const isUploadOnly = sharedFolder?.permission_level === 'upload_only';
+
+                                    return (
+                                        <DocumentsTable
+                                            documents={isUploadOnly ? [] : filteredDocuments}
+                                            folders={folders}
+                                            selectedIds={selectedDocIds}
+                                            onToggleSelect={toggleSelect}
+                                            onSelectAll={selectAll}
+                                            onDeselectAll={deselectAll}
+                                            onView={handleViewDocument}
+                                            onDelete={handleDeleteDocument}
+                                            onShare={openShareModal}
+                                            searchQuery={searchQuery}
+                                            hideDelete={!!sharedFolder} // Hide delete for any shared folder (only owner manages)
+                                            hideShare={isViewOnly} // Hide share for view_only
+                                        />
+                                    );
+                                })()}
                             </div>
                         </div>
                     </div>
@@ -923,10 +991,8 @@ export function Dashboard() {
                     isOpen={shareFolderModalOpen}
                     onClose={() => setShareFolderModalOpen(false)}
                     folderId={shareFolderId}
-                    userId={user.id}
                     folders={folders}
                     showToast={showToast}
-                    onAlbumsUpdated={(updated) => setSharedAlbums(updated)}
                 />
             )}
 

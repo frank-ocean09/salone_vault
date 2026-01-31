@@ -178,6 +178,17 @@ export async function getFolders(userId: string) {
     }));
 }
 
+export async function getFolderDocuments(folderId: string) {
+    const { data, error } = await supabase
+        .from('documents')
+        .select('*')
+        .eq('folder_id', folderId)
+        .order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data as Document[];
+}
+
 export async function createFolder(userId: string, name: string, color: string = 'blue') {
     const { data, error } = await supabase
         .from('folders')
@@ -392,4 +403,139 @@ export async function getAlbumActivityLogs(albumId: string) {
 
     if (error) throw error;
     return data;
+}
+
+// --- Folder Sharing & Permissions ---
+
+export async function logFolderActivity(folderId: string, action: string, userId: string | null, details: any = {}) {
+    try {
+        const { error } = await supabase
+            .from('activity_logs')
+            .insert({
+                folder_id: folderId,
+                action,
+                user_id: userId,
+                details
+            });
+        if (error) console.error('Failed to log folder activity:', error);
+    } catch (err) {
+        console.error('Failed to log folder activity:', err);
+    }
+}
+
+export async function shareFolder(folderId: string, email: string, permissionLevel: 'view_only' | 'upload_only' | 'view_upload') {
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    if (!currentUser) throw new Error('Not authenticated');
+
+    // 1. Find target user by email in profiles
+    const { data: targetProfile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('email', email)
+        .single();
+
+    if (profileError || !targetProfile) {
+        throw new Error('User does not exist');
+    }
+
+    // 2. Check if already shared
+    const { data: existingAccess } = await supabase
+        .from('folder_access')
+        .select('id')
+        .eq('folder_id', folderId)
+        .eq('user_id', targetProfile.id)
+        .single();
+
+    if (existingAccess) {
+        throw new Error('User is already added to this folder');
+    }
+
+    // 3. Insert access record
+    const { data: access, error: accessError } = await supabase
+        .from('folder_access')
+        .insert({
+            folder_id: folderId,
+            user_id: targetProfile.id,
+            permission_level: permissionLevel
+        })
+        .select()
+        .single();
+
+    if (accessError) throw accessError;
+
+    // 4. Log activity
+    await logFolderActivity(folderId, 'User added to folder', currentUser.id, {
+        target_email: email,
+        permission_level: permissionLevel
+    });
+
+    return access;
+}
+
+export async function getFolderAccessList(folderId: string) {
+    const { data, error } = await supabase
+        .from('folder_access')
+        .select(`
+            *,
+            profiles:user_id (email, full_name)
+        `)
+        .eq('folder_id', folderId);
+
+    if (error) throw error;
+    return data;
+}
+
+export async function updateFolderAccess(folderId: string, accessId: string, email: string, newLevel: 'view_only' | 'upload_only' | 'view_upload') {
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+
+    const { data, error } = await supabase
+        .from('folder_access')
+        .update({ permission_level: newLevel })
+        .eq('id', accessId)
+        .select()
+        .single();
+
+    if (error) throw error;
+
+    await logFolderActivity(folderId, 'Permission changed', currentUser?.id || null, {
+        target_email: email,
+        new_permission_level: newLevel
+    });
+
+    return data;
+}
+
+export async function revokeFolderAccess(folderId: string, accessId: string, email: string) {
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+
+    const { error } = await supabase
+        .from('folder_access')
+        .delete()
+        .eq('id', accessId);
+
+    if (error) throw error;
+
+    await logFolderActivity(folderId, 'User removed', currentUser?.id || null, {
+        target_email: email
+    });
+}
+
+export async function getSharedWithMeFolders(userId: string) {
+    const { data, error } = await supabase
+        .from('folder_access')
+        .select(`
+            folder_id,
+            permission_level,
+            folders:folder_id (*)
+        `)
+        .eq('user_id', userId);
+
+    if (error) throw error;
+
+    // Map to a more useful format
+    return data.map((item: any) => ({
+        ...item.folders,
+        permission_level: item.permission_level,
+        is_shared: true
+    }));
 }

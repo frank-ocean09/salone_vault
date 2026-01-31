@@ -21,13 +21,13 @@ export function checkSupabaseConfig(): void {
         const maskedKey = supabaseAnonKey ? `${supabaseAnonKey.slice(0, 8)}...` : '(missing)';
         // Short-circuit message
         if (!supabaseUrl || !supabaseAnonKey) {
-             
+
             console.warn('[supabase] Missing configuration.');
-             
+
             console.info('[supabase] VITE_SUPABASE_URL =', supabaseUrl || '(missing)');
-             
+
             console.info('[supabase] VITE_SUPABASE_ANON_KEY =', maskedKey);
-             
+
             console.info(
                 '[supabase] To fix: add a `.env.local` with VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY and restart dev server.'
             );
@@ -35,16 +35,16 @@ export function checkSupabaseConfig(): void {
         }
 
         // If present, print a concise confirmation (don't log the full key)
-         
+
         console.info('[supabase] Config detected. URL =', supabaseUrl);
-         
+
         console.info('[supabase] ANON_KEY (masked) =', maskedKey);
-         
+
         console.info(
             '[supabase] If you still get 401s, check Row-Level Security (RLS) policies on the Supabase table.'
         );
     } catch (err) {
-         
+
         console.error('[supabase] Error while checking config:', err);
     }
 }
@@ -103,5 +103,35 @@ export interface VerificationToken {
     document_id: string;
     token: string;
     expires_at: string;
+    created_at: string;
+}
+
+export interface FolderAccess {
+    id: string;
+    folder_id: string;
+    user_id: string;
+    permission_level: 'view_only' | 'upload_only' | 'view_upload';
+    created_at: string;
+    updated_at: string;
+    profiles?: {
+        email: string;
+        full_name: string | null;
+    };
+    folders?: {
+        name: string;
+        user_id: string;
+    };
+}
+
+export interface ActivityLog {
+    id: string;
+    album_id?: string | null;
+    folder_id?: string | null;
+    document_id?: string | null;
+    user_id: string | null;
+    action: string;
+    token?: string | null;
+    details?: any;
+    meta?: any;
     created_at: string;
 }
