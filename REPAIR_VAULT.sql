@@ -6,12 +6,27 @@
 -- 3. Reloads schema cache to fix 400 errors
 -- ===================================================
 
--- 1. Repair Schema: Add missing document_id to activity_logs
+-- 1. Repair Schema: Add missing columns to activity_logs
 DO $$
 BEGIN
+    -- Add document_id
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'activity_logs' AND column_name = 'document_id') THEN
         ALTER TABLE activity_logs ADD COLUMN document_id UUID REFERENCES documents(id) ON DELETE SET NULL;
-        RAISE NOTICE 'Added document_id to activity_logs';
+    END IF;
+
+    -- Add token
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'activity_logs' AND column_name = 'token') THEN
+        ALTER TABLE activity_logs ADD COLUMN token TEXT;
+    END IF;
+
+    -- Add details
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'activity_logs' AND column_name = 'details') THEN
+        ALTER TABLE activity_logs ADD COLUMN details JSONB;
+    END IF;
+
+    -- Add meta
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'activity_logs' AND column_name = 'meta') THEN
+        ALTER TABLE activity_logs ADD COLUMN meta JSONB;
     END IF;
 END $$;
 
