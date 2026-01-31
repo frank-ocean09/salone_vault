@@ -9,7 +9,7 @@ type Props = {
   folderId: string | null;
   userId: string;
   folders: Folder[];
-  onAlbumsUpdated?: (albums: any[]) => void;
+  onAlbumsUpdated?: (albums: { owned: any[]; shared: any[] }) => void;
   showToast?: (message: string, type?: 'success' | 'error' | 'info') => void;
 };
 
@@ -26,7 +26,8 @@ export const ShareFolderModal: React.FC<Props> = ({ isOpen, onClose, folderId, u
       if (!isOpen || !folderId) return;
       try {
         const albums = await getSharedAlbumsForUser(userId);
-        const album = (albums || []).find((a: any) => a.folder_id === folderId);
+        // Search in both owned and shared
+        const album = [...(albums.owned || []), ...(albums.shared || [])].find((a: any) => a.folder_id === folderId);
         if (!album) {
           setMembers([]);
           return;
@@ -54,7 +55,7 @@ export const ShareFolderModal: React.FC<Props> = ({ isOpen, onClose, folderId, u
       // Refresh albums if callback provided
       if (onAlbumsUpdated) {
         const updated = await getSharedAlbumsForUser(userId);
-        onAlbumsUpdated(updated || []);
+        onAlbumsUpdated(updated || { owned: [], shared: [] });
       }
       setError(null);
       onClose();
@@ -72,7 +73,7 @@ export const ShareFolderModal: React.FC<Props> = ({ isOpen, onClose, folderId, u
     try {
       // Find album for folder
       const albums = await getSharedAlbumsForUser(userId);
-      const album = (albums || []).find((a: any) => a.folder_id === folderId);
+      const album = [...(albums.owned || []), ...(albums.shared || [])].find((a: any) => a.folder_id === folderId);
       if (!album) {
         setError('No shared album for this folder yet. Create it first.');
         return;

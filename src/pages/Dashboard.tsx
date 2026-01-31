@@ -98,7 +98,7 @@ export function Dashboard() {
     const [shareFolderModalOpen, setShareFolderModalOpen] = useState(false);
 
     // Shared albums list
-    const [sharedAlbums, setSharedAlbums] = useState<any[]>([]);
+    const [sharedAlbums, setSharedAlbums] = useState<{ owned: any[]; shared: any[] }>({ owned: [], shared: [] });
 
     // Folder states for upload modal
     const [uploadSelectedFolderId, setUploadSelectedFolderId] = useState<string>('');
@@ -142,7 +142,7 @@ export function Dashboard() {
             ]);
             setDocuments(docs);
             setFolders(userFolders);
-            setSharedAlbums(userSharedAlbums || []);
+            setSharedAlbums(userSharedAlbums || { owned: [], shared: [] });
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -505,7 +505,7 @@ export function Dashboard() {
             const folder = folders.find(f => f.id === shareFolderId);
             await createSharedAlbum(user.id, shareFolderId, folder?.name || 'Shared Album');
             const userSharedAlbums = await getSharedAlbumsForUser(user.id);
-            setSharedAlbums(userSharedAlbums || []);
+            setSharedAlbums(userSharedAlbums || { owned: [], shared: [] });
             showToast('Shared album created', 'success');
         } catch (err: any) {
             console.error('Failed to create shared album', err);
@@ -721,7 +721,7 @@ export function Dashboard() {
                                 userId={user!.id}
                                 onOpenShareFolder={(folderId) => { setShareFolderId(folderId); setShareFolderModalOpen(true); }}
                                 onSelectAlbum={handleSelectSharedAlbum}
-                                albums={sharedAlbums as any}
+                                albums={sharedAlbums}
                                 onUpdate={loadDocuments}
                             />
                         </div>
