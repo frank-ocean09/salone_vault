@@ -7,31 +7,20 @@ type Props = {
   userId: string;
   onOpenShareFolder: (folderId: string) => void;
   onSelectAlbum: (album: any) => void;
+  albums: { owned: any[]; shared: any[] };
+  onUpdate: () => void;
 };
 
-export const SharedAlbumsSidebar: React.FC<Props> = ({ userId, onOpenShareFolder, onSelectAlbum }) => {
-  const [ownedAlbums, setOwnedAlbums] = useState<any[]>([]);
-  const [sharedAlbums, setSharedAlbums] = useState<any[]>([]);
+export const SharedAlbumsSidebar: React.FC<Props> = ({ userId, onOpenShareFolder, onSelectAlbum, albums, onUpdate }) => {
+  // Use derived state or just props. If we need local mutation (optimistic), we can use state initialized from props, 
+  // but it's better to rely on parent re-fetching or passing updated data.
+  // For simplicity, let's use the props directly for rendering.
+
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState('');
   const [selectedAlbumMembers, setSelectedAlbumMembers] = useState<any[]>([]);
   const [inviteEmail, setInviteEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const data = await getSharedAlbumsForUser(userId);
-        // @ts-ignore
-        setOwnedAlbums(data.owned || []);
-        // @ts-ignore
-        setSharedAlbums(data.shared || []);
-      } catch (err) {
-        console.warn('Failed to load shared albums', err);
-      }
-    };
-    load();
-  }, [userId]);
 
   const handleCreate = async () => {
     if (!newName.trim()) return;
@@ -39,9 +28,9 @@ export const SharedAlbumsSidebar: React.FC<Props> = ({ userId, onOpenShareFolder
     try {
       const dummyFolderId = null;
       // @ts-ignore
-      const created = await createSharedAlbum(userId, dummyFolderId, newName.trim());
-      setOwnedAlbums(prev => [created, ...prev]);
+      await createSharedAlbum(userId, dummyFolderId, newName.trim());
       setNewName('');
+      onUpdate(); // Trigger parent refresh
     } catch (err: any) {
       setError(err.message || 'Failed to create album');
     } finally {
@@ -141,8 +130,8 @@ export const SharedAlbumsSidebar: React.FC<Props> = ({ userId, onOpenShareFolder
           </Button>
         </div>
 
-        {renderAlbumList(ownedAlbums, "My Albums")}
-        {renderAlbumList(sharedAlbums, "Shared With Me")}
+        {renderAlbumList(albums.owned || [], "My Albums")}
+        {renderAlbumList(albums.shared || [], "Shared With Me")}
 
         {error && <div className="text-xs font-medium text-red-600 mt-2 p-2 bg-red-50 rounded-lg">{error}</div>}
       </div>

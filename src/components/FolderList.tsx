@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Folder, Plus, Edit2, Trash2 } from 'lucide-react';
+import { Folder, Plus, Edit2, Trash2, Share2 } from 'lucide-react';
 import type { Folder as FolderType } from '../lib/supabase';
 
 interface FolderListProps {
@@ -100,6 +100,18 @@ export function FolderList({
                                 </button>
 
                                 <div className="flex opacity-0 group-hover/item:opacity-100 items-center gap-1 transition-opacity">
+                                    {onShareFolder && (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onShareFolder(folder.id);
+                                            }}
+                                            className="p-1 hover:text-blue-600 hover:bg-blue-50 rounded"
+                                            title="Share Folder"
+                                        >
+                                            <Share2 className="h-3 w-3" />
+                                        </button>
+                                    )}
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();

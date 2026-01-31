@@ -721,6 +721,8 @@ export function Dashboard() {
                                 userId={user!.id}
                                 onOpenShareFolder={(folderId) => { setShareFolderId(folderId); setShareFolderModalOpen(true); }}
                                 onSelectAlbum={handleSelectSharedAlbum}
+                                albums={sharedAlbums as any}
+                                onUpdate={loadDocuments}
                             />
                         </div>
                     </aside>
