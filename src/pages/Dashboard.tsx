@@ -839,27 +839,37 @@ export function Dashboard() {
                                 </div>
                             </div>
                         ) : (
-                            <div className="p-8 text-center">
-                                <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
-                                    <CheckCircle className="h-8 w-8 text-green-600" />
-                                </div>
-                                <h3 className="text-2xl font-bold text-slate-900 mb-2">Upload Successful!</h3>
-                                <p className="text-slate-500 mb-8">
-                                    Your document has been securely uploaded and is pending state verification.
-                                    <br />
-                                    <span className="text-xs text-gray-400 mt-2 block font-mono bg-gray-50 p-2 rounded break-all select-all cursor-pointer" onClick={handleCopyAddress} title="Click to copy">
-                                        Tx: {blockchainAddress}
-                                    </span>
-                                </p>
-                                <div className="flex flex-col gap-3">
-                                    <button onClick={handlePreviewNow} className="w-full bg-[#02353C] text-white py-3 rounded-lg font-bold hover:bg-[#022c32] transition-colors">
-                                        View Document
-                                    </button>
-                                    <button onClick={handleUploadAnother} className="w-full bg-white border border-gray-200 text-slate-700 py-3 rounded-lg font-bold hover:bg-gray-50 transition-colors">
-                                        Upload Another
+                            <>
+                                <div className="flex justify-end p-2 pb-0">
+                                    <button onClick={handleCloseModal} className="p-2 hover:bg-gray-100 rounded-full text-gray-400 hover:text-gray-600 transition-colors">
+                                        <X size={20} />
                                     </button>
                                 </div>
-                            </div>
+                                <div className="p-8 pt-4 text-center">
+                                    <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                                        <CheckCircle className="h-8 w-8 text-green-600" />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-slate-900 mb-2">Upload Successful!</h3>
+                                    <p className="text-slate-500 mb-8">
+                                        Your document has been securely uploaded and is pending state verification.
+                                        <br />
+                                        <span className="text-xs text-gray-400 mt-2 block font-mono bg-gray-50 p-2 rounded break-all select-all cursor-pointer" onClick={handleCopyAddress} title="Click to copy">
+                                            Tx: {blockchainAddress}
+                                        </span>
+                                    </p>
+                                    <div className="flex flex-col gap-3">
+                                        <button onClick={handlePreviewNow} className="w-full bg-[#02353C] text-white py-3 rounded-lg font-bold hover:bg-[#022c32] transition-colors">
+                                            View Document
+                                        </button>
+                                        <button onClick={handleUploadAnother} className="w-full bg-white border border-gray-200 text-slate-700 py-3 rounded-lg font-bold hover:bg-gray-50 transition-colors">
+                                            Upload Another
+                                        </button>
+                                        <button onClick={handleCloseModal} className="w-full mt-2 text-slate-500 text-sm font-semibold hover:text-slate-800 transition-colors">
+                                            Done
+                                        </button>
+                                    </div>
+                                </div>
+                            </>
                         )}
                     </div>
                 </div>

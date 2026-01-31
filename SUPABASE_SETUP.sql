@@ -30,12 +30,18 @@ CREATE TABLE IF NOT EXISTS shared_album_members (
 );
 
 -- 4. Create Activity Logs Table
+-- Drop old version if exists to ensure schema is correct
+DROP TABLE IF EXISTS activity_logs CASCADE;
+
 CREATE TABLE IF NOT EXISTS activity_logs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     album_id UUID REFERENCES shared_albums(id) ON DELETE CASCADE,
+    document_id UUID REFERENCES documents(id) ON DELETE SET NULL,
     user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
     action TEXT NOT NULL,
+    token TEXT,
     details JSONB,
+    meta JSONB,
     created_at TIMESTAMPTZ DEFAULT now()
 );
 
@@ -152,32 +158,38 @@ DROP POLICY IF EXISTS "Members can view activity logs" ON activity_logs;
 CREATE POLICY "Members can view activity logs" ON activity_logs
     FOR SELECT
     USING (
-        EXISTS (
-            SELECT 1 FROM shared_album_members
-            WHERE shared_album_members.shared_album_id = activity_logs.album_id
-            AND (user_id = auth.uid() OR email = auth.jwt()->>'email')
-        )
+        (user_id = auth.uid()) -- Personal logs
+        OR
+        (album_id IN ( -- Shared album logs
+            SELECT shared_album_id FROM shared_album_members 
+            WHERE (user_id = auth.uid() OR email = auth.jwt()->>'email')
+        ))
     );
 
 DROP POLICY IF EXISTS "Members can insert activity logs" ON activity_logs;
 CREATE POLICY "Members can insert activity logs" ON activity_logs
     FOR INSERT
     WITH CHECK (
-        EXISTS (
-            SELECT 1 FROM shared_album_members
-            WHERE shared_album_members.shared_album_id = activity_logs.album_id
-            AND (user_id = auth.uid() OR email = auth.jwt()->>'email')
-        )
+        (user_id = auth.uid()) -- Logging own actions
+        OR
+        (album_id IN ( -- Logging album actions
+            SELECT shared_album_id FROM shared_album_members 
+            WHERE (user_id = auth.uid() OR email = auth.jwt()->>'email')
+        ))
     );
 
 -- Documents Policies (Update Existing)
 -- We need to ensure documents policies cover shared albums.
 
 -- DROP existing policies first to be safe
-DROP POLICY IF EXISTS "Users can insert own documents" ON documents;
-DROP POLICY IF EXISTS "Users can delete own documents" ON documents;
-DROP POLICY IF EXISTS "Users can update own documents" ON documents;
+DROP POLICY IF EXISTS "Users can view documents" ON documents;
 DROP POLICY IF EXISTS "Users can view own documents" ON documents;
+DROP POLICY IF EXISTS "Users can insert documents" ON documents;
+DROP POLICY IF EXISTS "Users can insert own documents" ON documents;
+DROP POLICY IF EXISTS "Users can delete documents" ON documents;
+DROP POLICY IF EXISTS "Users can delete own documents" ON documents;
+DROP POLICY IF EXISTS "Users can update documents" ON documents;
+DROP POLICY IF EXISTS "Users can update own documents" ON documents;
 
 -- View Policy
 CREATE POLICY "Users can view documents" ON documents
