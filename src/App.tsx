@@ -25,6 +25,8 @@ function App() {
                         <Route path="/auth/forgot-password" element={<PasswordResetRequest />} />
                         <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
                         <Route path="/auth/callback" element={<AuthCallback />} />
+                        <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/dashboard/sharedfolder/:fid" element={<Dashboard />} />
                         <Route path="/dashboard/*" element={<Dashboard />} />
                         <Route path="/activity-logs" element={<ActivityLogs />} />
                         <Route path="/verify" element={<Verify />} />

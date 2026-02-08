@@ -83,7 +83,14 @@ export const SharedAlbumsSidebar: React.FC<Props> = ({ userId, onOpenShareFolder
                     <div className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">{album.folder_id ? 'Folder Linked' : 'Album'}</div>
                   </div>
                 </div>
-                <button onClick={() => handleSelectAlbum(album)} className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded hover:bg-blue-100 transition-colors">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleSelectAlbum(album);
+                  }}
+                  className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded hover:bg-blue-100 transition-colors"
+                >
                   View
                 </button>
               </div>

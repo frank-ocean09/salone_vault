@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, Routes, Route, useParams } from 'react-router-dom';
+import { useNavigate, Routes, Route, useParams, useLocation } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
 import { Button } from '../components/Button';
 import { FolderList } from '../components/FolderList';
@@ -43,6 +43,7 @@ import type { Document, Folder } from '../lib/supabase';
 
 export function Dashboard() {
     const navigate = useNavigate();
+    const location = useLocation();
     const { user, loading: authLoading, signOut } = useAuth();
     const { toggleTheme, isDarkMode } = useTheme();
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -107,15 +108,18 @@ export function Dashboard() {
     };
 
     const [sharedWithMeFolders, setSharedWithMeFolders] = useState<FolderWithMetadata[]>([]);
-    const { "*": splat } = useParams();
-    const activeSharedFolderId = splat?.startsWith('sharedfolder/') ? splat.split('/')[1] : null;
+    const { fid } = useParams<{ fid?: string }>();
+    const activeSharedFolderId = fid || null;
 
-    // Sync selectedFolderId with route if in a shared folder
+    // Sync selectedFolderId with route if in a shared folder route
     useEffect(() => {
         if (activeSharedFolderId) {
             setSelectedFolderId(activeSharedFolderId);
+        } else if (location.pathname === '/dashboard' || location.pathname === '/dashboard/') {
+            // Only auto-reset if we are at the root dashboard path
+            setSelectedFolderId(null);
         }
-    }, [activeSharedFolderId]);
+    }, [activeSharedFolderId, location.pathname]);
 
     // Navigation state
     const [activeTab, setActiveTab] = useState<'documents' | 'folders'>('documents');
@@ -160,12 +164,16 @@ export function Dashboard() {
 
         const fetchFolderDocs = async () => {
             try {
-                setLoading(true);
-                if (selectedFolderId) {
+                // Only show global loading if we have NO documents yet
+                if (documents.length === 0) setLoading(true);
+
+                if (selectedFolderId || activeSharedFolderId) {
+                    const targetId = selectedFolderId || activeSharedFolderId;
                     const { getFolderDocuments } = await import('../lib/api');
-                    const folderDocs = await getFolderDocuments(selectedFolderId);
+                    const folderDocs = await getFolderDocuments(targetId as string);
                     setDocuments(folderDocs);
                 } else {
+                    // Only fetch user docs if we are NOT in any folder
                     const docs = await getUserDocuments(user.id);
                     setDocuments(docs);
                 }
@@ -178,7 +186,7 @@ export function Dashboard() {
         };
 
         fetchFolderDocs();
-    }, [selectedFolderId, user]);
+    }, [selectedFolderId, activeSharedFolderId, user]);
 
     const loadDocuments = async () => {
         if (!user) return;
@@ -619,7 +627,7 @@ export function Dashboard() {
         return 'Welcome back!';
     };
 
-    if (authLoading || loading) {
+    if (authLoading || (loading && documents.length === 0)) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="animate-spin h-12 w-12 border-4 border-[#2EAF7D] border-t-transparent rounded-full" />
@@ -669,7 +677,11 @@ export function Dashboard() {
                                         {sharedWithMeFolders.map(folder => (
                                             <button
                                                 key={folder.id}
-                                                onClick={() => navigate(`/dashboard/sharedfolder/${folder.id}`)}
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    navigate(`/dashboard/sharedfolder/${folder.id}`);
+                                                }}
                                                 className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all text-sm font-medium ${selectedFolderId === folder.id
                                                     ? 'bg-green-50 text-green-700'
                                                     : 'text-gray-600 hover:bg-gray-50'
