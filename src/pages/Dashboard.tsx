@@ -140,19 +140,6 @@ export function Dashboard() {
     const [uploadNewFolderName, setUploadNewFolderName] = useState<string>('');
     const [suggestedFolderName, setSuggestedFolderName] = useState<string | null>(null);
 
-    // Greeting variations for dynamic welcome message
-    const greetings = [
-        "Oh, welcome back,",
-        "Good to see you again,",
-        "Hello there,",
-        "Welcome back,",
-        "Great to have you here,",
-        "Hey there,",
-        "Ready to work,",
-    ];
-
-    const [greetingPrefix] = useState(() => greetings[Math.floor(Math.random() * greetings.length)]);
-
     // Suggest folder based on type/name
     useEffect(() => {
         if (!showUploadModal) {
@@ -678,9 +665,9 @@ export function Dashboard() {
         const name = user?.user_metadata?.full_name || user?.email?.split('@')[0];
         if (name) {
             const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
-            return `${greetingPrefix} ${formattedName}!`;
+            return `Oh, welcome back, ${formattedName}!`;
         }
-        return greetingPrefix.replace(',', '!');
+        return 'Welcome back!';
     };
 
     if (authLoading || (loading && documents.length === 0)) {
