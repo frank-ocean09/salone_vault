@@ -567,16 +567,18 @@ export function Dashboard() {
     };
 
     const handleSelectSharedAlbum = async (album: any) => {
+        if (album.folder_id) {
+            navigate(`/dashboard/sharedfolder/${album.folder_id}`);
+            setMobileMenuOpen(false);
+            return;
+        }
+
         try {
             setLoading(true);
             setViewingSharedAlbum({ id: album.id, name: album.name, folder_id: album.folder_id, owner_id: album.owner_id });
             setSelectedFolderId(null);
-            if (album.folder_id) {
-                const docs = await getSharedAlbumDocuments(album.id);
-                setDocuments(docs || []);
-            } else {
-                setDocuments([]);
-            }
+            const docs = await getSharedAlbumDocuments(album.id);
+            setDocuments(docs || []);
             setMobileMenuOpen(false);
         } catch (err: any) {
             console.error('Failed to load shared documents', err);
@@ -667,7 +669,7 @@ export function Dashboard() {
                                         {sharedWithMeFolders.map(folder => (
                                             <button
                                                 key={folder.id}
-                                                onClick={() => navigate(`sharedfolder/${folder.id}`)}
+                                                onClick={() => navigate(`/dashboard/sharedfolder/${folder.id}`)}
                                                 className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all text-sm font-medium ${selectedFolderId === folder.id
                                                     ? 'bg-green-50 text-green-700'
                                                     : 'text-gray-600 hover:bg-gray-50'
@@ -804,6 +806,7 @@ export function Dashboard() {
                                                             <div className="flex items-center gap-3">
                                                                 <button
                                                                     onClick={() => {
+                                                                        navigate('/dashboard');
                                                                         setSelectedFolderId(null);
                                                                         setActiveTab('folders');
                                                                         setSearchQuery('');
@@ -931,7 +934,7 @@ export function Dashboard() {
                                                             onSelect={(id) => {
                                                                 const isShared = sharedWithMeFolders.some(f => f.id === id);
                                                                 if (isShared) {
-                                                                    navigate(`sharedfolder/${id}`);
+                                                                    navigate(`/dashboard/sharedfolder/${id}`);
                                                                 } else {
                                                                     setSelectedFolderId(id);
                                                                     setActiveTab('documents');
