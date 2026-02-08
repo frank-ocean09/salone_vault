@@ -166,7 +166,7 @@ export async function updateDocumentStatus(documentId: string, status: 'pending'
 export async function getFolders(userId: string) {
     const { data, error } = await supabase
         .from('folders')
-        .select('*, documents(count, updated_at)')
+        .select('*, documents(updated_at)')
         .eq('user_id', userId)
         .order('name', { ascending: true });
 
@@ -180,7 +180,7 @@ export async function getFolders(userId: string) {
 
         return {
             ...folder,
-            document_count: folder.documents && folder.documents[0] ? folder.documents[0].count : 0,
+            document_count: folder.documents ? folder.documents.length : 0,
             last_updated: lastUpdated
         };
     });
@@ -536,7 +536,7 @@ export async function getSharedWithMeFolders(userId: string) {
             permission_level,
             folders:folder_id (
                 *,
-                documents(count, updated_at)
+                documents(updated_at)
             )
         `)
         .eq('user_id', userId);
@@ -554,7 +554,7 @@ export async function getSharedWithMeFolders(userId: string) {
             ...folder,
             permission_level: item.permission_level,
             is_shared: true,
-            document_count: folder.documents && folder.documents[0] ? folder.documents[0].count : 0,
+            document_count: folder.documents ? folder.documents.length : 0,
             last_updated: lastUpdated
         };
     });
