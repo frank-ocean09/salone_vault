@@ -166,16 +166,24 @@ export async function updateDocumentStatus(documentId: string, status: 'pending'
 export async function getFolders(userId: string) {
     const { data, error } = await supabase
         .from('folders')
-        .select('*, documents(count)')
+        .select('*, documents(count, updated_at)')
         .eq('user_id', userId)
         .order('name', { ascending: true });
 
     if (error) throw error;
 
-    return data.map((folder: any) => ({
-        ...folder,
-        document_count: folder.documents && folder.documents[0] ? folder.documents[0].count : 0
-    }));
+    return data.map((folder: any) => {
+        // Find the latest updated_at from documents
+        const lastUpdated = folder.documents && folder.documents.length > 0
+            ? new Date(Math.max(...folder.documents.map((d: any) => new Date(d.updated_at).getTime()))).toISOString()
+            : folder.updated_at;
+
+        return {
+            ...folder,
+            document_count: folder.documents && folder.documents[0] ? folder.documents[0].count : 0,
+            last_updated: lastUpdated
+        };
+    });
 }
 
 export async function getFolderDocuments(folderId: string) {
@@ -526,16 +534,28 @@ export async function getSharedWithMeFolders(userId: string) {
         .select(`
             folder_id,
             permission_level,
-            folders:folder_id (*)
+            folders:folder_id (
+                *,
+                documents(count, updated_at)
+            )
         `)
         .eq('user_id', userId);
 
     if (error) throw error;
 
     // Map to a more useful format
-    return data.map((item: any) => ({
-        ...item.folders,
-        permission_level: item.permission_level,
-        is_shared: true
-    }));
+    return data.map((item: any) => {
+        const folder = item.folders;
+        const lastUpdated = folder.documents && folder.documents.length > 0
+            ? new Date(Math.max(...folder.documents.map((d: any) => new Date(d.updated_at).getTime()))).toISOString()
+            : folder.updated_at;
+
+        return {
+            ...folder,
+            permission_level: item.permission_level,
+            is_shared: true,
+            document_count: folder.documents && folder.documents[0] ? folder.documents[0].count : 0,
+            last_updated: lastUpdated
+        };
+    });
 }

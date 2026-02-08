@@ -6,13 +6,14 @@ import { FolderList } from '../components/FolderList';
 import { ShareModal } from '../components/ShareModal';
 import { DocumentView } from '../components/DocumentView';
 import { AlbumSettingsModal } from '../components/AlbumSettingsModal';
-import { Plus, FileText, CheckCircle, Clock, Share2, Search, Upload as UploadIcon, AlertCircle, Eye, Trash2, FolderInput, Activity, ChevronDown, ChevronUp, Users, Settings, Wallet, Bell, User as UserIcon, LogOut, Menu, X, ShieldCheck, Shield } from 'lucide-react';
+import { Plus, FileText, CheckCircle, Clock, Share2, Search, Upload as UploadIcon, AlertCircle, Eye, Trash2, FolderInput, Activity, ChevronDown, ChevronUp, Users, Settings, Wallet, Bell, User as UserIcon, LogOut, Menu, X, ShieldCheck, Shield, ChevronRight } from 'lucide-react';
 import { DocumentsTable } from '../components/DocumentsTable';
 import { BulkToolbar } from '../components/BulkToolbar';
 import { SharedAlbumsSidebar } from '../components/SharedAlbumsSidebar';
 import { ShareFolderModal } from '../components/ShareFolderModal';
 import { DebugPanel } from '../components/DebugPanel';
 import { useSelection } from '../hooks/useSelection';
+import { FolderGridView } from '../components/FolderGridView';
 import { Toast } from '../components/Toast';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -96,7 +97,11 @@ export function Dashboard() {
     // Folder sharing state
     const [shareFolderId, setShareFolderId] = useState<string | null>(null);
     const [shareFolderModalOpen, setShareFolderModalOpen] = useState(false);
-    const [sharedWithMeFolders, setSharedWithMeFolders] = useState<(Folder & { permission_level: string; is_shared: boolean })[]>([]);
+    const [sharedWithMeFolders, setSharedWithMeFolders] = useState<(Folder & { permission_level: string; is_shared: boolean; document_count?: number; last_updated?: string })[]>([]);
+
+    // Navigation state
+    const [activeTab, setActiveTab] = useState<'documents' | 'folders'>('documents');
+    const [isSharedCollapsed, setIsSharedCollapsed] = useState(false);
 
     // Shared albums list
     const [sharedAlbums, setSharedAlbums] = useState<{ owned: any[]; shared: any[] }>({ owned: [], shared: [] });
@@ -628,31 +633,39 @@ export function Dashboard() {
                         />
 
                         {sharedWithMeFolders.length > 0 && (
-                            <div className="bg-white rounded-lg p-4 shadow-sm">
-                                <h3 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
-                                    <Users size={16} className="text-[#2EAF7D]" />
-                                    Shared With Me
-                                </h3>
-                                <div className="space-y-1">
-                                    {sharedWithMeFolders.map(folder => (
-                                        <button
-                                            key={folder.id}
-                                            onClick={() => setSelectedFolderId(folder.id)}
-                                            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all text-sm font-medium ${selectedFolderId === folder.id
-                                                ? 'bg-green-50 text-green-700'
-                                                : 'text-gray-600 hover:bg-gray-50'
-                                                }`}
-                                        >
-                                            <div className="flex items-center gap-3 truncate">
-                                                <Shield className={`h-4 w-4 ${selectedFolderId === folder.id ? 'text-[#2EAF7D]' : 'text-gray-400'}`} />
-                                                <span className="truncate">{folder.name}</span>
-                                            </div>
-                                            <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded uppercase">
-                                                {folder.permission_level.replace('_', ' ')}
-                                            </span>
-                                        </button>
-                                    ))}
+                            <div className="bg-white rounded-lg p-4 shadow-sm flex flex-col">
+                                <div className="flex items-center justify-between mb-3">
+                                    <button
+                                        onClick={() => setIsSharedCollapsed(!isSharedCollapsed)}
+                                        className="text-sm font-bold text-gray-800 flex items-center gap-2 hover:text-gray-600 transition-colors"
+                                    >
+                                        <Users size={16} className="text-[#2EAF7D]" />
+                                        Shared With Me
+                                        {isSharedCollapsed ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
+                                    </button>
                                 </div>
+                                {!isSharedCollapsed && (
+                                    <div className="space-y-1 overflow-y-auto max-h-[300px] pr-1 custom-scrollbar">
+                                        {sharedWithMeFolders.map(folder => (
+                                            <button
+                                                key={folder.id}
+                                                onClick={() => setSelectedFolderId(folder.id)}
+                                                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all text-sm font-medium ${selectedFolderId === folder.id
+                                                    ? 'bg-green-50 text-green-700'
+                                                    : 'text-gray-600 hover:bg-gray-50'
+                                                    }`}
+                                            >
+                                                <div className="flex items-center gap-3 truncate">
+                                                    <Shield className={`h-4 w-4 ${selectedFolderId === folder.id ? 'text-[#2EAF7D]' : 'text-gray-400'}`} />
+                                                    <span className="truncate">{folder.name}</span>
+                                                </div>
+                                                <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded uppercase">
+                                                    {folder.permission_level.replace('_', ' ')}
+                                                </span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         )}
                     </aside>
@@ -686,14 +699,22 @@ export function Dashboard() {
                                     onChange={handleFileUpload}
                                     disabled={isUploading}
                                 />
-                                <button
-                                    onClick={handleUploadClick}
-                                    className="px-4 py-2 bg-[#2EAF7D] hover:bg-[#258f66] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm"
-                                    disabled={isUploading}
-                                >
-                                    <Plus size={16} />
-                                    Upload Document
-                                </button>
+                                {(() => {
+                                    const sharedFolder = sharedWithMeFolders.find(f => f.id === selectedFolderId);
+                                    const isViewOnly = sharedFolder?.permission_level === 'view_only';
+
+                                    return (
+                                        <button
+                                            onClick={handleUploadClick}
+                                            className={`px-4 py-2 bg-[#2EAF7D] hover:bg-[#258f66] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm ${isViewOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            disabled={isUploading || isViewOnly}
+                                            title={isViewOnly ? "You don't have permission to upload to this folder" : "Upload Document"}
+                                        >
+                                            <Plus size={16} />
+                                            Upload Document
+                                        </button>
+                                    );
+                                })()}
                             </div>
                         </div>
 
@@ -735,18 +756,42 @@ export function Dashboard() {
                             </div>
                         </div>
 
-                        {/* Document Section */}
+                        {/* Tabs Navigation */}
+                        <div className="flex items-center gap-1 mb-6 bg-white p-1 rounded-xl border border-gray-100 shadow-sm w-fit">
+                            <button
+                                onClick={() => setActiveTab('documents')}
+                                className={`px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'documents'
+                                    ? 'bg-[#2EAF7D] text-white shadow-md'
+                                    : 'text-slate-500 hover:text-slate-700 hover:bg-gray-50'
+                                    }`}
+                            >
+                                <FileText size={18} />
+                                Documents
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('folders')}
+                                className={`px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'folders'
+                                    ? 'bg-[#2EAF7D] text-white shadow-md'
+                                    : 'text-slate-500 hover:text-slate-700 hover:bg-gray-50'
+                                    }`}
+                            >
+                                <FolderInput size={18} />
+                                Folders
+                            </button>
+                        </div>
+
+                        {/* Document/Folder Section */}
                         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
                             <div className="p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
                                 <h2 className="text-lg font-bold text-slate-900">
-                                    {selectedFolderId ? folders.find(f => f.id === selectedFolderId)?.name : 'All Documents'}
+                                    {activeTab === 'folders' ? 'All Folders' : (selectedFolderId ? folders.find(f => f.id === selectedFolderId)?.name : 'All Documents')}
                                 </h2>
 
                                 <div className="relative w-full sm:w-64">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                                     <input
                                         type="text"
-                                        placeholder="Search documents..."
+                                        placeholder={`Search ${activeTab}...`}
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
                                         className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2EAF7D]/20 focus:border-[#2EAF7D] transition-all"
@@ -755,28 +800,50 @@ export function Dashboard() {
                             </div>
 
                             <div className="p-0">
-                                {(() => {
-                                    const sharedFolder = sharedWithMeFolders.find(f => f.id === selectedFolderId);
-                                    const isViewOnly = sharedFolder?.permission_level === 'view_only';
-                                    const isUploadOnly = sharedFolder?.permission_level === 'upload_only';
+                                {activeTab === 'documents' ? (
+                                    (() => {
+                                        const sharedFolder = sharedWithMeFolders.find(f => f.id === selectedFolderId);
+                                        const isViewOnly = sharedFolder?.permission_level === 'view_only';
+                                        const isUploadOnly = sharedFolder?.permission_level === 'upload_only';
 
-                                    return (
-                                        <DocumentsTable
-                                            documents={isUploadOnly ? [] : filteredDocuments}
-                                            folders={folders}
-                                            selectedIds={selectedDocIds}
-                                            onToggleSelect={toggleSelect}
-                                            onSelectAll={selectAll}
-                                            onDeselectAll={deselectAll}
-                                            onView={handleViewDocument}
-                                            onDelete={handleDeleteDocument}
-                                            onShare={openShareModal}
-                                            searchQuery={searchQuery}
-                                            hideDelete={!!sharedFolder} // Hide delete for any shared folder (only owner manages)
-                                            hideShare={isViewOnly} // Hide share for view_only
-                                        />
-                                    );
-                                })()}
+                                        return (
+                                            <DocumentsTable
+                                                documents={isUploadOnly ? [] : filteredDocuments}
+                                                folders={folders}
+                                                selectedIds={selectedDocIds}
+                                                onToggleSelect={toggleSelect}
+                                                onSelectAll={selectAll}
+                                                onDeselectAll={deselectAll}
+                                                onView={handleViewDocument}
+                                                onDelete={handleDeleteDocument}
+                                                onShare={openShareModal}
+                                                searchQuery={searchQuery}
+                                                hideDelete={!!sharedFolder} // Hide delete for any shared folder (only owner manages)
+                                                hideShare={isViewOnly} // Hide share for view_only
+                                            />
+                                        );
+                                    })()
+                                ) : (
+                                    <FolderGridView
+                                        folders={[...folders, ...sharedWithMeFolders].filter(f =>
+                                            f.name.toLowerCase().includes(searchQuery.toLowerCase())
+                                        )}
+                                        onSelect={(id) => {
+                                            setSelectedFolderId(id);
+                                            setActiveTab('documents');
+                                        }}
+                                        onShare={(id) => { setShareFolderId(id); setShareFolderModalOpen(true); }}
+                                        onEdit={(id, name) => {
+                                            const newName = prompt('Enter new folder name:', name);
+                                            if (newName && newName !== name) handleUpdateFolder(id, newName, 'blue');
+                                        }}
+                                        onDelete={(id, name) => {
+                                            if (confirm(`Delete folder "${name}"? Documents inside will be moved to "All Documents".`)) {
+                                                handleDeleteFolder(id);
+                                            }
+                                        }}
+                                    />
+                                )}
                             </div>
                         </div>
                     </div>
