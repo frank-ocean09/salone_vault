@@ -824,25 +824,56 @@ export function Dashboard() {
                                         );
                                     })()
                                 ) : (
-                                    <FolderGridView
-                                        folders={[...folders, ...sharedWithMeFolders].filter(f =>
-                                            f.name.toLowerCase().includes(searchQuery.toLowerCase())
-                                        )}
-                                        onSelect={(id) => {
-                                            setSelectedFolderId(id);
-                                            setActiveTab('documents');
-                                        }}
-                                        onShare={(id) => { setShareFolderId(id); setShareFolderModalOpen(true); }}
-                                        onEdit={(id, name) => {
-                                            const newName = prompt('Enter new folder name:', name);
-                                            if (newName && newName !== name) handleUpdateFolder(id, newName, 'blue');
-                                        }}
-                                        onDelete={(id, name) => {
-                                            if (confirm(`Delete folder "${name}"? Documents inside will be moved to "All Documents".`)) {
-                                                handleDeleteFolder(id);
-                                            }
-                                        }}
-                                    />
+                                    (() => {
+                                        // Enrich folders with stats from current documents state
+                                        const enrichedFolders = folders.map(f => {
+                                            const folderDocs = documents.filter(d => d.folder_id === f.id);
+                                            const latestTimestamp = folderDocs.length > 0
+                                                ? Math.max(...folderDocs.map(d => new Date(d.updated_at).getTime()))
+                                                : new Date(f.updated_at).getTime();
+
+                                            return {
+                                                ...f,
+                                                document_count: folderDocs.length,
+                                                last_updated: new Date(latestTimestamp).toISOString()
+                                            };
+                                        });
+
+                                        const enrichedShared = sharedWithMeFolders.map(f => {
+                                            const folderDocs = documents.filter(d => d.folder_id === f.id);
+                                            const latestTimestamp = folderDocs.length > 0
+                                                ? Math.max(...folderDocs.map(d => new Date(d.updated_at).getTime()))
+                                                : new Date(f.updated_at || 0).getTime();
+
+                                            return {
+                                                ...f,
+                                                document_count: folderDocs.length,
+                                                last_updated: latestTimestamp > 0 ? new Date(latestTimestamp).toISOString() : f.updated_at
+                                            };
+                                        });
+
+                                        return (
+                                            <FolderGridView
+                                                folders={[...enrichedFolders, ...enrichedShared].filter(f =>
+                                                    f.name.toLowerCase().includes(searchQuery.toLowerCase())
+                                                )}
+                                                onSelect={(id) => {
+                                                    setSelectedFolderId(id);
+                                                    setActiveTab('documents');
+                                                }}
+                                                onShare={(id) => { setShareFolderId(id); setShareFolderModalOpen(true); }}
+                                                onEdit={(id, name) => {
+                                                    const newName = prompt('Enter new folder name:', name);
+                                                    if (newName && newName !== name) handleUpdateFolder(id, newName, 'blue');
+                                                }}
+                                                onDelete={(id, name) => {
+                                                    if (confirm(`Delete folder "${name}"? Documents inside will be moved to "All Documents".`)) {
+                                                        handleDeleteFolder(id);
+                                                    }
+                                                }}
+                                            />
+                                        );
+                                    })()
                                 )}
                             </div>
                         </div>

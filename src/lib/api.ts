@@ -166,24 +166,17 @@ export async function updateDocumentStatus(documentId: string, status: 'pending'
 export async function getFolders(userId: string) {
     const { data, error } = await supabase
         .from('folders')
-        .select('*, documents(updated_at)')
+        .select('*')
         .eq('user_id', userId)
         .order('name', { ascending: true });
 
     if (error) throw error;
 
-    return data.map((folder: any) => {
-        // Find the latest updated_at from documents
-        const lastUpdated = folder.documents && folder.documents.length > 0
-            ? new Date(Math.max(...folder.documents.map((d: any) => new Date(d.updated_at).getTime()))).toISOString()
-            : folder.updated_at;
-
-        return {
-            ...folder,
-            document_count: folder.documents ? folder.documents.length : 0,
-            last_updated: lastUpdated
-        };
-    });
+    return data.map((folder: any) => ({
+        ...folder,
+        document_count: 0, // Will be updated in UI if needed
+        last_updated: folder.updated_at
+    }));
 }
 
 export async function getFolderDocuments(folderId: string) {
@@ -535,8 +528,7 @@ export async function getSharedWithMeFolders(userId: string) {
             folder_id,
             permission_level,
             folders:folder_id (
-                *,
-                documents(updated_at)
+                *
             )
         `)
         .eq('user_id', userId);
@@ -546,16 +538,12 @@ export async function getSharedWithMeFolders(userId: string) {
     // Map to a more useful format
     return data.map((item: any) => {
         const folder = item.folders;
-        const lastUpdated = folder.documents && folder.documents.length > 0
-            ? new Date(Math.max(...folder.documents.map((d: any) => new Date(d.updated_at).getTime()))).toISOString()
-            : folder.updated_at;
-
         return {
             ...folder,
             permission_level: item.permission_level,
             is_shared: true,
-            document_count: folder.documents ? folder.documents.length : 0,
-            last_updated: lastUpdated
+            document_count: 0,
+            last_updated: folder?.updated_at
         };
     });
 }
