@@ -110,16 +110,22 @@ export function Dashboard() {
     const [sharedWithMeFolders, setSharedWithMeFolders] = useState<FolderWithMetadata[]>([]);
     const { "*": splat } = useParams();
     const activeSharedFolderId = splat?.startsWith('sharedfolder/') ? splat.split('/')[1] : null;
+    const activeSharedAlbumId = splat?.startsWith('sharedalbum/') ? splat.split('/')[1] : null;
 
     // Sync selectedFolderId with route if in a shared folder route
     useEffect(() => {
         if (activeSharedFolderId) {
             setSelectedFolderId(activeSharedFolderId);
+            setViewingSharedAlbum(null);
+        } else if (activeSharedAlbumId) {
+            setSelectedFolderId(null);
+            // We'll fetch album details in another useEffect
         } else if (location.pathname === '/dashboard' || location.pathname === '/dashboard/') {
             // Only auto-reset if we are at the root dashboard path
             setSelectedFolderId(null);
+            setViewingSharedAlbum(null);
         }
-    }, [activeSharedFolderId, location.pathname]);
+    }, [activeSharedFolderId, activeSharedAlbumId, location.pathname]);
 
     // Navigation state
     const [activeTab, setActiveTab] = useState<'documents' | 'folders' | 'shared'>('documents');
@@ -158,16 +164,41 @@ export function Dashboard() {
         }
     }, [user]);
 
-    // Handle folder selection and document fetching
+    // Handle folder/album selection and document fetching
     useEffect(() => {
         if (!user) return;
 
-        const fetchFolderDocs = async () => {
+        const fetchContent = async () => {
             try {
                 // Only show global loading if we have NO documents yet
                 if (documents.length === 0) setLoading(true);
 
-                if (selectedFolderId || activeSharedFolderId) {
+                if (activeSharedAlbumId) {
+                    // Fetch album documents $ metadata
+                    const [albumDocs, albumDetails] = await Promise.all([
+                        getSharedAlbumDocuments(activeSharedAlbumId),
+                        // Fetch the album metadata from our existing state or DB
+                        (async () => {
+                            const allAlbums = [...sharedAlbums.owned, ...sharedAlbums.shared];
+                            const found = allAlbums.find(a => a.id === activeSharedAlbumId);
+                            if (found) return found;
+
+                            // If not in state, maybe it's a direct link, fetch it?
+                            // For now, let's assume it's loaded in sharedAlbums
+                            return null;
+                        })()
+                    ]);
+
+                    setDocuments(albumDocs || []);
+                    if (albumDetails) {
+                        setViewingSharedAlbum({
+                            id: albumDetails.id,
+                            name: albumDetails.name,
+                            folder_id: albumDetails.folder_id,
+                            owner_id: albumDetails.owner_id
+                        });
+                    }
+                } else if (selectedFolderId || activeSharedFolderId) {
                     const targetId = selectedFolderId || activeSharedFolderId;
                     const { getFolderDocuments } = await import('../lib/api');
                     const folderDocs = await getFolderDocuments(targetId as string);
@@ -178,15 +209,15 @@ export function Dashboard() {
                     setDocuments(docs);
                 }
             } catch (err: any) {
-                console.error('Failed to fetch folder documents', err);
+                console.error('Failed to fetch content', err);
                 setError(err.message);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchFolderDocs();
-    }, [selectedFolderId, activeSharedFolderId, user]);
+        fetchContent();
+    }, [selectedFolderId, activeSharedFolderId, activeSharedAlbumId, user, sharedAlbums]);
 
     const loadDocuments = async () => {
         if (!user) return;
@@ -574,27 +605,13 @@ export function Dashboard() {
         }
     };
 
-    const handleSelectSharedAlbum = async (album: any) => {
+    const handleSelectSharedAlbum = (album: any) => {
         if (album.folder_id) {
             navigate(`/dashboard/sharedfolder/${album.folder_id}`);
-            setMobileMenuOpen(false);
-            return;
+        } else {
+            navigate(`/dashboard/sharedalbum/${album.id}`);
         }
-
-        try {
-            setLoading(true);
-            setViewingSharedAlbum({ id: album.id, name: album.name, folder_id: album.folder_id, owner_id: album.owner_id });
-            setSelectedFolderId(null);
-            const docs = await getSharedAlbumDocuments(album.id);
-            setDocuments(docs || []);
-            setMobileMenuOpen(false);
-        } catch (err: any) {
-            console.error('Failed to load shared documents', err);
-            setError('Failed to load shared documents');
-            showToast('Could not load shared album', 'error');
-        } finally {
-            setLoading(false);
-        }
+        setMobileMenuOpen(false);
     };
 
     const filteredDocuments = documents.filter(doc => {
@@ -786,7 +803,7 @@ export function Dashboard() {
                         </div>
 
                         {/* View Content Area */}
-                        {!activeSharedFolderId ? (
+                        {(!activeSharedFolderId && !activeSharedAlbumId) ? (
                             <div className="space-y-6">
                                 {/* Tabs Navigation */}
                                 <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-gray-100 shadow-sm w-fit">
@@ -959,18 +976,26 @@ export function Dashboard() {
                                                                 <button
                                                                     onClick={() => {
                                                                         if (album.folder_id) navigate(`/dashboard/sharedfolder/${album.folder_id}`);
-                                                                        else handleSelectSharedAlbum(album);
+                                                                        else navigate(`/dashboard/sharedalbum/${album.id}`);
                                                                     }}
-                                                                    className="px-3 py-1.5 bg-gray-50 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-100 transition-colors"
+                                                                    className="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-600 hover:text-white transition-all shadow-sm"
                                                                 >
                                                                     View
                                                                 </button>
                                                             </div>
-                                                            <h3 className="font-bold text-slate-900 mb-1">{album.name}</h3>
-                                                            <p className="text-xs text-slate-500 mb-4">Created by you</p>
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded">Owner</span>
-                                                                {album.folder_id && <span className="text-[10px] font-bold uppercase tracking-wider text-green-600 bg-green-50 px-2 py-0.5 rounded">Linked Folder</span>}
+                                                            <div className="mt-2">
+                                                                <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors truncate">{album.name}</h3>
+                                                                <p className="text-sm text-slate-500 mt-1">
+                                                                    {album.folder_id ? 'Linked Folder' : 'Custom Album'}
+                                                                </p>
+                                                            </div>
+                                                            <div className="mt-4 flex flex-wrap gap-2">
+                                                                <span className="text-[10px] font-bold px-2 py-1 bg-slate-100 text-slate-600 rounded uppercase tracking-wider">
+                                                                    Owner
+                                                                </span>
+                                                                <span className="text-[10px] font-bold px-2 py-1 bg-blue-100 text-blue-700 rounded uppercase tracking-wider">
+                                                                    Full Access
+                                                                </span>
                                                             </div>
                                                         </div>
                                                     ))}
@@ -984,7 +1009,7 @@ export function Dashboard() {
                                                                 <button
                                                                     onClick={() => {
                                                                         if (album.folder_id) navigate(`/dashboard/sharedfolder/${album.folder_id}`);
-                                                                        else handleSelectSharedAlbum(album);
+                                                                        else navigate(`/dashboard/sharedalbum/${album.id}`);
                                                                     }}
                                                                     className="px-3 py-1.5 bg-gray-50 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-100 transition-colors"
                                                                 >
@@ -1031,19 +1056,30 @@ export function Dashboard() {
                                                 </button>
                                                 <div>
                                                     <div className="flex items-center gap-2">
-                                                        <h2 className="text-xl font-bold text-slate-900">{currentSharedFolder?.name}</h2>
+                                                        <h2 className="text-xl font-bold text-slate-900">
+                                                            {activeSharedFolderId ? currentSharedFolder?.name : viewingSharedAlbum?.name}
+                                                        </h2>
                                                         <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">
-                                                            Shared
+                                                            {activeSharedFolderId ? 'Shared Folder' : 'Shared Album'}
                                                         </span>
                                                     </div>
                                                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
                                                         <div className="flex items-center gap-1.5 text-sm text-slate-500">
                                                             <UserIcon size={14} className="text-[#2EAF7D]" />
-                                                            <span>{`Shared by: ${currentSharedFolder?.owner_name || 'Unknown'}`}</span>
+                                                            <span>
+                                                                {activeSharedFolderId
+                                                                    ? `Shared by: ${currentSharedFolder?.owner_name || 'Unknown'}`
+                                                                    : `Owner ID: ${viewingSharedAlbum?.owner_id?.split('-')[0]}...`
+                                                                }
+                                                            </span>
                                                         </div>
                                                         <div className="flex items-center gap-1.5 text-sm text-slate-500">
                                                             <Shield size={14} className="text-[#2EAF7D]" />
-                                                            <span className="capitalize">{currentSharedFolder?.permission_level?.replace('_', ' ')}</span>
+                                                            <span className="capitalize">
+                                                                {activeSharedFolderId
+                                                                    ? currentSharedFolder?.permission_level?.replace('_', ' ')
+                                                                    : 'Full Access'}
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1078,7 +1114,7 @@ export function Dashboard() {
                                     <div className="p-0">
                                         <DocumentsTable
                                             documents={currentSharedFolder?.permission_level === 'upload_only' ? [] : documents.filter(d =>
-                                                d.folder_id === activeSharedFolderId &&
+                                                (activeSharedFolderId ? d.folder_id === activeSharedFolderId : true) &&
                                                 d.name.toLowerCase().includes(searchQuery.toLowerCase())
                                             )}
                                             folders={folders}
@@ -1089,9 +1125,9 @@ export function Dashboard() {
                                             onView={handleViewDocument}
                                             onDelete={handleDeleteDocument}
                                             onShare={openShareModal}
-                                            hideDelete={true} // Only owner removes files
-                                            hideShare={currentSharedFolder?.permission_level === 'view_only'}
-                                            emptyMessage="No documents in this folder yet."
+                                            hideDelete={activeSharedFolderId ? true : false} // Owner can delete from album
+                                            hideShare={activeSharedFolderId ? currentSharedFolder?.permission_level === 'view_only' : false}
+                                            emptyMessage={activeSharedFolderId ? "No documents in this folder yet." : "No documents in this album yet."}
                                         />
                                     </div>
                                 </div>
