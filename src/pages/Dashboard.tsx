@@ -34,6 +34,7 @@ import {
     getSharedAlbumsForUser,
     getSharedAlbumMembers,
     getSharedAlbumDocuments,
+    deleteSharedAlbum,
 } from '../lib/api';
 import { registerDocumentOnChain } from '../lib/blockchain';
 import { supabase } from '../lib/supabase';
@@ -614,6 +615,26 @@ export function Dashboard() {
         setMobileMenuOpen(false);
     };
 
+    const handleDeleteSharedAlbum = async (albumId: string) => {
+        if (!window.confirm('Are you sure you want to delete this shared album? This action cannot be undone.')) return;
+
+        try {
+            setLoading(true);
+            await deleteSharedAlbum(albumId);
+            showToast('Album deleted successfully', 'success');
+            // Refresh albums
+            if (user) {
+                const albums = await getSharedAlbumsForUser(user.id);
+                setSharedAlbums(albums);
+            }
+        } catch (err: any) {
+            console.error('Failed to delete album', err);
+            showToast('Failed to delete album', 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const filteredDocuments = documents.filter(doc => {
         const matchesSearch = doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             doc.type.toLowerCase().includes(searchQuery.toLowerCase());
@@ -973,15 +994,24 @@ export function Dashboard() {
                                                                 <div className="h-12 w-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
                                                                     <Users size={24} />
                                                                 </div>
-                                                                <button
-                                                                    onClick={() => {
-                                                                        if (album.folder_id) navigate(`/dashboard/sharedfolder/${album.folder_id}`);
-                                                                        else navigate(`/dashboard/sharedalbum/${album.id}`);
-                                                                    }}
-                                                                    className="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-600 hover:text-white transition-all shadow-sm"
-                                                                >
-                                                                    View
-                                                                </button>
+                                                                <div className="flex items-center gap-2">
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            if (album.folder_id) navigate(`/dashboard/sharedfolder/${album.folder_id}`);
+                                                                            else navigate(`/dashboard/sharedalbum/${album.id}`);
+                                                                        }}
+                                                                        className="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                                                                    >
+                                                                        View
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => handleDeleteSharedAlbum(album.id)}
+                                                                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                                                        title="Delete Album"
+                                                                    >
+                                                                        <Trash2 size={16} />
+                                                                    </button>
+                                                                </div>
                                                             </div>
                                                             <div className="mt-2">
                                                                 <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors truncate">{album.name}</h3>

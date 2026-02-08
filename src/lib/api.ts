@@ -278,6 +278,24 @@ export async function createSharedAlbum(ownerId: string, folderId: string | null
     return album;
 }
 
+export async function deleteSharedAlbum(albumId: string) {
+    const { data: { user } } = await supabase.auth.getUser();
+
+    // Get details for logging
+    const { data: album } = await supabase.from('shared_albums').select('name').eq('id', albumId).single();
+
+    const { error } = await supabase
+        .from('shared_albums')
+        .delete()
+        .eq('id', albumId);
+
+    if (error) throw error;
+
+    if (album) {
+        await logAlbumActivity(albumId, 'deleted', user?.id || null, { name: album.name });
+    }
+}
+
 export async function inviteToSharedAlbum(sharedAlbumId: string, email: string, role: 'viewer' | 'uploader' = 'viewer') {
     const { data: { user } } = await supabase.auth.getUser();
 
