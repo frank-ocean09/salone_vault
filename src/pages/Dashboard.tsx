@@ -6,7 +6,7 @@ import { FolderList } from '../components/FolderList';
 import { ShareModal } from '../components/ShareModal';
 import { DocumentView } from '../components/DocumentView';
 import { AlbumSettingsModal } from '../components/AlbumSettingsModal';
-import { Plus, FileText, CheckCircle, Clock, Share2, Search, Upload as UploadIcon, AlertCircle, Eye, Trash2, FolderInput, Activity, ChevronDown, ChevronUp, Users, Settings, Wallet, Bell, User as UserIcon, LogOut, Menu, X, ShieldCheck, Shield, ChevronRight } from 'lucide-react';
+import { Plus, FileText, CheckCircle, Clock, Share2, Search, Upload as UploadIcon, AlertCircle, Eye, Trash2, FolderInput, Activity, ChevronDown, ChevronUp, Users, Settings, Wallet, Bell, User as UserIcon, LogOut, Menu, X, ShieldCheck, Shield, ChevronRight, ArrowLeft } from 'lucide-react';
 import { DocumentsTable } from '../components/DocumentsTable';
 import { BulkToolbar } from '../components/BulkToolbar';
 import { SharedAlbumsSidebar } from '../components/SharedAlbumsSidebar';
@@ -97,7 +97,16 @@ export function Dashboard() {
     // Folder sharing state
     const [shareFolderId, setShareFolderId] = useState<string | null>(null);
     const [shareFolderModalOpen, setShareFolderModalOpen] = useState(false);
-    const [sharedWithMeFolders, setSharedWithMeFolders] = useState<(Folder & { permission_level: string; is_shared: boolean; document_count?: number; last_updated?: string })[]>([]);
+
+    type FolderWithMetadata = Folder & {
+        permission_level?: string;
+        is_shared?: boolean;
+        document_count?: number;
+        last_updated?: string;
+        owner_name?: string;
+    };
+
+    const [sharedWithMeFolders, setSharedWithMeFolders] = useState<FolderWithMetadata[]>([]);
 
     // Navigation state
     const [activeTab, setActiveTab] = useState<'documents' | 'folders'>('documents');
@@ -660,7 +669,7 @@ export function Dashboard() {
                                                     <span className="truncate">{folder.name}</span>
                                                 </div>
                                                 <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded uppercase">
-                                                    {folder.permission_level.replace('_', ' ')}
+                                                    {folder.permission_level?.replace('_', ' ') || ''}
                                                 </span>
                                             </button>
                                         ))}
@@ -782,21 +791,78 @@ export function Dashboard() {
 
                         {/* Document/Folder Section */}
                         <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-                            <div className="p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
-                                <h2 className="text-lg font-bold text-slate-900">
-                                    {activeTab === 'folders' ? 'All Folders' : (selectedFolderId ? folders.find(f => f.id === selectedFolderId)?.name : 'All Documents')}
-                                </h2>
+                            <div className="p-6 border-b border-gray-100 flex flex-col gap-4">
+                                {selectedFolderId ? (
+                                    (() => {
+                                        const currentFolder = (folders.find(f => f.id === selectedFolderId) || sharedWithMeFolders.find(f => f.id === selectedFolderId)) as FolderWithMetadata;
+                                        return (
+                                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                                <div className="flex items-center gap-3">
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedFolderId(null);
+                                                            setActiveTab('folders');
+                                                            setSearchQuery('');
+                                                        }}
+                                                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-slate-500"
+                                                        title="Back to Folders"
+                                                    >
+                                                        <ArrowLeft size={20} />
+                                                    </button>
+                                                    <div>
+                                                        <div className="flex items-center gap-2">
+                                                            <h2 className="text-xl font-bold text-slate-900">{currentFolder?.name}</h2>
+                                                            {currentFolder?.is_shared && (
+                                                                <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">
+                                                                    Shared
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
+                                                            <div className="flex items-center gap-1.5 text-sm text-slate-500">
+                                                                <UserIcon size={14} className="text-[#2EAF7D]" />
+                                                                <span>{currentFolder?.is_shared ? `Shared by: ${currentFolder.owner_name}` : 'Owned by me'}</span>
+                                                            </div>
+                                                            {currentFolder?.is_shared && (
+                                                                <div className="flex items-center gap-1.5 text-sm text-slate-500">
+                                                                    <Shield size={14} className="text-[#2EAF7D]" />
+                                                                    <span className="capitalize">{currentFolder.permission_level?.replace('_', ' ')}</span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="relative w-full sm:w-64">
+                                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Search in folder..."
+                                                        value={searchQuery}
+                                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                                        className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2EAF7D]/20 focus:border-[#2EAF7D] transition-all"
+                                                    />
+                                                </div>
+                                            </div>
+                                        );
+                                    })()
+                                ) : (
+                                    <div className="p-0 border-none flex flex-col sm:flex-row justify-between items-center gap-4">
+                                        <h2 className="text-lg font-bold text-slate-900">
+                                            {activeTab === 'folders' ? 'All Folders' : 'All Documents'}
+                                        </h2>
 
-                                <div className="relative w-full sm:w-64">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                    <input
-                                        type="text"
-                                        placeholder={`Search ${activeTab}...`}
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2EAF7D]/20 focus:border-[#2EAF7D] transition-all"
-                                    />
-                                </div>
+                                        <div className="relative w-full sm:w-64">
+                                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                            <input
+                                                type="text"
+                                                placeholder={`Search ${activeTab}...`}
+                                                value={searchQuery}
+                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2EAF7D]/20 focus:border-[#2EAF7D] transition-all"
+                                            />
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="p-0">
@@ -820,6 +886,7 @@ export function Dashboard() {
                                                 searchQuery={searchQuery}
                                                 hideDelete={!!sharedFolder} // Hide delete for any shared folder (only owner manages)
                                                 hideShare={isViewOnly} // Hide share for view_only
+                                                emptyMessage={selectedFolderId ? "No documents in this folder yet." : "No documents found"}
                                             />
                                         );
                                     })()

@@ -15,6 +15,7 @@ interface Props {
   searchQuery?: string;
   hideDelete?: boolean;
   hideShare?: boolean;
+  emptyMessage?: string;
 }
 
 export const DocumentsTable: React.FC<Props> = ({
@@ -28,7 +29,8 @@ export const DocumentsTable: React.FC<Props> = ({
   onDelete,
   onShare,
   hideDelete = false,
-  hideShare = false
+  hideShare = false,
+  emptyMessage = "No documents found"
 }) => {
   const allFilteredIds = documents.map(d => d.id);
   const allSelected = allFilteredIds.length > 0 && allFilteredIds.every(id => selectedIds.includes(id));
@@ -88,7 +90,7 @@ export const DocumentsTable: React.FC<Props> = ({
           {documents.length === 0 ? (
             <tr>
               <td colSpan={6} className="px-6 py-12 text-center text-gray-400 text-sm">
-                No documents found
+                {emptyMessage}
               </td>
             </tr>
           ) : (

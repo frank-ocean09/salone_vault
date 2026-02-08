@@ -528,7 +528,11 @@ export async function getSharedWithMeFolders(userId: string) {
             folder_id,
             permission_level,
             folders:folder_id (
-                *
+                *,
+                profiles:user_id (
+                    full_name,
+                    email
+                )
             )
         `)
         .eq('user_id', userId);
@@ -538,12 +542,14 @@ export async function getSharedWithMeFolders(userId: string) {
     // Map to a more useful format
     return data.map((item: any) => {
         const folder = item.folders;
+        const owner = folder?.profiles;
         return {
             ...folder,
             permission_level: item.permission_level,
             is_shared: true,
             document_count: 0,
-            last_updated: folder?.updated_at
+            last_updated: folder?.updated_at,
+            owner_name: owner?.full_name || owner?.email || 'Unknown Owner'
         };
     });
 }
