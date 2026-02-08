@@ -476,7 +476,7 @@ export function Dashboard() {
                 selectedFile.size,
                 hash,
                 uploadSelectedFolderId || null,
-                viewingSharedAlbum?.id || null
+                activeSharedAlbumId || viewingSharedAlbum?.id || null
             );
             if (finalFolderId) {
                 await moveDocumentToFolder(newDoc.id, finalFolderId);
@@ -1095,10 +1095,14 @@ export function Dashboard() {
                                                         className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2EAF7D]/20 focus:border-[#2EAF7D] transition-all"
                                                     />
                                                 </div>
-                                                {(currentSharedFolder?.permission_level === 'upload_only' || currentSharedFolder?.permission_level === 'full_access') && (
+                                                {(activeSharedAlbumId || currentSharedFolder?.permission_level === 'upload_only' || currentSharedFolder?.permission_level === 'full_access') && (
                                                     <button
                                                         onClick={() => {
-                                                            setUploadSelectedFolderId(activeSharedFolderId || '');
+                                                            if (activeSharedFolderId) {
+                                                                setUploadSelectedFolderId(activeSharedFolderId);
+                                                            } else {
+                                                                setUploadSelectedFolderId('');
+                                                            }
                                                             handleUploadClick();
                                                         }}
                                                         className="px-4 py-2 bg-[#2EAF7D] hover:bg-[#258f66] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm whitespace-nowrap"
