@@ -1390,22 +1390,6 @@ export function Dashboard() {
                         onVerify={(doc) => {
                             window.open(`/verify?token=${doc.hash}`, '_blank');
                         }}
-                        onShare={(doc) => {
-                            setViewingDocument(null);
-                            openShareModal(doc);
-                        }}
-                        onDownload={async (doc) => {
-                            try {
-                                const url = await getDocumentUrl(doc.file_path);
-                                window.open(url, '_blank');
-                            } catch (err) {
-                                showToast('Failed to download document', 'error');
-                            }
-                        }}
-                        onDelete={(doc) => {
-                            setViewingDocument(null);
-                            handleDeleteDocument(doc);
-                        }}
                     />
                 )
             }

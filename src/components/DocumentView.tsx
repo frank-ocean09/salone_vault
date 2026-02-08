@@ -25,14 +25,11 @@ interface DocumentViewProps {
     folderName: string;
     onClose: () => void;
     onVerify: (doc: Document) => void;
-    onShare: (doc: Document) => void;
-    onDownload: (doc: Document) => void;
-    onDelete: (doc: Document) => void;
 }
 
 export function DocumentView({
     document, url, userId, ownerName, folderName,
-    onClose, onVerify, onShare, onDownload, onDelete
+    onClose, onVerify
 }: DocumentViewProps) {
     const [numPages, setNumPages] = useState<number>(0);
     const [pageNumber, setPageNumber] = useState<number>(1);
@@ -333,34 +330,6 @@ export function DocumentView({
                                         <ShieldCheck size={18} />
                                     )}
                                     {blockchainStatus.loading ? 'Verifying...' : 'Verify Authenticity'}
-                                </Button>
-
-                                <div className="grid grid-cols-2 gap-3">
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => onShare(document)}
-                                        className="justify-start gap-3 py-4 border-2 border-[#3FD0C9] text-[#3FD0C9] hover:bg-[#3FD0C9]/5 rounded-2xl font-black uppercase tracking-widest text-[10px]"
-                                    >
-                                        <Share2 size={16} />
-                                        Share
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        onClick={() => onDownload(document)}
-                                        className="justify-start gap-3 py-4 border-2 border-gray-200 text-[#02353C] hover:bg-gray-50 rounded-2xl font-black uppercase tracking-widest text-[10px]"
-                                    >
-                                        <Download size={16} />
-                                        Download
-                                    </Button>
-                                </div>
-
-                                <Button
-                                    variant="outline"
-                                    onClick={() => onDelete(document)}
-                                    className="w-full justify-start gap-3 py-4 border-2 border-red-100 text-red-600 hover:bg-red-50 hover:border-red-200 rounded-2xl font-black uppercase tracking-widest text-xs"
-                                >
-                                    <Trash2 size={18} />
-                                    Delete Permanently
                                 </Button>
                             </div>
                         </div>
