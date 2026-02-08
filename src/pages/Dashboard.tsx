@@ -174,9 +174,12 @@ export function Dashboard() {
         if (!user) return;
 
         const performLoad = async () => {
+            // Only show global loading if we have ABSOLUTELY NO data yet
+            // This prevents the "flash" when navigating between tabs or folders
+            const isInitialLoad = documents.length === 0 && folders.length === 0;
+
             try {
-                // If we have nothing, show full screen loading
-                if (documents.length === 0 && folders.length === 0) {
+                if (isInitialLoad) {
                     setLoading(true);
                 }
 
@@ -193,7 +196,8 @@ export function Dashboard() {
                             if (found) return found;
                             // Fallback fetch if not in state
                             const { owned, shared } = await getSharedAlbumsForUser(user.id);
-                            return [...owned, ...shared].find(a => a.id === activeSharedAlbumId);
+                            const merged = [...owned, ...shared];
+                            return merged.find(a => a.id === activeSharedAlbumId);
                         })()
                     ]);
 
@@ -231,9 +235,16 @@ export function Dashboard() {
 
             } catch (err: any) {
                 console.error('Load failed:', err);
-                setError(err.message);
+                // Don't show technical auth errors unless they block progress
+                if (err.status !== 403) {
+                    setError(err.message);
+                }
             } finally {
-                setLoading(false);
+                // Delay setting loading to false slightly to ensure state has settled
+                // and avoid a flickering transition
+                if (isInitialLoad) {
+                    setLoading(false);
+                }
             }
         };
 
@@ -529,7 +540,17 @@ export function Dashboard() {
             }, 3000);
         } catch (err: any) {
             console.error(new Date().toISOString(), 'Upload failed:', err);
-            setError(err.message || 'Failed to upload document');
+
+            // Critical check for clock drift
+            if (err.message?.includes('"exp" claim timestamp check failed') ||
+                err.message?.includes('JWT expired') ||
+                err.status === 400 && err.message?.includes('timestamp')) {
+                setError('SYSTEM CLOCK ERROR: Your computer\'s time is out of sync with the server. Please go to your System Settings and ensure "Set time automatically" is enabled, then refresh the page.');
+            } else if (err.status === 403) {
+                setError('Authentication error (403). Your session might have expired. Please try logging out and back in.');
+            } else {
+                setError(err.message || 'Failed to upload document');
+            }
         } finally {
             setIsUploading(false);
             setUploadStatus('');
