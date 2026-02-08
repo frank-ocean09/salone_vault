@@ -42,6 +42,16 @@ import { logActivity } from '../lib/shareApi';
 import CryptoJS from 'crypto-js';
 import type { Document, Folder } from '../lib/supabase';
 
+const GREETINGS = [
+    "Oh, welcome back,",
+    "Great to see you again,",
+    "Welcome back,",
+    "Look who's back!",
+    "Hello there,",
+    "It's nice to see you,",
+    "Welcome back to your vault,"
+];
+
 export function Dashboard() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -54,6 +64,7 @@ export function Dashboard() {
     const [viewingSharedAlbum, setViewingSharedAlbum] = useState<{ id: string; name: string; folder_id?: string; owner_id: string } | null>(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [albumSettingsOpen, setAlbumSettingsOpen] = useState(false);
+    const [greetingPrefix] = useState(() => GREETINGS[Math.floor(Math.random() * GREETINGS.length)]);
 
     // Selection handled by hook
     const { selectedIds: selectedDocIds, toggle: toggleSelect, selectAll, deselectAll, clear } = useSelection();
@@ -158,39 +169,35 @@ export function Dashboard() {
         }
     }, [user, authLoading, navigate]);
 
-    // Fetch documents and user's shared albums
-    useEffect(() => {
-        if (user) {
-            loadDocuments();
-        }
-    }, [user]);
-
-    // Handle folder/album selection and document fetching
+    // Consolidator Effect: Handle initial load and context shifts
     useEffect(() => {
         if (!user) return;
 
-        const fetchContent = async () => {
+        const performLoad = async () => {
             try {
-                // Only show global loading if we have NO documents yet
-                if (documents.length === 0) setLoading(true);
+                // If we have nothing, show full screen loading
+                if (documents.length === 0 && folders.length === 0) {
+                    setLoading(true);
+                }
+
+                // Identify if we are in a special route (shared folder/album)
+                const targetId = activeSharedFolderId || selectedFolderId;
 
                 if (activeSharedAlbumId) {
-                    // Fetch album documents $ metadata
+                    // Fetch album documents & metadata
                     const [albumDocs, albumDetails] = await Promise.all([
                         getSharedAlbumDocuments(activeSharedAlbumId),
-                        // Fetch the album metadata from our existing state or DB
                         (async () => {
                             const allAlbums = [...sharedAlbums.owned, ...sharedAlbums.shared];
                             const found = allAlbums.find(a => a.id === activeSharedAlbumId);
                             if (found) return found;
-
-                            // If not in state, maybe it's a direct link, fetch it?
-                            // For now, let's assume it's loaded in sharedAlbums
-                            return null;
+                            // Fallback fetch if not in state
+                            const { owned, shared } = await getSharedAlbumsForUser(user.id);
+                            return [...owned, ...shared].find(a => a.id === activeSharedAlbumId);
                         })()
                     ]);
 
-                    setDocuments(albumDocs || []);
+                    if (albumDocs) setDocuments(albumDocs);
                     if (albumDetails) {
                         setViewingSharedAlbum({
                             id: albumDetails.id,
@@ -199,26 +206,39 @@ export function Dashboard() {
                             owner_id: albumDetails.owner_id
                         });
                     }
-                } else if (selectedFolderId || activeSharedFolderId) {
-                    const targetId = selectedFolderId || activeSharedFolderId;
+                } else if (targetId) {
+                    // Fetch specific folder documents
                     const { getFolderDocuments } = await import('../lib/api');
-                    const folderDocs = await getFolderDocuments(targetId as string);
+                    const folderDocs = await getFolderDocuments(targetId);
                     setDocuments(folderDocs);
                 } else {
-                    // Only fetch user docs if we are NOT in any folder
+                    // Fetch global user content
                     const docs = await getUserDocuments(user.id);
                     setDocuments(docs);
                 }
+
+                // Always ensure folders/albums are synced once
+                if (folders.length === 0 || sharedAlbums.owned.length === 0) {
+                    const [userFolders, userSharedAlbums, sharedWithMe] = await Promise.all([
+                        getFolders(user.id),
+                        getSharedAlbumsForUser(user.id),
+                        import('../lib/api').then(m => m.getSharedWithMeFolders(user.id))
+                    ]);
+                    setFolders(userFolders);
+                    setSharedAlbums(userSharedAlbums || { owned: [], shared: [] });
+                    setSharedWithMeFolders(sharedWithMe || []);
+                }
+
             } catch (err: any) {
-                console.error('Failed to fetch content', err);
+                console.error('Load failed:', err);
                 setError(err.message);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchContent();
-    }, [selectedFolderId, activeSharedFolderId, activeSharedAlbumId, user, sharedAlbums]);
+        performLoad();
+    }, [user, activeSharedFolderId, activeSharedAlbumId, selectedFolderId]);
 
     const loadDocuments = async () => {
         if (!user) return;
@@ -665,7 +685,7 @@ export function Dashboard() {
         const name = user?.user_metadata?.full_name || user?.email?.split('@')[0];
         if (name) {
             const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
-            return `Oh, welcome back, ${formattedName}!`;
+            return `${greetingPrefix} ${formattedName}!`;
         }
         return 'Welcome back!';
     };
