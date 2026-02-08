@@ -108,8 +108,8 @@ export function Dashboard() {
     };
 
     const [sharedWithMeFolders, setSharedWithMeFolders] = useState<FolderWithMetadata[]>([]);
-    const { fid } = useParams<{ fid?: string }>();
-    const activeSharedFolderId = fid || null;
+    const { "*": splat } = useParams();
+    const activeSharedFolderId = splat?.startsWith('sharedfolder/') ? splat.split('/')[1] : null;
 
     // Sync selectedFolderId with route if in a shared folder route
     useEffect(() => {
@@ -608,6 +608,11 @@ export function Dashboard() {
         return matchesSearch && matchesFolder && matchesStatus;
     });
 
+    // Determine current folder for shared folder view
+    const currentSharedFolder = activeSharedFolderId
+        ? (sharedWithMeFolders.find(f => f.id === activeSharedFolderId) as FolderWithMetadata)
+        : null;
+
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info'; isVisible: boolean }>({
         message: '',
         type: 'success',
@@ -704,86 +709,87 @@ export function Dashboard() {
 
                     {/* Main Content */}
                     <div className="flex-1 min-w-0">
+                        {/* Global Header (Always Visible) */}
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                            <div>
+                                <h1 className="text-2xl font-bold text-slate-900 mb-1">
+                                    {getWelcomeMessage()}
+                                </h1>
+                                <p className="text-slate-500 text-sm">
+                                    Manage and protect your essential documents.
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <button
+                                    onClick={() => navigate('/activity-logs')}
+                                    className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm"
+                                >
+                                    <Activity size={16} />
+                                    Activity Logs
+                                </button>
+
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    className="hidden"
+                                    accept=".pdf,.jpg,.jpeg,.png"
+                                    onChange={handleFileUpload}
+                                    disabled={isUploading}
+                                />
+                                <button
+                                    onClick={handleUploadClick}
+                                    className="px-4 py-2 bg-[#2EAF7D] hover:bg-[#258f66] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm"
+                                    disabled={isUploading}
+                                >
+                                    <Plus size={16} />
+                                    Upload Document
+                                </button>
+                            </div>
+                        </div>
+
+                        {error && (
+                            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg flex items-start gap-3">
+                                <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+                                <p className="text-sm text-red-700">{error}</p>
+                            </div>
+                        )}
+
+                        {/* Global Stats Cards (Always Visible) */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+                            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                                <div className="flex justify-between items-start mb-2">
+                                    <span className="text-sm font-medium text-slate-500">Total Documents</span>
+                                    <FileText size={18} className="text-[#02353C]" />
+                                </div>
+                                <div className="text-3xl font-bold text-slate-900">{documents.length}</div>
+                            </div>
+
+                            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                                <div className="flex justify-between items-start mb-2">
+                                    <span className="text-sm font-medium text-slate-500">Verified</span>
+                                    <CheckCircle size={18} className="text-[#2EAF7D]" />
+                                </div>
+                                <div className="text-3xl font-bold text-slate-900">
+                                    {documents.filter(d => d.status === 'verified').length}
+                                </div>
+                            </div>
+
+                            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                                <div className="flex justify-between items-start mb-2">
+                                    <span className="text-sm font-medium text-slate-500">Pending</span>
+                                    <div className="w-4 h-4" />
+                                </div>
+                                <div className="text-3xl font-bold text-slate-900">
+                                    {documents.filter(d => d.status === 'pending').length}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* View Content Area */}
                         {!activeSharedFolderId ? (
-                            <>
-                                {/* Header */}
-                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                                    <div>
-                                        <h1 className="text-2xl font-bold text-slate-900 mb-1">
-                                            {getWelcomeMessage()}
-                                        </h1>
-                                        <p className="text-slate-500 text-sm">
-                                            Manage and protect your essential documents.
-                                        </p>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <button
-                                            onClick={() => navigate('/activity-logs')}
-                                            className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm"
-                                        >
-                                            <Activity size={16} />
-                                            Activity Logs
-                                        </button>
-
-                                        <input
-                                            ref={fileInputRef}
-                                            type="file"
-                                            className="hidden"
-                                            accept=".pdf,.jpg,.jpeg,.png"
-                                            onChange={handleFileUpload}
-                                            disabled={isUploading}
-                                        />
-                                        <button
-                                            onClick={handleUploadClick}
-                                            className="px-4 py-2 bg-[#2EAF7D] hover:bg-[#258f66] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm"
-                                            disabled={isUploading}
-                                        >
-                                            <Plus size={16} />
-                                            Upload Document
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {error && (
-                                    <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg flex items-start gap-3">
-                                        <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
-                                        <p className="text-sm text-red-700">{error}</p>
-                                    </div>
-                                )}
-
-                                {/* Stats Cards */}
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-                                    <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                                        <div className="flex justify-between items-start mb-2">
-                                            <span className="text-sm font-medium text-slate-500">Total Documents</span>
-                                            <FileText size={18} className="text-[#02353C]" />
-                                        </div>
-                                        <div className="text-3xl font-bold text-slate-900">{documents.length}</div>
-                                    </div>
-
-                                    <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                                        <div className="flex justify-between items-start mb-2">
-                                            <span className="text-sm font-medium text-slate-500">Verified</span>
-                                            <CheckCircle size={18} className="text-[#2EAF7D]" />
-                                        </div>
-                                        <div className="text-3xl font-bold text-slate-900">
-                                            {documents.filter(d => d.status === 'verified').length}
-                                        </div>
-                                    </div>
-
-                                    <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                                        <div className="flex justify-between items-start mb-2">
-                                            <span className="text-sm font-medium text-slate-500">Pending</span>
-                                            <div className="w-4 h-4" />
-                                        </div>
-                                        <div className="text-3xl font-bold text-slate-900">
-                                            {documents.filter(d => d.status === 'pending').length}
-                                        </div>
-                                    </div>
-                                </div>
-
+                            <div className="space-y-6">
                                 {/* Tabs Navigation */}
-                                <div className="flex items-center gap-1 mb-6 bg-white p-1 rounded-xl border border-gray-100 shadow-sm w-fit">
+                                <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-gray-100 shadow-sm w-fit">
                                     <button
                                         onClick={() => setActiveTab('documents')}
                                         className={`px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'documents'
@@ -967,98 +973,92 @@ export function Dashboard() {
                                         )}
                                     </div>
                                 </div>
-                            </>
+                            </div>
                         ) : (
-                            (() => {
-                                const fid = activeSharedFolderId;
-                                const currentFolder = sharedWithMeFolders.find(f => f.id === fid) as FolderWithMetadata;
-                                const isViewOnly = currentFolder?.permission_level === 'view_only';
-                                const isUploadOnly = currentFolder?.permission_level === 'upload_only';
-                                const folderDocuments = documents.filter(d => d.folder_id === fid);
-
-                                return (
-                                    <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden min-h-[500px]">
-                                        <div className="p-6 border-b border-gray-100 flex flex-col gap-4">
-                                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                                                <div className="flex items-center gap-3">
-                                                    <button
-                                                        onClick={() => {
-                                                            navigate('/dashboard');
-                                                            setActiveTab('folders');
-                                                            setSelectedFolderId(null);
-                                                        }}
-                                                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-slate-500"
-                                                        title="Back to Shared Folders"
-                                                    >
-                                                        <ArrowLeft size={20} />
-                                                    </button>
-                                                    <div>
-                                                        <div className="flex items-center gap-2">
-                                                            <h2 className="text-xl font-bold text-slate-900">{currentFolder?.name}</h2>
-                                                            <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">
-                                                                Shared
-                                                            </span>
+                            <div className="space-y-6">
+                                {/* Shared Folder Content Area */}
+                                <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden min-h-[500px]">
+                                    <div className="p-6 border-b border-gray-100 flex flex-col gap-4">
+                                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                            <div className="flex items-center gap-3">
+                                                <button
+                                                    onClick={() => {
+                                                        navigate('/dashboard');
+                                                        setActiveTab('folders');
+                                                        setSelectedFolderId(null);
+                                                    }}
+                                                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-slate-500"
+                                                    title="Back to Shared Folders"
+                                                >
+                                                    <ArrowLeft size={20} />
+                                                </button>
+                                                <div>
+                                                    <div className="flex items-center gap-2">
+                                                        <h2 className="text-xl font-bold text-slate-900">{currentSharedFolder?.name}</h2>
+                                                        <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">
+                                                            Shared
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
+                                                        <div className="flex items-center gap-1.5 text-sm text-slate-500">
+                                                            <UserIcon size={14} className="text-[#2EAF7D]" />
+                                                            <span>{`Shared by: ${currentSharedFolder?.owner_name || 'Unknown'}`}</span>
                                                         </div>
-                                                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
-                                                            <div className="flex items-center gap-1.5 text-sm text-slate-500">
-                                                                <UserIcon size={14} className="text-[#2EAF7D]" />
-                                                                <span>{`Shared by: ${currentFolder?.owner_name || 'Unknown'}`}</span>
-                                                            </div>
-                                                            <div className="flex items-center gap-1.5 text-sm text-slate-500">
-                                                                <Shield size={14} className="text-[#2EAF7D]" />
-                                                                <span className="capitalize">{currentFolder?.permission_level?.replace('_', ' ')}</span>
-                                                            </div>
+                                                        <div className="flex items-center gap-1.5 text-sm text-slate-500">
+                                                            <Shield size={14} className="text-[#2EAF7D]" />
+                                                            <span className="capitalize">{currentSharedFolder?.permission_level?.replace('_', ' ')}</span>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div className="flex items-center gap-3 w-full sm:w-auto">
-                                                    <div className="relative flex-1 sm:w-64">
-                                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Search in folder..."
-                                                            value={searchQuery}
-                                                            onChange={(e) => setSearchQuery(e.target.value)}
-                                                            className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2EAF7D]/20 focus:border-[#2EAF7D] transition-all"
-                                                        />
-                                                    </div>
-                                                    {!isViewOnly && (
-                                                        <button
-                                                            onClick={() => {
-                                                                setUploadSelectedFolderId(fid || '');
-                                                                handleUploadClick();
-                                                            }}
-                                                            className="px-4 py-2 bg-[#2EAF7D] hover:bg-[#258f66] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm whitespace-nowrap"
-                                                        >
-                                                            <Plus size={16} />
-                                                            <span className="hidden sm:inline">Upload Document</span>
-                                                        </button>
-                                                    )}
                                                 </div>
                                             </div>
-                                        </div>
-
-                                        <div className="p-0">
-                                            <DocumentsTable
-                                                documents={isUploadOnly ? [] : folderDocuments.filter(d =>
-                                                    d.name.toLowerCase().includes(searchQuery.toLowerCase())
+                                            <div className="flex items-center gap-3 w-full sm:w-auto">
+                                                <div className="relative flex-1 sm:w-64">
+                                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Search in folder..."
+                                                        value={searchQuery}
+                                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                                        className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2EAF7D]/20 focus:border-[#2EAF7D] transition-all"
+                                                    />
+                                                </div>
+                                                {(currentSharedFolder?.permission_level === 'upload_only' || currentSharedFolder?.permission_level === 'full_access') && (
+                                                    <button
+                                                        onClick={() => {
+                                                            setUploadSelectedFolderId(activeSharedFolderId || '');
+                                                            handleUploadClick();
+                                                        }}
+                                                        className="px-4 py-2 bg-[#2EAF7D] hover:bg-[#258f66] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm whitespace-nowrap"
+                                                    >
+                                                        <Plus size={16} />
+                                                        <span className="hidden sm:inline">Upload Document</span>
+                                                    </button>
                                                 )}
-                                                folders={folders}
-                                                selectedIds={selectedDocIds}
-                                                onToggleSelect={toggleSelect}
-                                                onSelectAll={selectAll}
-                                                onDeselectAll={deselectAll}
-                                                onView={handleViewDocument}
-                                                onDelete={handleDeleteDocument}
-                                                onShare={openShareModal}
-                                                hideDelete={true} // Only owner removes files
-                                                hideShare={isViewOnly}
-                                                emptyMessage="No documents in this folder yet."
-                                            />
+                                            </div>
                                         </div>
                                     </div>
-                                );
-                            })()
+
+                                    <div className="p-0">
+                                        <DocumentsTable
+                                            documents={currentSharedFolder?.permission_level === 'upload_only' ? [] : documents.filter(d =>
+                                                d.folder_id === activeSharedFolderId &&
+                                                d.name.toLowerCase().includes(searchQuery.toLowerCase())
+                                            )}
+                                            folders={folders}
+                                            selectedIds={selectedDocIds}
+                                            onToggleSelect={toggleSelect}
+                                            onSelectAll={selectAll}
+                                            onDeselectAll={deselectAll}
+                                            onView={handleViewDocument}
+                                            onDelete={handleDeleteDocument}
+                                            onShare={openShareModal}
+                                            hideDelete={true} // Only owner removes files
+                                            hideShare={currentSharedFolder?.permission_level === 'view_only'}
+                                            emptyMessage="No documents in this folder yet."
+                                        />
+                                    </div>
+                                </div>
+                            </div>
                         )}
                     </div>
 
