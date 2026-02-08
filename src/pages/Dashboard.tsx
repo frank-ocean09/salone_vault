@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Routes, Route, useParams } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
 import { Button } from '../components/Button';
 import { FolderList } from '../components/FolderList';
@@ -107,6 +107,15 @@ export function Dashboard() {
     };
 
     const [sharedWithMeFolders, setSharedWithMeFolders] = useState<FolderWithMetadata[]>([]);
+    const { "*": splat } = useParams();
+    const activeSharedFolderId = splat?.startsWith('sharedfolder/') ? splat.split('/')[1] : null;
+
+    // Sync selectedFolderId with route if in a shared folder
+    useEffect(() => {
+        if (activeSharedFolderId) {
+            setSelectedFolderId(activeSharedFolderId);
+        }
+    }, [activeSharedFolderId]);
 
     // Navigation state
     const [activeTab, setActiveTab] = useState<'documents' | 'folders'>('documents');
@@ -658,7 +667,7 @@ export function Dashboard() {
                                         {sharedWithMeFolders.map(folder => (
                                             <button
                                                 key={folder.id}
-                                                onClick={() => setSelectedFolderId(folder.id)}
+                                                onClick={() => navigate(`sharedfolder/${folder.id}`)}
                                                 className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all text-sm font-medium ${selectedFolderId === folder.id
                                                     ? 'bg-green-50 text-green-700'
                                                     : 'text-gray-600 hover:bg-gray-50'
@@ -681,269 +690,363 @@ export function Dashboard() {
 
                     {/* Main Content */}
                     <div className="flex-1 min-w-0">
-                        {/* Header */}
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                            <div>
-                                <h1 className="text-2xl font-bold text-slate-900 mb-1">
-                                    {getWelcomeMessage()}
-                                </h1>
-                                <p className="text-slate-500 text-sm">
-                                    Manage and protect your essential documents.
-                                </p>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <button
-                                    onClick={() => navigate('/activity-logs')}
-                                    className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm"
-                                >
-                                    <Activity size={16} />
-                                    Activity Logs
-                                </button>
+                        <Routes>
+                            <Route index element={(
+                                <>
+                                    {/* Header */}
+                                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                                        <div>
+                                            <h1 className="text-2xl font-bold text-slate-900 mb-1">
+                                                {getWelcomeMessage()}
+                                            </h1>
+                                            <p className="text-slate-500 text-sm">
+                                                Manage and protect your essential documents.
+                                            </p>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <button
+                                                onClick={() => navigate('/activity-logs')}
+                                                className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm"
+                                            >
+                                                <Activity size={16} />
+                                                Activity Logs
+                                            </button>
 
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    className="hidden"
-                                    accept=".pdf,.jpg,.jpeg,.png"
-                                    onChange={handleFileUpload}
-                                    disabled={isUploading}
-                                />
-                                {(() => {
-                                    const sharedFolder = sharedWithMeFolders.find(f => f.id === selectedFolderId);
-                                    const isViewOnly = sharedFolder?.permission_level === 'view_only';
+                                            <input
+                                                ref={fileInputRef}
+                                                type="file"
+                                                className="hidden"
+                                                accept=".pdf,.jpg,.jpeg,.png"
+                                                onChange={handleFileUpload}
+                                                disabled={isUploading}
+                                            />
+                                            <button
+                                                onClick={handleUploadClick}
+                                                className="px-4 py-2 bg-[#2EAF7D] hover:bg-[#258f66] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm"
+                                                disabled={isUploading}
+                                            >
+                                                <Plus size={16} />
+                                                Upload Document
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {error && (
+                                        <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg flex items-start gap-3">
+                                            <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+                                            <p className="text-sm text-red-700">{error}</p>
+                                        </div>
+                                    )}
+
+                                    {/* Stats Cards */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+                                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <span className="text-sm font-medium text-slate-500">Total Documents</span>
+                                                <FileText size={18} className="text-[#02353C]" />
+                                            </div>
+                                            <div className="text-3xl font-bold text-slate-900">{documents.length}</div>
+                                        </div>
+
+                                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <span className="text-sm font-medium text-slate-500">Verified</span>
+                                                <CheckCircle size={18} className="text-[#2EAF7D]" />
+                                            </div>
+                                            <div className="text-3xl font-bold text-slate-900">
+                                                {documents.filter(d => d.status === 'verified').length}
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <span className="text-sm font-medium text-slate-500">Pending</span>
+                                                <div className="w-4 h-4" />
+                                            </div>
+                                            <div className="text-3xl font-bold text-slate-900">
+                                                {documents.filter(d => d.status === 'pending').length}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Tabs Navigation */}
+                                    <div className="flex items-center gap-1 mb-6 bg-white p-1 rounded-xl border border-gray-100 shadow-sm w-fit">
+                                        <button
+                                            onClick={() => setActiveTab('documents')}
+                                            className={`px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'documents'
+                                                ? 'bg-[#2EAF7D] text-white shadow-md'
+                                                : 'text-slate-500 hover:text-slate-700 hover:bg-gray-50'
+                                                }`}
+                                        >
+                                            <FileText size={18} />
+                                            Documents
+                                        </button>
+                                        <button
+                                            onClick={() => setActiveTab('folders')}
+                                            className={`px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'folders'
+                                                ? 'bg-[#2EAF7D] text-white shadow-md'
+                                                : 'text-slate-500 hover:text-slate-700 hover:bg-gray-50'
+                                                }`}
+                                        >
+                                            <FolderInput size={18} />
+                                            Folders
+                                        </button>
+                                    </div>
+
+                                    {/* Document/Folder Section */}
+                                    <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                                        <div className="p-6 border-b border-gray-100 flex flex-col gap-4">
+                                            {selectedFolderId ? (
+                                                (() => {
+                                                    const currentFolder = (folders.find(f => f.id === selectedFolderId) || sharedWithMeFolders.find(f => f.id === selectedFolderId)) as FolderWithMetadata;
+                                                    return (
+                                                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                                            <div className="flex items-center gap-3">
+                                                                <button
+                                                                    onClick={() => {
+                                                                        setSelectedFolderId(null);
+                                                                        setActiveTab('folders');
+                                                                        setSearchQuery('');
+                                                                    }}
+                                                                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-slate-500"
+                                                                    title="Back to Folders"
+                                                                >
+                                                                    <ArrowLeft size={20} />
+                                                                </button>
+                                                                <div>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <h2 className="text-xl font-bold text-slate-900">{currentFolder?.name}</h2>
+                                                                        {currentFolder?.is_shared && (
+                                                                            <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">
+                                                                                Shared
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
+                                                                        <div className="flex items-center gap-1.5 text-sm text-slate-500">
+                                                                            <UserIcon size={14} className="text-[#2EAF7D]" />
+                                                                            <span>{currentFolder?.is_shared ? `Shared by: ${currentFolder.owner_name}` : 'Owned by me'}</span>
+                                                                        </div>
+                                                                        {currentFolder?.is_shared && (
+                                                                            <div className="flex items-center gap-1.5 text-sm text-slate-500">
+                                                                                <Shield size={14} className="text-[#2EAF7D]" />
+                                                                                <span className="capitalize">{currentFolder.permission_level?.replace('_', ' ')}</span>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div className="relative w-full sm:w-64">
+                                                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="Search in folder..."
+                                                                    value={searchQuery}
+                                                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                                                    className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2EAF7D]/20 focus:border-[#2EAF7D] transition-all"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })()
+                                            ) : (
+                                                <div className="p-0 border-none flex flex-col sm:flex-row justify-between items-center gap-4">
+                                                    <h2 className="text-lg font-bold text-slate-900">
+                                                        {activeTab === 'folders' ? 'All Folders' : 'All Documents'}
+                                                    </h2>
+
+                                                    <div className="relative w-full sm:w-64">
+                                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                                        <input
+                                                            type="text"
+                                                            placeholder={`Search ${activeTab}...`}
+                                                            value={searchQuery}
+                                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                                            className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2EAF7D]/20 focus:border-[#2EAF7D] transition-all"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="p-0">
+                                            {activeTab === 'documents' ? (
+                                                (() => {
+                                                    const sharedFolder = sharedWithMeFolders.find(f => f.id === selectedFolderId);
+                                                    const isViewOnly = sharedFolder?.permission_level === 'view_only';
+                                                    const isUploadOnly = sharedFolder?.permission_level === 'upload_only';
+
+                                                    return (
+                                                        <DocumentsTable
+                                                            documents={isUploadOnly ? [] : filteredDocuments}
+                                                            folders={folders}
+                                                            selectedIds={selectedDocIds}
+                                                            onToggleSelect={toggleSelect}
+                                                            onSelectAll={selectAll}
+                                                            onDeselectAll={deselectAll}
+                                                            onView={handleViewDocument}
+                                                            onDelete={handleDeleteDocument}
+                                                            onShare={openShareModal}
+                                                            searchQuery={searchQuery}
+                                                            hideDelete={!!sharedFolder} // Hide delete for any shared folder (only owner manages)
+                                                            hideShare={isViewOnly} // Hide share for view_only
+                                                            emptyMessage={selectedFolderId ? "No documents in this folder yet." : "No documents found"}
+                                                        />
+                                                    );
+                                                })()
+                                            ) : (
+                                                (() => {
+                                                    // Enrich folders with stats from current documents state
+                                                    const enrichedFolders = folders.map(f => {
+                                                        const folderDocs = documents.filter(d => d.folder_id === f.id);
+                                                        const latestTimestamp = folderDocs.length > 0
+                                                            ? Math.max(...folderDocs.map(d => new Date(d.updated_at).getTime()))
+                                                            : new Date(f.updated_at).getTime();
+
+                                                        return {
+                                                            ...f,
+                                                            document_count: folderDocs.length,
+                                                            last_updated: new Date(latestTimestamp).toISOString()
+                                                        };
+                                                    });
+
+                                                    const enrichedShared = sharedWithMeFolders.map(f => {
+                                                        const folderDocs = documents.filter(d => d.folder_id === f.id);
+                                                        const latestTimestamp = folderDocs.length > 0
+                                                            ? Math.max(...folderDocs.map(d => new Date(d.updated_at).getTime()))
+                                                            : new Date(f.updated_at || 0).getTime();
+
+                                                        return {
+                                                            ...f,
+                                                            document_count: folderDocs.length,
+                                                            last_updated: latestTimestamp > 0 ? new Date(latestTimestamp).toISOString() : f.updated_at
+                                                        };
+                                                    });
+
+                                                    return (
+                                                        <FolderGridView
+                                                            folders={[...enrichedFolders, ...enrichedShared].filter(f =>
+                                                                f.name.toLowerCase().includes(searchQuery.toLowerCase())
+                                                            )}
+                                                            onSelect={(id) => {
+                                                                const isShared = sharedWithMeFolders.some(f => f.id === id);
+                                                                if (isShared) {
+                                                                    navigate(`sharedfolder/${id}`);
+                                                                } else {
+                                                                    setSelectedFolderId(id);
+                                                                    setActiveTab('documents');
+                                                                }
+                                                            }}
+                                                            onShare={(id) => { setShareFolderId(id); setShareFolderModalOpen(true); }}
+                                                            onEdit={(id, name) => {
+                                                                const newName = prompt('Enter new folder name:', name);
+                                                                if (newName && newName !== name) handleUpdateFolder(id, newName, 'blue');
+                                                            }}
+                                                            onDelete={(id, name) => {
+                                                                if (confirm(`Delete folder "${name}"? Documents inside will be moved to "All Documents".`)) {
+                                                                    handleDeleteFolder(id);
+                                                                }
+                                                            }}
+                                                        />
+                                                    );
+                                                })()
+                                            )}
+                                        </div>
+                                    </div>
+                                </>
+                            )} />
+                            <Route path="sharedfolder/:fid" element={(
+                                (() => {
+                                    const { fid } = useParams();
+                                    const currentFolder = sharedWithMeFolders.find(f => f.id === fid) as FolderWithMetadata;
+                                    const isViewOnly = currentFolder?.permission_level === 'view_only';
+                                    const isUploadOnly = currentFolder?.permission_level === 'upload_only';
+                                    const folderDocuments = documents.filter(d => d.folder_id === fid);
 
                                     return (
-                                        <button
-                                            onClick={handleUploadClick}
-                                            className={`px-4 py-2 bg-[#2EAF7D] hover:bg-[#258f66] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm ${isViewOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                            disabled={isUploading || isViewOnly}
-                                            title={isViewOnly ? "You don't have permission to upload to this folder" : "Upload Document"}
-                                        >
-                                            <Plus size={16} />
-                                            Upload Document
-                                        </button>
-                                    );
-                                })()}
-                            </div>
-                        </div>
-
-                        {error && (
-                            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg flex items-start gap-3">
-                                <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
-                                <p className="text-sm text-red-700">{error}</p>
-                            </div>
-                        )}
-
-                        {/* Stats Cards */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-                            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                                <div className="flex justify-between items-start mb-2">
-                                    <span className="text-sm font-medium text-slate-500">Total Documents</span>
-                                    <FileText size={18} className="text-[#02353C]" />
-                                </div>
-                                <div className="text-3xl font-bold text-slate-900">{documents.length}</div>
-                            </div>
-
-                            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                                <div className="flex justify-between items-start mb-2">
-                                    <span className="text-sm font-medium text-slate-500">Verified</span>
-                                    <CheckCircle size={18} className="text-[#2EAF7D]" />
-                                </div>
-                                <div className="text-3xl font-bold text-slate-900">
-                                    {documents.filter(d => d.status === 'verified').length}
-                                </div>
-                            </div>
-
-                            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                                <div className="flex justify-between items-start mb-2">
-                                    <span className="text-sm font-medium text-slate-500">Pending</span>
-                                    <div className="w-4 h-4" />
-                                </div>
-                                <div className="text-3xl font-bold text-slate-900">
-                                    {documents.filter(d => d.status === 'pending').length}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Tabs Navigation */}
-                        <div className="flex items-center gap-1 mb-6 bg-white p-1 rounded-xl border border-gray-100 shadow-sm w-fit">
-                            <button
-                                onClick={() => setActiveTab('documents')}
-                                className={`px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'documents'
-                                    ? 'bg-[#2EAF7D] text-white shadow-md'
-                                    : 'text-slate-500 hover:text-slate-700 hover:bg-gray-50'
-                                    }`}
-                            >
-                                <FileText size={18} />
-                                Documents
-                            </button>
-                            <button
-                                onClick={() => setActiveTab('folders')}
-                                className={`px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'folders'
-                                    ? 'bg-[#2EAF7D] text-white shadow-md'
-                                    : 'text-slate-500 hover:text-slate-700 hover:bg-gray-50'
-                                    }`}
-                            >
-                                <FolderInput size={18} />
-                                Folders
-                            </button>
-                        </div>
-
-                        {/* Document/Folder Section */}
-                        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-                            <div className="p-6 border-b border-gray-100 flex flex-col gap-4">
-                                {selectedFolderId ? (
-                                    (() => {
-                                        const currentFolder = (folders.find(f => f.id === selectedFolderId) || sharedWithMeFolders.find(f => f.id === selectedFolderId)) as FolderWithMetadata;
-                                        return (
-                                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                                                <div className="flex items-center gap-3">
-                                                    <button
-                                                        onClick={() => {
-                                                            setSelectedFolderId(null);
-                                                            setActiveTab('folders');
-                                                            setSearchQuery('');
-                                                        }}
-                                                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-slate-500"
-                                                        title="Back to Folders"
-                                                    >
-                                                        <ArrowLeft size={20} />
-                                                    </button>
-                                                    <div>
-                                                        <div className="flex items-center gap-2">
-                                                            <h2 className="text-xl font-bold text-slate-900">{currentFolder?.name}</h2>
-                                                            {currentFolder?.is_shared && (
+                                        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden min-h-[500px]">
+                                            <div className="p-6 border-b border-gray-100 flex flex-col gap-4">
+                                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <button
+                                                            onClick={() => {
+                                                                navigate('/dashboard');
+                                                                setActiveTab('folders');
+                                                            }}
+                                                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-slate-500"
+                                                            title="Back to Shared Folders"
+                                                        >
+                                                            <ArrowLeft size={20} />
+                                                        </button>
+                                                        <div>
+                                                            <div className="flex items-center gap-2">
+                                                                <h2 className="text-xl font-bold text-slate-900">{currentFolder?.name}</h2>
                                                                 <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">
                                                                     Shared
                                                                 </span>
-                                                            )}
-                                                        </div>
-                                                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
-                                                            <div className="flex items-center gap-1.5 text-sm text-slate-500">
-                                                                <UserIcon size={14} className="text-[#2EAF7D]" />
-                                                                <span>{currentFolder?.is_shared ? `Shared by: ${currentFolder.owner_name}` : 'Owned by me'}</span>
                                                             </div>
-                                                            {currentFolder?.is_shared && (
+                                                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
+                                                                <div className="flex items-center gap-1.5 text-sm text-slate-500">
+                                                                    <UserIcon size={14} className="text-[#2EAF7D]" />
+                                                                    <span>{`Shared by: ${currentFolder?.owner_name || 'Unknown'}`}</span>
+                                                                </div>
                                                                 <div className="flex items-center gap-1.5 text-sm text-slate-500">
                                                                     <Shield size={14} className="text-[#2EAF7D]" />
-                                                                    <span className="capitalize">{currentFolder.permission_level?.replace('_', ' ')}</span>
+                                                                    <span className="capitalize">{currentFolder?.permission_level?.replace('_', ' ')}</span>
                                                                 </div>
-                                                            )}
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div className="relative w-full sm:w-64">
-                                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Search in folder..."
-                                                        value={searchQuery}
-                                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                                        className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2EAF7D]/20 focus:border-[#2EAF7D] transition-all"
-                                                    />
+                                                    <div className="flex items-center gap-3 w-full sm:w-auto">
+                                                        <div className="relative flex-1 sm:w-64">
+                                                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Search in folder..."
+                                                                value={searchQuery}
+                                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                                className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2EAF7D]/20 focus:border-[#2EAF7D] transition-all"
+                                                            />
+                                                        </div>
+                                                        {!isViewOnly && (
+                                                            <button
+                                                                onClick={() => {
+                                                                    setUploadSelectedFolderId(fid || '');
+                                                                    handleUploadClick();
+                                                                }}
+                                                                className="px-4 py-2 bg-[#2EAF7D] hover:bg-[#258f66] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm whitespace-nowrap"
+                                                            >
+                                                                <Plus size={16} />
+                                                                <span className="hidden sm:inline">Upload Document</span>
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        );
-                                    })()
-                                ) : (
-                                    <div className="p-0 border-none flex flex-col sm:flex-row justify-between items-center gap-4">
-                                        <h2 className="text-lg font-bold text-slate-900">
-                                            {activeTab === 'folders' ? 'All Folders' : 'All Documents'}
-                                        </h2>
 
-                                        <div className="relative w-full sm:w-64">
-                                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                            <input
-                                                type="text"
-                                                placeholder={`Search ${activeTab}...`}
-                                                value={searchQuery}
-                                                onChange={(e) => setSearchQuery(e.target.value)}
-                                                className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2EAF7D]/20 focus:border-[#2EAF7D] transition-all"
-                                            />
+                                            <div className="p-0">
+                                                <DocumentsTable
+                                                    documents={isUploadOnly ? [] : folderDocuments.filter(d =>
+                                                        d.name.toLowerCase().includes(searchQuery.toLowerCase())
+                                                    )}
+                                                    folders={folders}
+                                                    selectedIds={selectedDocIds}
+                                                    onToggleSelect={toggleSelect}
+                                                    onSelectAll={selectAll}
+                                                    onDeselectAll={deselectAll}
+                                                    onView={handleViewDocument}
+                                                    onDelete={handleDeleteDocument}
+                                                    onShare={openShareModal}
+                                                    hideDelete={true} // Only owner removes files
+                                                    hideShare={isViewOnly}
+                                                    emptyMessage="No documents in this folder yet."
+                                                />
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="p-0">
-                                {activeTab === 'documents' ? (
-                                    (() => {
-                                        const sharedFolder = sharedWithMeFolders.find(f => f.id === selectedFolderId);
-                                        const isViewOnly = sharedFolder?.permission_level === 'view_only';
-                                        const isUploadOnly = sharedFolder?.permission_level === 'upload_only';
-
-                                        return (
-                                            <DocumentsTable
-                                                documents={isUploadOnly ? [] : filteredDocuments}
-                                                folders={folders}
-                                                selectedIds={selectedDocIds}
-                                                onToggleSelect={toggleSelect}
-                                                onSelectAll={selectAll}
-                                                onDeselectAll={deselectAll}
-                                                onView={handleViewDocument}
-                                                onDelete={handleDeleteDocument}
-                                                onShare={openShareModal}
-                                                searchQuery={searchQuery}
-                                                hideDelete={!!sharedFolder} // Hide delete for any shared folder (only owner manages)
-                                                hideShare={isViewOnly} // Hide share for view_only
-                                                emptyMessage={selectedFolderId ? "No documents in this folder yet." : "No documents found"}
-                                            />
-                                        );
-                                    })()
-                                ) : (
-                                    (() => {
-                                        // Enrich folders with stats from current documents state
-                                        const enrichedFolders = folders.map(f => {
-                                            const folderDocs = documents.filter(d => d.folder_id === f.id);
-                                            const latestTimestamp = folderDocs.length > 0
-                                                ? Math.max(...folderDocs.map(d => new Date(d.updated_at).getTime()))
-                                                : new Date(f.updated_at).getTime();
-
-                                            return {
-                                                ...f,
-                                                document_count: folderDocs.length,
-                                                last_updated: new Date(latestTimestamp).toISOString()
-                                            };
-                                        });
-
-                                        const enrichedShared = sharedWithMeFolders.map(f => {
-                                            const folderDocs = documents.filter(d => d.folder_id === f.id);
-                                            const latestTimestamp = folderDocs.length > 0
-                                                ? Math.max(...folderDocs.map(d => new Date(d.updated_at).getTime()))
-                                                : new Date(f.updated_at || 0).getTime();
-
-                                            return {
-                                                ...f,
-                                                document_count: folderDocs.length,
-                                                last_updated: latestTimestamp > 0 ? new Date(latestTimestamp).toISOString() : f.updated_at
-                                            };
-                                        });
-
-                                        return (
-                                            <FolderGridView
-                                                folders={[...enrichedFolders, ...enrichedShared].filter(f =>
-                                                    f.name.toLowerCase().includes(searchQuery.toLowerCase())
-                                                )}
-                                                onSelect={(id) => {
-                                                    setSelectedFolderId(id);
-                                                    setActiveTab('documents');
-                                                }}
-                                                onShare={(id) => { setShareFolderId(id); setShareFolderModalOpen(true); }}
-                                                onEdit={(id, name) => {
-                                                    const newName = prompt('Enter new folder name:', name);
-                                                    if (newName && newName !== name) handleUpdateFolder(id, newName, 'blue');
-                                                }}
-                                                onDelete={(id, name) => {
-                                                    if (confirm(`Delete folder "${name}"? Documents inside will be moved to "All Documents".`)) {
-                                                        handleDeleteFolder(id);
-                                                    }
-                                                }}
-                                            />
-                                        );
-                                    })()
-                                )}
-                            </div>
-                        </div>
+                                    );
+                                })()
+                            )} />
+                        </Routes>
                     </div>
 
                     {/* Right Sidebar - Shared Albums */}
