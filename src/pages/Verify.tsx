@@ -103,34 +103,36 @@ export function Verify() {
                     </div>
 
                     <div className="p-8">
-                        <form onSubmit={handleVerify} className="space-y-4">
-                            <div>
-                                <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-1">
-                                    Verification Token
-                                </label>
-                                <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                                    <input
-                                        type="text"
-                                        id="code"
-                                        value={verificationCode}
-                                        onChange={(e) => setVerificationCode(e.target.value)}
-                                        placeholder="Enter verification token"
-                                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2EAF7D]/20 focus:border-[#2EAF7D] transition-all"
-                                    />
+                        {status !== 'success' && (
+                            <form onSubmit={handleVerify} className="space-y-4">
+                                <div>
+                                    <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-1">
+                                        Verification Token
+                                    </label>
+                                    <div className="relative">
+                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                                        <input
+                                            type="text"
+                                            id="code"
+                                            value={verificationCode}
+                                            onChange={(e) => setVerificationCode(e.target.value)}
+                                            placeholder="Enter verification token"
+                                            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2EAF7D]/20 focus:border-[#2EAF7D] transition-all"
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                            <Button type="submit" className="w-full bg-[#2EAF7D] hover:bg-[#2EAF7D]/90" size="lg" disabled={status === 'loading'}>
-                                {status === 'loading' ? (
-                                    <span className="flex items-center justify-center gap-2">
-                                        <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
-                                        Verifying...
-                                    </span>
-                                ) : (
-                                    'Verify Document'
-                                )}
-                            </Button>
-                        </form>
+                                <Button type="submit" className="w-full bg-[#2EAF7D] hover:bg-[#2EAF7D]/90" size="lg" disabled={status === 'loading'}>
+                                    {status === 'loading' ? (
+                                        <span className="flex items-center justify-center gap-2">
+                                            <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                                            Verifying...
+                                        </span>
+                                    ) : (
+                                        'Verify Document'
+                                    )}
+                                </Button>
+                            </form>
+                        )}
 
                         {status === 'success' && result && (
                             <div className="mt-8 p-6 bg-green-50 rounded-xl border border-green-100 animate-in fade-in slide-in-from-bottom-4">
