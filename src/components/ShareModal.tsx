@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Copy, Mail, MessageCircle, Share2, Ban, CheckCircle, AlertCircle } from 'lucide-react';
+import { X, Copy, Mail, MessageCircle, Share2, Ban, CheckCircle, AlertCircle, ChevronDown } from 'lucide-react';
 import QRCode from 'qrcode';
 import { Button } from './Button';
 import { Toast } from './Toast';
 import { createShareToken, revokeShareToken, logActivity } from '../lib/shareApi';
-import type { Document } from '../lib/supabase';
+import type { Document as Doc } from '../lib/supabase';
 
 interface ShareModalProps {
-    document: Document;
+    document: Doc;
     isOpen: boolean;
     onClose: () => void;
     userId: string;
@@ -18,6 +18,8 @@ export function ShareModal({ document, isOpen, onClose, userId }: ShareModalProp
     const [expiryValue, setExpiryValue] = useState(24);
     const [expiryUnit, setExpiryUnit] = useState<'seconds' | 'minutes' | 'hours' | 'days'>('hours');
     const [isCustomExpiry, setIsCustomExpiry] = useState(false);
+    const [isUnitDropdownOpen, setIsUnitDropdownOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
     const [shareUrl, setShareUrl] = useState('');
     const [token, setToken] = useState('');
     const [tokenId, setTokenId] = useState('');
@@ -53,6 +55,17 @@ export function ShareModal({ document, isOpen, onClose, userId }: ShareModalProp
             }).catch(err => console.error('QR code generation failed:', err));
         }
     }, [shareUrl]);
+
+    // Close dropdown on click outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsUnitDropdownOpen(false);
+            }
+        };
+        window.document.addEventListener('mousedown', handleClickOutside);
+        return () => window.document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const generateShareToken = async () => {
         setLoading(true);
@@ -243,16 +256,35 @@ export function ShareModal({ document, isOpen, onClose, userId }: ShareModalProp
                                                 className="flex-1 px-4 py-2 bg-white dark:bg-brand-dark/50 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal dark:text-white"
                                                 placeholder="Value"
                                             />
-                                            <select
-                                                value={expiryUnit}
-                                                onChange={(e) => setExpiryUnit(e.target.value as any)}
-                                                className="w-32 px-3 py-2 bg-white dark:bg-brand-dark/50 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal dark:text-white font-medium"
-                                            >
-                                                <option value="seconds">Seconds</option>
-                                                <option value="minutes">Minutes</option>
-                                                <option value="hours">Hours</option>
-                                                <option value="days">Days</option>
-                                            </select>
+                                            <div className="relative w-32" ref={dropdownRef}>
+                                                <button
+                                                    onClick={() => setIsUnitDropdownOpen(!isUnitDropdownOpen)}
+                                                    className="w-full px-3 py-2 bg-white dark:bg-brand-dark/50 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal dark:text-white font-medium flex items-center justify-between"
+                                                >
+                                                    <span className="capitalize">{expiryUnit}</span>
+                                                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isUnitDropdownOpen ? 'rotate-180' : ''}`} />
+                                                </button>
+
+                                                {isUnitDropdownOpen && (
+                                                    <div className="absolute top-full left-0 mt-1 w-full bg-white dark:bg-brand-darker rounded-xl shadow-xl border border-gray-100 dark:border-white/10 overflow-hidden z-30 animate-in fade-in zoom-in-95 duration-100">
+                                                        {(['seconds', 'minutes', 'hours', 'days'] as const).map((unit) => (
+                                                            <button
+                                                                key={unit}
+                                                                onClick={() => {
+                                                                    setExpiryUnit(unit);
+                                                                    setIsUnitDropdownOpen(false);
+                                                                }}
+                                                                className={`w-full text-left px-3 py-2 text-sm transition-colors capitalize ${expiryUnit === unit
+                                                                    ? 'bg-brand-teal text-white'
+                                                                    : 'text-gray-700 dark:text-gray-300 hover:bg-brand-teal/10 dark:hover:bg-brand-teal/20'
+                                                                    }`}
+                                                            >
+                                                                {unit}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
                                             Expires in: {expiryValue} {expiryUnit}
