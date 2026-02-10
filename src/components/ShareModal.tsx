@@ -15,6 +15,9 @@ interface ShareModalProps {
 
 export function ShareModal({ document, isOpen, onClose, userId }: ShareModalProps) {
     const [expiryHours, setExpiryHours] = useState(24);
+    const [expiryValue, setExpiryValue] = useState(24);
+    const [expiryUnit, setExpiryUnit] = useState<'seconds' | 'minutes' | 'hours' | 'days'>('hours');
+    const [isCustomExpiry, setIsCustomExpiry] = useState(false);
     const [shareUrl, setShareUrl] = useState('');
     const [token, setToken] = useState('');
     const [tokenId, setTokenId] = useState('');
@@ -56,7 +59,15 @@ export function ShareModal({ document, isOpen, onClose, userId }: ShareModalProp
         setError(null);
 
         try {
-            const result = await createShareToken(document.id, userId, expiryHours);
+            let finalExpiryHours = expiryHours;
+            if (isCustomExpiry) {
+                if (expiryUnit === 'seconds') finalExpiryHours = expiryValue / 3600;
+                else if (expiryUnit === 'minutes') finalExpiryHours = expiryValue / 60;
+                else if (expiryUnit === 'hours') finalExpiryHours = expiryValue;
+                else if (expiryUnit === 'days') finalExpiryHours = expiryValue * 24;
+            }
+
+            const result = await createShareToken(document.id, userId, finalExpiryHours);
             setShareUrl(result.shareUrl);
             setToken(result.token);
             setTokenId(result.id);
@@ -85,7 +96,13 @@ export function ShareModal({ document, isOpen, onClose, userId }: ShareModalProp
 
     const handleEmailShare = async () => {
         const subject = `Shared Document: ${document.name}`;
-        const body = `I'm sharing this document with you:\n\nDocument: ${document.name}\nType: ${document.type}\n\nAccess link: ${shareUrl}\n\nThis link will expire in ${expiryHours} hours.`;
+        let expiryDisplay = `${expiryHours} hours`;
+
+        if (isCustomExpiry) {
+            expiryDisplay = `${expiryValue} ${expiryUnit}`;
+        }
+
+        const body = `I'm sharing this document with you:\n\nDocument: ${document.name}\nType: ${document.type}\n\nAccess link: ${shareUrl}\n\nThis link will expire in ${expiryDisplay}.`;
         window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
         await logActivity(userId, 'share_email', document.id, token);
     };
@@ -192,8 +209,11 @@ export function ShareModal({ document, isOpen, onClose, userId }: ShareModalProp
                                     ].map((option) => (
                                         <button
                                             key={option.value}
-                                            onClick={() => setExpiryHours(option.value)}
-                                            className={`px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg border transition-colors ${expiryHours === option.value
+                                            onClick={() => {
+                                                setExpiryHours(option.value);
+                                                setIsCustomExpiry(false);
+                                            }}
+                                            className={`px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg border transition-colors ${!isCustomExpiry && expiryHours === option.value
                                                 ? 'bg-brand-teal text-white border-brand-teal'
                                                 : 'bg-white text-gray-700 border-gray-300 hover:border-brand-teal'
                                                 }`}
@@ -201,7 +221,44 @@ export function ShareModal({ document, isOpen, onClose, userId }: ShareModalProp
                                             {option.label}
                                         </button>
                                     ))}
+                                    <button
+                                        onClick={() => setIsCustomExpiry(true)}
+                                        className={`px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm rounded-lg border transition-colors ${isCustomExpiry
+                                            ? 'bg-brand-teal text-white border-brand-teal'
+                                            : 'bg-white text-gray-700 border-gray-300 hover:border-brand-teal'
+                                            }`}
+                                    >
+                                        Custom
+                                    </button>
                                 </div>
+
+                                {isCustomExpiry && (
+                                    <div className="mt-4 p-4 bg-gray-50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5 space-y-3 animate-in fade-in slide-in-from-top-2">
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                value={expiryValue}
+                                                onChange={(e) => setExpiryValue(parseInt(e.target.value) || 1)}
+                                                className="flex-1 px-4 py-2 bg-white dark:bg-brand-dark/50 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal dark:text-white"
+                                                placeholder="Value"
+                                            />
+                                            <select
+                                                value={expiryUnit}
+                                                onChange={(e) => setExpiryUnit(e.target.value as any)}
+                                                className="w-32 px-3 py-2 bg-white dark:bg-brand-dark/50 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal dark:text-white font-medium"
+                                            >
+                                                <option value="seconds">Seconds</option>
+                                                <option value="minutes">Minutes</option>
+                                                <option value="hours">Hours</option>
+                                                <option value="days">Days</option>
+                                            </select>
+                                        </div>
+                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
+                                            Expires in: {expiryValue} {expiryUnit}
+                                        </p>
+                                    </div>
+                                )}
                             </div>
 
                             {!shareUrl ? (
