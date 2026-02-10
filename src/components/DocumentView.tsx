@@ -159,9 +159,9 @@ export function DocumentView({
                 </div>
             </header>
 
-            <main className="relative z-10 flex flex-col lg:flex-row flex-1 overflow-hidden">
+            <main className="relative z-10 flex flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden">
                 {/* Left Panel: Preview */}
-                <div className="flex-1 flex flex-col bg-gray-100/50 dark:bg-brand-dark/20 relative overflow-hidden border-r border-[#02353C]/5 dark:border-white/5">
+                <div className="flex-none lg:flex-1 min-h-[500px] lg:min-h-0 flex flex-col bg-gray-100/50 dark:bg-brand-dark/20 relative overflow-hidden border-b lg:border-b-0 lg:border-r border-[#02353C]/5 dark:border-white/5">
                     {/* PDF Controls Area */}
                     {isPdf && !loading && !error && (
                         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-4 px-6 py-2 bg-white/90 dark:bg-brand-darker/90 backdrop-blur-sm rounded-2xl shadow-xl shadow-[#02353C]/10 border border-white dark:border-white/5 transition-colors">
@@ -229,7 +229,7 @@ export function DocumentView({
                 </div>
 
                 {/* Right Panel: Metadata & Actions */}
-                <div className="w-full lg:w-[450px] bg-white dark:bg-brand-darker flex flex-col overflow-y-auto border-l border-[#02353C]/5 dark:border-white/5 shadow-2xl relative z-20 transition-colors">
+                <div className="w-full lg:w-[450px] bg-white dark:bg-brand-darker flex flex-col overflow-y-visible lg:overflow-y-auto border-t lg:border-t-0 lg:border-l border-[#02353C]/5 dark:border-white/5 shadow-2xl relative z-20 transition-colors">
                     <div className="p-10 space-y-10">
                         {/* Title & Badge */}
                         <div className="space-y-4">
