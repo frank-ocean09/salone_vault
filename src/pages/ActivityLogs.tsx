@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
 import { Button } from '../components/Button';
-import { Activity, Filter, Download, Calendar, FileText, User, Clock, Shield } from 'lucide-react';
+import { Activity, Filter, Download, Calendar, FileText, User, Clock, Shield, Edit2, ChevronDown, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { getUserActivityLogs } from '../lib/shareApi';
+import { getUserActivityLogs, updateShareTokenExpiry } from '../lib/shareApi';
 import { supabase } from '../lib/supabase';
 
 interface ActivityLog {
@@ -31,6 +31,8 @@ export function ActivityLogs() {
     const [error, setError] = useState<string | null>(null);
     const [filterAction, setFilterAction] = useState<string>('all');
     const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+    const [selectedTokenInfo, setSelectedTokenInfo] = useState<{ id: string; token: string } | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
     useEffect(() => {
         if (!authLoading && !user) {
@@ -99,6 +101,7 @@ export function ActivityLogs() {
             'share_email': 'Shared via Email',
             'share_native': 'Shared via Native',
             'share_revoked': 'Share Link Revoked',
+            'share_expiry_updated': 'Share Expiry Updated',
             'document_verified': 'Document Verified',
         };
         return labels[action] || action;
@@ -165,6 +168,11 @@ export function ActivityLogs() {
         a.download = `activity-logs-${new Date().toISOString().split('T')[0]}.csv`;
         a.click();
         window.URL.revokeObjectURL(url);
+    };
+
+    const handleEditExpiry = (tokenId: string, token: string) => {
+        setSelectedTokenInfo({ id: tokenId, token });
+        setIsEditModalOpen(true);
     };
 
     if (authLoading || loading) {
@@ -311,16 +319,41 @@ export function ActivityLogs() {
                                                         {maskToken(log.token)}
                                                     </td>
                                                     <td className="px-6 py-4 text-sm text-gray-600">
-                                                        {log.meta ? (
-                                                            <div className="max-w-xs truncate" title={JSON.stringify(log.meta, null, 2)}>
-                                                                {Object.entries(log.meta)
-                                                                    .filter(([key]) => !['timestamp', 'userAgent'].includes(key))
-                                                                    .map(([key, value]) => `${key}: ${value}`)
-                                                                    .join(', ') || 'No details'}
-                                                            </div>
-                                                        ) : (
-                                                            <span className="text-gray-400">No details</span>
-                                                        )}
+                                                        <div className="flex items-center justify-between gap-4">
+                                                            {log.meta ? (
+                                                                <div className="max-w-xs truncate" title={JSON.stringify(log.meta, null, 2)}>
+                                                                    {Object.entries(log.meta)
+                                                                        .filter(([key]) => !['timestamp', 'userAgent'].includes(key))
+                                                                        .map(([key, value]) => `${key}: ${value}`)
+                                                                        .join(', ') || 'No details'}
+                                                                </div>
+                                                            ) : (
+                                                                <span className="text-gray-400">No details</span>
+                                                            )}
+
+                                                            {log.action === 'share_created' && (
+                                                                <button
+                                                                    onClick={() => {
+                                                                        // We need the token ID from share_tokens. 
+                                                                        // Since it's not in the log, we'll fetch it by token string.
+                                                                        if (log.token) {
+                                                                            supabase
+                                                                                .from('share_tokens')
+                                                                                .select('id')
+                                                                                .eq('token', log.token)
+                                                                                .single()
+                                                                                .then(({ data }) => {
+                                                                                    if (data) handleEditExpiry(data.id, log.token!);
+                                                                                });
+                                                                        }
+                                                                    }}
+                                                                    className="p-1 hover:bg-brand-teal/10 rounded-lg text-brand-teal transition-colors"
+                                                                    title="Change Expiration"
+                                                                >
+                                                                    <Edit2 className="h-4 w-4" />
+                                                                </button>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             );
@@ -330,6 +363,18 @@ export function ActivityLogs() {
                             </div>
                         )}
                     </div>
+
+                    {/* Edit Expiry Modal */}
+                    {isEditModalOpen && selectedTokenInfo && user && (
+                        <EditExpiryModal
+                            isOpen={isEditModalOpen}
+                            onClose={() => setIsEditModalOpen(false)}
+                            tokenId={selectedTokenInfo.id}
+                            token={selectedTokenInfo.token}
+                            userId={user.id}
+                            onSuccess={loadActivityLogs}
+                        />
+                    )}
 
                     {/* Summary Stats */}
                     <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -367,6 +412,128 @@ export function ActivityLogs() {
                     </div>
                 </div>
             </main>
+        </div>
+    );
+}
+
+interface EditExpiryModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    tokenId: string;
+    token: string;
+    userId: string;
+    onSuccess: () => void;
+}
+
+function EditExpiryModal({ isOpen, onClose, tokenId, token, userId, onSuccess }: EditExpiryModalProps) {
+    const [expiryValue, setExpiryValue] = useState(24);
+    const [expiryUnit, setExpiryUnit] = useState<'seconds' | 'minutes' | 'hours' | 'days'>('hours');
+    const [isUnitDropdownOpen, setIsUnitDropdownOpen] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsUnitDropdownOpen(false);
+            }
+        };
+        window.document.addEventListener('mousedown', handleClickOutside);
+        return () => window.document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const handleUpdate = async () => {
+        setLoading(true);
+        try {
+            let finalExpiryHours = expiryValue;
+            if (expiryUnit === 'seconds') finalExpiryHours = expiryValue / 3600;
+            else if (expiryUnit === 'minutes') finalExpiryHours = expiryValue / 60;
+            else if (expiryUnit === 'hours') finalExpiryHours = expiryValue;
+            else if (expiryUnit === 'days') finalExpiryHours = expiryValue * 24;
+
+            await updateShareTokenExpiry(tokenId, userId, finalExpiryHours);
+            onSuccess();
+            onClose();
+        } catch (err) {
+            console.error('Failed to update expiry:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-dark/20 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white dark:bg-brand-dark max-w-md w-full rounded-2xl shadow-2xl border border-gray-100 dark:border-white/10 overflow-hidden animate-in zoom-in-95 duration-200">
+                <div className="p-6 border-b border-gray-100 dark:border-white/10 flex items-center justify-between">
+                    <div>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Change Link Expiry</h2>
+                        <p className="text-sm text-gray-500 mt-1 font-mono">{token.substring(0, 8)}...</p>
+                    </div>
+                    <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors">
+                        <X className="h-5 w-5 text-gray-500" />
+                    </button>
+                </div>
+
+                <div className="p-6 space-y-4">
+                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/30 rounded-xl">
+                        <div className="flex gap-3">
+                            <Shield className="h-5 w-5 text-blue-600 mt-0.5" />
+                            <p className="text-xs text-blue-800 dark:text-blue-300 leading-relaxed font-medium">
+                                Changing the expiration period will update when this link becomes invalid. This action will be logged.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-[#02353C]/40 dark:text-white/40">New Expiry Duration</label>
+                        <div className="flex gap-2">
+                            <input
+                                type="number"
+                                min="1"
+                                value={expiryValue}
+                                onChange={(e) => setExpiryValue(parseInt(e.target.value) || 1)}
+                                className="flex-1 px-4 py-2 bg-gray-50 dark:bg-brand-dark/50 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal dark:text-white"
+                            />
+                            <div className="relative w-32" ref={dropdownRef}>
+                                <button
+                                    onClick={() => setIsUnitDropdownOpen(!isUnitDropdownOpen)}
+                                    className="w-full px-3 py-2 bg-gray-50 dark:bg-brand-dark/50 border border-gray-200 dark:border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-teal/20 focus:border-brand-teal dark:text-white font-medium flex items-center justify-between"
+                                >
+                                    <span className="capitalize">{expiryUnit}</span>
+                                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${isUnitDropdownOpen ? 'rotate-180' : ''}`} />
+                                </button>
+
+                                {isUnitDropdownOpen && (
+                                    <div className="absolute top-full left-0 mt-1 w-full bg-white dark:bg-brand-darker rounded-xl shadow-xl border border-gray-100 dark:border-white/10 overflow-hidden z-30">
+                                        {(['seconds', 'minutes', 'hours', 'days'] as const).map((unit) => (
+                                            <button
+                                                key={unit}
+                                                onClick={() => {
+                                                    setExpiryUnit(unit);
+                                                    setIsUnitDropdownOpen(false);
+                                                }}
+                                                className={`w-full text-left px-3 py-2 text-sm transition-colors capitalize ${expiryUnit === unit
+                                                    ? 'bg-brand-teal text-white'
+                                                    : 'text-gray-700 dark:text-gray-300 hover:bg-brand-teal/10 dark:hover:bg-brand-teal/20'
+                                                    }`}
+                                            >
+                                                {unit}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-6 bg-gray-50 dark:bg-white/5 flex gap-3">
+                    <Button onClick={onClose} variant="outline" className="flex-1">Cancel</Button>
+                    <Button onClick={handleUpdate} className="flex-1 bg-brand-teal" disabled={loading}>
+                        {loading ? 'Updating...' : 'Update Expiry'}
+                    </Button>
+                </div>
+            </div>
         </div>
     );
 }

@@ -65,7 +65,31 @@ export async function revokeShareToken(tokenId: string, userId: string) {
     if (error) throw error;
 
     // Log activity
-    await logActivity(userId, 'share_revoked', data.document_id, data.token);
+    return data;
+}
+
+/**
+ * Update the expiration period of a share token
+ */
+export async function updateShareTokenExpiry(tokenId: string, userId: string, expiryHours: number) {
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + expiryHours);
+
+    const { data, error } = await supabase
+        .from('share_tokens')
+        .update({ expires_at: expiresAt.toISOString() })
+        .eq('id', tokenId)
+        .eq('created_by', userId)
+        .select()
+        .single();
+
+    if (error) throw error;
+
+    // Log activity
+    await logActivity(userId, 'share_expiry_updated', data.document_id, data.token, {
+        new_expiry_hours: expiryHours,
+        new_expires_at: expiresAt.toISOString(),
+    });
 
     return data;
 }
