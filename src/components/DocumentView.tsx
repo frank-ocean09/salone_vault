@@ -321,7 +321,7 @@ export function DocumentView({
 
                                 <div className="pt-2">
                                     <div className={`text-2xl font-black tracking-tight ${blockchainStatus.verified ? 'text-[#449342]' : 'text-white/40'}`}>
-                                        {blockchainStatus.loading ? 'VERIFYING...' : blockchainStatus.verified ? 'VALIDATED' : 'NOT ON-CHAIN'}
+                                        {blockchainStatus.loading ? 'VERIFYING...' : blockchainStatus.verified ? 'VALIDATED' : ''}
                                     </div>
                                 </div>
                             </div>
