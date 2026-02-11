@@ -320,24 +320,6 @@ export function DocumentView({
                             </div>
                         </div>
 
-                        {/* Actions Panel */}
-                        <div className="space-y-4 pt-4">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-[#02353C]/30 ml-2">Authorised Actions</h4>
-                            <div className="grid grid-cols-1 gap-3">
-                                <Button
-                                    onClick={() => handleCheckBlockchain()}
-                                    disabled={blockchainStatus.loading}
-                                    className="w-full justify-start gap-3 py-4 bg-[#2EAF7D] hover:bg-[#2EAF7D]/90 text-white rounded-2xl border-none shadow-lg shadow-[#2EAF7D]/20 font-black uppercase tracking-widest text-xs"
-                                >
-                                    {blockchainStatus.loading ? (
-                                        <Loader2 size={18} className="animate-spin" />
-                                    ) : (
-                                        <ShieldCheck size={18} />
-                                    )}
-                                    {blockchainStatus.loading ? 'Verifying...' : 'Verify Authenticity'}
-                                </Button>
-                            </div>
-                        </div>
                     </div>
 
                     <div className="mt-auto p-8 bg-gray-50 dark:bg-black/10 border-t border-[#02353C]/5 dark:border-white/5 text-center transition-colors">
