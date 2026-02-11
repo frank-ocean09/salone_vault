@@ -39,10 +39,34 @@ export function DocumentView({
     const [pdfData, setPdfData] = useState<string | Blob | null>(null);
     const [isOffline] = useState<boolean>(!navigator.onLine);
     const [jumpToPage, setJumpToPage] = useState<string>('1');
+    const [isBlurred, setIsBlurred] = useState(false);
     const [blockchainStatus, setBlockchainStatus] = useState<{ verified: boolean; timestamp?: number; loading: boolean }>({
         verified: false,
         loading: false
     });
+
+    // Anti-Screenshot Protection
+    useEffect(() => {
+        const handleBlur = () => setIsBlurred(true);
+        const handleFocus = () => setIsBlurred(false);
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'PrintScreen' || (e.metaKey && e.shiftKey)) {
+                setIsBlurred(true);
+                alert('Screenshots are disabled for this confidential document.');
+                setTimeout(() => setIsBlurred(false), 2000); // Re-enable after delay
+            }
+        };
+
+        window.addEventListener('blur', handleBlur);
+        window.addEventListener('focus', handleFocus);
+        window.addEventListener('keyup', handleKeyDown); // Keyup often fires even if keydown is blocked
+
+        return () => {
+            window.removeEventListener('blur', handleBlur);
+            window.removeEventListener('focus', handleFocus);
+            window.removeEventListener('keyup', handleKeyDown);
+        };
+    }, []);
 
     // Handle initial scale
     useEffect(() => {
@@ -142,11 +166,11 @@ export function DocumentView({
             className="fixed inset-0 z-50 flex flex-col bg-[#C1F6ED] dark:bg-brand-dark overflow-hidden font-sans transition-colors duration-500 select-none print:hidden"
             onContextMenu={(e) => e.preventDefault()}
         >
-            {/* Watermark Overlay */}
-            <div className="absolute inset-0 pointer-events-none z-[100] overflow-hidden flex flex-wrap content-center justify-center opacity-[0.03] select-none">
-                {Array.from({ length: 20 }).map((_, i) => (
-                    <div key={i} className="transform -rotate-45 text-4xl font-black text-black dark:text-white m-12 whitespace-nowrap">
-                        CONFIDENTIAL {new Date().toLocaleDateString()}
+            {/* Watermark Overlay - Tiled Pattern */}
+            <div className="absolute inset-0 pointer-events-none z-[100] overflow-hidden flex flex-wrap content-start justify-start opacity-[0.04] select-none" style={{ gap: '4rem' }}>
+                {Array.from({ length: 100 }).map((_, i) => (
+                    <div key={i} className="transform -rotate-45 text-xl font-black text-black dark:text-white whitespace-nowrap">
+                        CONFIDENTIAL • {document.id.slice(0, 8)} • {new Date().toLocaleDateString()}
                     </div>
                 ))}
             </div>
@@ -234,18 +258,31 @@ export function DocumentView({
                         )}
 
                         {!loading && !error && pdfData && (
-                            <div className="shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-lg overflow-hidden bg-white">
-                                {isPdf ? (
-                                    <PDFDocument
-                                        file={pdfData}
-                                        onLoadSuccess={onDocumentLoadSuccess}
-                                        onLoadError={onDocumentLoadError}
-                                        loading={<div className="p-20"><Loader2 className="h-8 w-8 text-[#2EAF7D] animate-spin" /></div>}
-                                    >
-                                        <Page pageNumber={pageNumber} scale={scale} className="bg-white" />
-                                    </PDFDocument>
-                                ) : (
-                                    <img src={URL.createObjectURL(pdfData as Blob)} alt={document.name} className="max-w-full h-auto" />
+                            <div className="relative shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-lg overflow-hidden bg-white group">
+                                <div className={`transition-all duration-300 ${isBlurred ? 'blur-xl opacity-10' : ''}`}>
+                                    {isPdf ? (
+                                        <PDFDocument
+                                            file={pdfData}
+                                            onLoadSuccess={onDocumentLoadSuccess}
+                                            onLoadError={onDocumentLoadError}
+                                            loading={<div className="p-20"><Loader2 className="h-8 w-8 text-[#2EAF7D] animate-spin" /></div>}
+                                        >
+                                            <Page pageNumber={pageNumber} scale={scale} className="bg-white" />
+                                        </PDFDocument>
+                                    ) : (
+                                        <img src={URL.createObjectURL(pdfData as Blob)} alt={document.name} className="max-w-full h-auto" />
+                                    )}
+                                </div>
+                                {isBlurred && (
+                                    <div className="absolute inset-0 flex items-center justify-center z-50">
+                                        <div className="bg-white/90 p-8 rounded-2xl shadow-2xl text-center border border-red-100 max-w-sm mx-4">
+                                            <ShieldCheck className="h-16 w-16 text-red-500 mx-auto mb-4" />
+                                            <h3 className="text-xl font-black text-slate-900 mb-2">Protected Content</h3>
+                                            <p className="text-sm text-slate-500">
+                                                Display is hidden when window loses focus or screenshot attempt is detected.
+                                            </p>
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                         )}
