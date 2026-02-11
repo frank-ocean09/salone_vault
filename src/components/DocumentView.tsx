@@ -127,7 +127,9 @@ export function DocumentView({
         });
     }
 
-    const isPdf = document.name.toLowerCase().endsWith('.pdf') || document.type === 'application/pdf';
+    const isPdf = document.name.toLowerCase().endsWith('.pdf') ||
+        document.type === 'application/pdf' ||
+        document.type.toLowerCase() === 'pdf';
 
     return (
         <div className="fixed inset-0 z-50 flex flex-col bg-[#C1F6ED] dark:bg-brand-dark overflow-hidden font-sans transition-colors duration-500">
