@@ -15,10 +15,7 @@ import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
 // Configure worker
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-    'pdfjs-dist/build/pdf.worker.min.mjs',
-    import.meta.url,
-).toString();
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 interface DocumentViewProps {
     document: Document;
@@ -116,6 +113,12 @@ export function DocumentView({
 
     function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
         setNumPages(numPages);
+        setLoading(false);
+    }
+
+    function onDocumentLoadError(error: Error) {
+        console.error('PDF Load Error:', error);
+        setError(`Failed to load PDF: ${error.message}`);
         setLoading(false);
     }
 
@@ -224,6 +227,7 @@ export function DocumentView({
                                     <PDFDocument
                                         file={pdfData}
                                         onLoadSuccess={onDocumentLoadSuccess}
+                                        onLoadError={onDocumentLoadError}
                                         loading={<div className="p-20"><Loader2 className="h-8 w-8 text-[#2EAF7D] animate-spin" /></div>}
                                     >
                                         <Page pageNumber={pageNumber} scale={scale} className="bg-white" />
