@@ -81,9 +81,54 @@ CREATE POLICY "Members can insert activity logs" ON activity_logs
 DROP POLICY IF EXISTS "Users can view documents" ON documents;
 CREATE POLICY "Users can view documents" ON documents
   FOR SELECT USING (
-      (shared_album_id IS NULL AND auth.uid() = user_id)
+      (auth.uid() = user_id)
       OR
       (shared_album_id IN (SELECT get_user_shared_album_ids(auth.uid(), auth.jwt()->>'email')))
+  );
+
+-- Insert: Must be uploader or owner
+DROP POLICY IF EXISTS "Users can insert documents" ON documents;
+CREATE POLICY "Users can insert documents" ON documents
+  FOR INSERT WITH CHECK (
+    auth.uid() = user_id 
+    AND (
+       (shared_album_id IS NULL)
+       OR
+       (
+         shared_album_id IS NOT NULL AND EXISTS (
+            SELECT 1 FROM shared_album_members
+            WHERE shared_album_id = documents.shared_album_id
+            AND (user_id = auth.uid() OR email = auth.jwt()->>'email')
+            AND (role = 'uploader' OR role = 'owner')
+         )
+       )
+    )
+  );
+
+-- Delete: Private or Album Owner
+DROP POLICY IF EXISTS "Users can delete documents" ON documents;
+CREATE POLICY "Users can delete documents" ON documents
+  FOR DELETE USING (
+      (shared_album_id IS NULL AND auth.uid() = user_id)
+      OR
+      (shared_album_id IS NOT NULL AND EXISTS (
+          SELECT 1 FROM shared_albums
+          WHERE id = documents.shared_album_id
+          AND owner_id = auth.uid()
+      ))
+  );
+
+-- Update: Private or Album Owner
+DROP POLICY IF EXISTS "Users can update documents" ON documents;
+CREATE POLICY "Users can update documents" ON documents
+  FOR UPDATE USING (
+      (shared_album_id IS NULL AND auth.uid() = user_id)
+      OR
+      (shared_album_id IS NOT NULL AND EXISTS (
+          SELECT 1 FROM shared_albums
+          WHERE id = documents.shared_album_id
+          AND owner_id = auth.uid()
+      ))
   );
 
 -- 4. Reload PostgREST cache (Fixes PGRST204)
