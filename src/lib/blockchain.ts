@@ -58,6 +58,13 @@ export const verifyDocumentOnChain = async (hash: string) => {
             return { verified: false };
         }
 
+        // Validate hash format (must be 0x followed by 64 hex characters)
+        const isValidHash = /^0x[a-fA-F0-9]{64}$/.test(hash);
+        if (!isValidHash) {
+            console.warn("Invalid hash format for verification:", hash);
+            return { verified: false };
+        }
+
         const contract = getContract({
             client,
             chain: defineChain(11155111), // Sepolia
