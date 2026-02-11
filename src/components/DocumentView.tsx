@@ -138,7 +138,19 @@ export function DocumentView({
     })();
 
     return (
-        <div className="fixed inset-0 z-50 flex flex-col bg-[#C1F6ED] dark:bg-brand-dark overflow-hidden font-sans transition-colors duration-500">
+        <div
+            className="fixed inset-0 z-50 flex flex-col bg-[#C1F6ED] dark:bg-brand-dark overflow-hidden font-sans transition-colors duration-500 select-none print:hidden"
+            onContextMenu={(e) => e.preventDefault()}
+        >
+            {/* Watermark Overlay */}
+            <div className="absolute inset-0 pointer-events-none z-[100] overflow-hidden flex flex-wrap content-center justify-center opacity-[0.03] select-none">
+                {Array.from({ length: 20 }).map((_, i) => (
+                    <div key={i} className="transform -rotate-45 text-4xl font-black text-black dark:text-white m-12 whitespace-nowrap">
+                        CONFIDENTIAL {new Date().toLocaleDateString()}
+                    </div>
+                ))}
+            </div>
+
             {/* Technical Grid Pattern BG */}
             <div className="absolute inset-0 opacity-[0.1] dark:opacity-[0.05] pointer-events-none"
                 style={{ backgroundImage: 'linear-gradient(#02353C 1px, transparent 1px), linear-gradient(90deg, #02353C 1px, transparent 1px)', backgroundSize: '40px 40px' }}>

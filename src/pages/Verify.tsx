@@ -6,14 +6,19 @@ import { Search, CheckCircle, XCircle, FileText, Calendar, Hash, ShieldCheck } f
 import { validateShareToken } from '../lib/shareApi';
 import { supabase } from '../lib/supabase';
 import { verifyDocumentOnChain } from '../lib/blockchain';
+import { DocumentView } from '../components/DocumentView';
+import { Document } from '../lib/supabase';
 
 export function Verify() {
     const [searchParams] = useSearchParams();
     const [verificationCode, setVerificationCode] = useState('');
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
     const [result, setResult] = useState<any>(null);
+    const [fullDocument, setFullDocument] = useState<Document | null>(null);
     const [error, setError] = useState<string>('');
     const [blockchainStatus, setBlockchainStatus] = useState<{ verified: boolean; timestamp?: number } | null>(null);
+    const [showSecureView, setShowSecureView] = useState(false);
+    const [secureUrl, setSecureUrl] = useState<string | null>(null);
 
     const handleVerifyWithToken = async (token: string) => {
         setStatus('loading');
@@ -21,6 +26,7 @@ export function Verify() {
 
         try {
             const { token: tokenData, document } = await validateShareToken(token);
+            setFullDocument(document as Document);
 
             setStatus('success');
             setResult({
@@ -84,7 +90,8 @@ export function Verify() {
                 return;
             }
 
-            window.location.href = signedUrlData.signedUrl;
+            setSecureUrl(signedUrlData.signedUrl);
+            setShowSecureView(true);
         } catch (err) {
             setError('Failed to open document');
         }
@@ -244,6 +251,22 @@ export function Verify() {
                     </div>
                 </div>
             </main>
+
+            {/* Secure Document Viewer Modal */}
+            {showSecureView && fullDocument && secureUrl && (
+                <DocumentView
+                    document={fullDocument}
+                    url={secureUrl}
+                    userId="" // Public view, no user ID
+                    ownerName="Verified Owner"
+                    folderName="Verified Documents"
+                    onClose={() => {
+                        setShowSecureView(false);
+                        setSecureUrl(null);
+                    }}
+                    onVerify={() => { }}
+                />
+            )}
         </div>
     );
 }
