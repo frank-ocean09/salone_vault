@@ -1018,6 +1018,7 @@ export function Dashboard() {
                                                         navigate(`/dashboard/sharedfolder/${id}`);
                                                     } else {
                                                         setSelectedFolderId(id);
+                                                        setActiveTab('documents');
                                                     }
                                                 }}
                                                 onEdit={(id, name) => handleUpdateFolder(id, name, 'green')}
@@ -1030,14 +1031,22 @@ export function Dashboard() {
                                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                                     {/* Owned Shared Albums */}
                                                     {sharedAlbums.owned.map(album => (
-                                                        <div key={album.id} className="bg-white border border-gray-100 rounded-xl p-5 hover:shadow-lg transition-all group relative">
+                                                        <div
+                                                            key={album.id}
+                                                            onClick={() => {
+                                                                if (album.folder_id) navigate(`/dashboard/sharedfolder/${album.folder_id}`);
+                                                                else navigate(`/dashboard/sharedalbum/${album.id}`);
+                                                            }}
+                                                            className="bg-white border border-gray-100 rounded-xl p-5 hover:shadow-lg transition-all group relative cursor-pointer"
+                                                        >
                                                             <div className="flex items-start justify-between mb-4">
                                                                 <div className="h-12 w-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
                                                                     <Users size={24} />
                                                                 </div>
                                                                 <div className="flex items-center gap-2">
                                                                     <button
-                                                                        onClick={() => {
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
                                                                             if (album.folder_id) navigate(`/dashboard/sharedfolder/${album.folder_id}`);
                                                                             else navigate(`/dashboard/sharedalbum/${album.id}`);
                                                                         }}
@@ -1046,7 +1055,10 @@ export function Dashboard() {
                                                                         View
                                                                     </button>
                                                                     <button
-                                                                        onClick={() => handleDeleteSharedAlbum(album.id)}
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            handleDeleteSharedAlbum(album.id);
+                                                                        }}
                                                                         className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                                                                         title="Delete Album"
                                                                     >
@@ -1072,13 +1084,21 @@ export function Dashboard() {
                                                     ))}
                                                     {/* Shared With Me Albums */}
                                                     {sharedAlbums.shared.map(album => (
-                                                        <div key={album.id} className="bg-white border border-gray-100 rounded-xl p-5 hover:shadow-lg transition-all group relative">
+                                                        <div
+                                                            key={album.id}
+                                                            onClick={() => {
+                                                                if (album.folder_id) navigate(`/dashboard/sharedfolder/${album.folder_id}`);
+                                                                else navigate(`/dashboard/sharedalbum/${album.id}`);
+                                                            }}
+                                                            className="bg-white border border-gray-100 rounded-xl p-5 hover:shadow-lg transition-all group relative cursor-pointer"
+                                                        >
                                                             <div className="flex items-start justify-between mb-4">
                                                                 <div className="h-12 w-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center group-hover:bg-green-600 group-hover:text-white transition-colors">
                                                                     <Users size={24} />
                                                                 </div>
                                                                 <button
-                                                                    onClick={() => {
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
                                                                         if (album.folder_id) navigate(`/dashboard/sharedfolder/${album.folder_id}`);
                                                                         else navigate(`/dashboard/sharedalbum/${album.id}`);
                                                                     }}
