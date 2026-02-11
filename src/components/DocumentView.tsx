@@ -127,9 +127,12 @@ export function DocumentView({
         });
     }
 
-    const isPdf = document.name.toLowerCase().endsWith('.pdf') ||
-        document.type === 'application/pdf' ||
-        document.type.toLowerCase() === 'pdf';
+    const isPdf = (() => {
+        const nameIsPdf = document.name.toLowerCase().endsWith('.pdf');
+        const typeIsPdf = document.type.toLowerCase().includes('pdf');
+        const blobIsPdf = pdfData instanceof Blob && pdfData.type === 'application/pdf';
+        return nameIsPdf || typeIsPdf || blobIsPdf;
+    })();
 
     return (
         <div className="fixed inset-0 z-50 flex flex-col bg-[#C1F6ED] dark:bg-brand-dark overflow-hidden font-sans transition-colors duration-500">

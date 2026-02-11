@@ -59,19 +59,6 @@ export interface Profile {
     updated_at: string;
 }
 
-export interface Document {
-    id: string;
-    user_id: string;
-    name: string;
-    type: string;
-    file_path: string;
-    file_size: number | null;
-    hash: string;
-    status: 'pending' | 'verified';
-    folder_name?: string | null;
-    created_at: string;
-    updated_at: string;
-}
 
 export interface Folder {
     id: string;
