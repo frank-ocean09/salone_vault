@@ -7,7 +7,7 @@ import { validateShareToken } from '../lib/shareApi';
 import { supabase } from '../lib/supabase';
 import { verifyDocumentOnChain } from '../lib/blockchain';
 import { DocumentView } from '../components/DocumentView';
-import { Document } from '../lib/supabase';
+import type { Document } from '../lib/supabase';
 
 export function Verify() {
     const [searchParams] = useSearchParams();
