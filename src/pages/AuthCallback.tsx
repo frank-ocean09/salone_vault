@@ -32,28 +32,7 @@ export function AuthCallback() {
                 }
 
                 if (currentSession) {
-                    // Check if user profile exists, create if not
-                    const { error: profileError } = await supabase
-                        .from('profiles')
-                        .select('*')
-                        .eq('id', currentSession.user.id)
-                        .single();
-
-                    if (profileError && profileError.code === 'PGRST116') {
-                        // Profile doesn't exist, create it
-                        const { error: insertError } = await supabase
-                            .from('profiles')
-                            .insert({
-                                id: currentSession.user.id,
-                                email: currentSession.user.email,
-                                full_name: currentSession.user.user_metadata?.full_name || null,
-                            });
-
-                        if (insertError) {
-                            console.error('Error creating profile:', insertError);
-                        }
-                    }
-
+                    // Profile existence is guaranteed by database trigger
                     setStatus('success');
 
                     // Small delay to ensure state updates reach other components

@@ -74,17 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 },
             });
 
-            // Create profile if signup successful
-            if (data.user && !error) {
-                await supabase.from('profiles').insert({
-                    id: data.user.id,
-                    email: email,
-                    full_name: fullName,
-                    phone: phone,
-                    nin: nin,
-                });
-            }
-
+            // Profile creation is now handled by a database trigger on signup
             return { error };
         } catch (err: any) {
             return { error: err };
