@@ -52,6 +52,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 1. View Profile: Users see own, Admins and Issuers see others
+DROP POLICY IF EXISTS "Profiles visibility" ON profiles;
 CREATE POLICY "Profiles visibility" ON profiles
 FOR SELECT USING (
     auth.uid() = id -- User sees own
@@ -62,6 +63,7 @@ FOR SELECT USING (
 );
 
 -- 2. Update Profile: Users update own, Admins update all
+DROP POLICY IF EXISTS "Profiles update" ON profiles;
 CREATE POLICY "Profiles update" ON profiles
 FOR UPDATE USING (
     auth.uid() = id 
@@ -77,6 +79,7 @@ DROP POLICY IF EXISTS "Users can update their own documents" ON documents;
 DROP POLICY IF EXISTS "Users can delete their own documents" ON documents;
 
 -- 1. View Documents
+DROP POLICY IF EXISTS "Documents visibility" ON documents;
 CREATE POLICY "Documents visibility" ON documents
 FOR SELECT USING (
     user_id = auth.uid() -- Owner
@@ -87,6 +90,7 @@ FOR SELECT USING (
 );
 
 -- 2. Insert Documents
+DROP POLICY IF EXISTS "Documents insert" ON documents;
 CREATE POLICY "Documents insert" ON documents
 FOR INSERT WITH CHECK (
     -- User uploading for themselves
@@ -103,6 +107,7 @@ FOR INSERT WITH CHECK (
 );
 
 -- 3. Update/Delete Documents
+DROP POLICY IF EXISTS "Documents modify" ON documents;
 CREATE POLICY "Documents modify" ON documents
 FOR ALL USING (
     user_id = auth.uid() -- Owner
