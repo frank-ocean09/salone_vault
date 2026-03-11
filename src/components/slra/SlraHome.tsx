@@ -124,7 +124,7 @@ export function SlraHome({ setActiveTab }: SlraHomeProps) {
                                         }}
                                         className="px-3 py-1 bg-teal-50 text-[#006D77] text-[10px] font-black uppercase tracking-widest rounded-lg border border-teal-100/50 hover:bg-teal-100 transition-all"
                                     >
-                                        Issue
+                                        Upload
                                     </button>
                                     <button className="p-2 text-slate-300 hover:text-[#006D77] transition-all">
                                         <ArrowUpRight className="h-4 w-4" />
@@ -303,7 +303,7 @@ export function SlraHome({ setActiveTab }: SlraHomeProps) {
                                                 disabled={isIssuing}
                                                 className="flex-[2] py-3.5 bg-[#006D77] text-white font-black rounded-xl shadow-lg shadow-[#006D77]/20 hover:bg-[#005a62] transition-all uppercase text-xs tracking-widest flex items-center justify-center gap-2"
                                             >
-                                                {isIssuing ? 'Issuing...' : 'Confirm Issuance'}
+                                                {isIssuing ? 'Uploading...' : 'Confirm Upload'}
                                             </button>
                                         </div>
                                     )}

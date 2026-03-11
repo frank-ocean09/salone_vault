@@ -156,12 +156,12 @@ export function SlraIssueLicense() {
                             {isIssuing ? (
                                 <>
                                     <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                    <span>Issuing...</span>
+                                    <span>Uploading...</span>
                                 </>
                             ) : (
                                 <>
-                                    <FileText className="h-5 w-5" />
-                                    <span>Issue Digital License</span>
+                                    <Upload className="h-5 w-5" />
+                                    <span>Upload Document</span>
                                 </>
                             )}
                         </button>
@@ -170,11 +170,11 @@ export function SlraIssueLicense() {
                     {success && (
                         <div className="mt-4 p-4 bg-teal-50 border border-teal-200 rounded-xl flex items-center gap-3 text-teal-800 animate-in fade-in zoom-in slide-in-from-top-2">
                             <div className="p-1 bg-teal-500 rounded-full text-white">
-                                <ExternalLink className="h-4 w-4" />
+                                <CheckCircle className="h-4 w-4" />
                             </div>
                             <div>
-                                <p className="text-sm font-bold">License Issued Successfully!</p>
-                                <p className="text-xs opacity-90">Linked to NIN: {formData.nin}. A claim link has been generated.</p>
+                                <p className="text-sm font-bold">Document Uploaded Successfully!</p>
+                                <p className="text-xs opacity-90">Linked to NIN: {formData.nin}.</p>
                             </div>
                         </div>
                     )}
