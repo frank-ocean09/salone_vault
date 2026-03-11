@@ -71,6 +71,13 @@ FOR UPDATE USING (
     is_admin()
 );
 
+-- 3. Insert Profile: Allow users to create their own profile records
+DROP POLICY IF EXISTS "Profiles insert" ON profiles;
+CREATE POLICY "Profiles insert" ON profiles
+FOR INSERT WITH CHECK (
+    auth.uid() = id
+);
+
 -- Update RLS Policies for Documents
 
 DROP POLICY IF EXISTS "Users can view their own documents" ON documents;

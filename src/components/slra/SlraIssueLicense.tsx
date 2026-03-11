@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, MapPin, Phone, Mail, Shield, ExternalLink, Calendar, FileText, Upload } from 'lucide-react';
+import { Search, MapPin, Phone, Mail, Shield, ExternalLink, Calendar, FileText, Upload, CheckCircle } from 'lucide-react';
 
 interface LicenseForm {
     citizenName: string;

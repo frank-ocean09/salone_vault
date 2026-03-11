@@ -10,18 +10,33 @@ export function AuthCallback() {
 
     useEffect(() => {
         const handleCallback = async () => {
+            const maxRetries = 15; // Increased retries for slower network/auth sync
+            const retryInterval = 500;
+            let currentRetry = 0;
+            let currentSession = null;
+
             try {
-                // Get the current session
-                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                // Wait for session to initialize (Supabase might take a moment to sync)
+                while (currentRetry < maxRetries) {
+                    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                    if (sessionError) throw sessionError;
 
-                if (sessionError) throw sessionError;
+                    if (session) {
+                        currentSession = session;
+                        break;
+                    }
 
-                if (session) {
+                    console.log(`Waiting for session... attempt ${currentRetry + 1}/${maxRetries}`);
+                    await new Promise(resolve => setTimeout(resolve, retryInterval));
+                    currentRetry++;
+                }
+
+                if (currentSession) {
                     // Check if user profile exists, create if not
                     const { error: profileError } = await supabase
                         .from('profiles')
                         .select('*')
-                        .eq('id', session.user.id)
+                        .eq('id', currentSession.user.id)
                         .single();
 
                     if (profileError && profileError.code === 'PGRST116') {
@@ -29,9 +44,9 @@ export function AuthCallback() {
                         const { error: insertError } = await supabase
                             .from('profiles')
                             .insert({
-                                id: session.user.id,
-                                email: session.user.email,
-                                full_name: session.user.user_metadata?.full_name || null,
+                                id: currentSession.user.id,
+                                email: currentSession.user.email,
+                                full_name: currentSession.user.user_metadata?.full_name || null,
                             });
 
                         if (insertError) {
@@ -41,10 +56,12 @@ export function AuthCallback() {
 
                     setStatus('success');
 
-                    // Redirect to dashboard immediately once session is confirmed
-                    navigate('/dashboard');
+                    // Small delay to ensure state updates reach other components
+                    setTimeout(() => {
+                        navigate('/dashboard');
+                    }, 500);
                 } else {
-                    throw new Error('No session found');
+                    throw new Error('Timeout: No session found after multiple attempts. Please try logging in again.');
                 }
             } catch (err: any) {
                 console.error('Auth callback error:', err);
@@ -54,7 +71,7 @@ export function AuthCallback() {
                 // Redirect to login after error
                 setTimeout(() => {
                     navigate('/auth');
-                }, 3000);
+                }, 4000);
             }
         };
 
