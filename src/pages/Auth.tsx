@@ -18,6 +18,7 @@ export function Auth() {
         name: '',
         email: '',
         phone: '',
+        nin: '',
         password: '',
         confirmPassword: '',
         acceptTerms: false
@@ -35,6 +36,10 @@ export function Auth() {
             }
             if (!formData.acceptTerms) {
                 setError("You must agree to the Privacy Policy and Terms of Service");
+                return;
+            }
+            if (!formData.nin.match(/^[0-9]{8}$/)) {
+                setError("NIN must be 8 digits");
                 return;
             }
         }
@@ -62,11 +67,12 @@ export function Auth() {
                     formData.email,
                     formData.password,
                     formData.name,
-                    formData.phone
+                    formData.phone,
+                    formData.nin
                 );
                 if (error) throw error;
                 setSuccess('Account created! Please check your email to verify your account.');
-                setFormData({ name: '', email: '', phone: '', password: '', confirmPassword: '', acceptTerms: false });
+                setFormData({ name: '', email: '', phone: '', nin: '', password: '', confirmPassword: '', acceptTerms: false });
             }
         } catch (err: any) {
             setError(err.message || 'An error occurred');
@@ -134,6 +140,24 @@ export function Auth() {
                                                 className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2EAF7D] focus:border-transparent outline-none transition-all"
                                                 placeholder="+232 00 000 000"
                                                 value={formData.phone}
+                                                onChange={handleChange}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                            National Identification Number (NIN)
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                name="nin"
+                                                required
+                                                maxLength={8}
+                                                pattern="[0-9]{8}"
+                                                className="w-full pl-4 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2EAF7D] focus:border-transparent outline-none transition-all"
+                                                placeholder="Enter 8-digit NIN"
+                                                value={formData.nin}
                                                 onChange={handleChange}
                                             />
                                         </div>

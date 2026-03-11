@@ -12,6 +12,7 @@ import { ChangeEmailPage } from './pages/ChangeEmailPage';
 import { ActivityLogs } from './pages/ActivityLogs';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
+import SlraDashboard from './pages/SlraDashboard';
 
 function App() {
     console.log('App rendering');
@@ -31,6 +32,7 @@ function App() {
                         <Route path="/change-email" element={<ChangeEmailPage />} />
                         <Route path="/privacy" element={<PrivacyPolicy />} />
                         <Route path="/terms" element={<TermsOfService />} />
+                        <Route path="/gov-dashboard" element={<SlraDashboard />} />
                     </Routes>
                 </Router>
             </AuthProvider>

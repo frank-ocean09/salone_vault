@@ -8,7 +8,7 @@ interface AuthContextType {
     user: User | null;
     session: Session | null;
     loading: boolean;
-    signUp: (email: string, password: string, fullName: string, phone: string) => Promise<{ error: AuthError | null }>;
+    signUp: (email: string, password: string, fullName: string, phone: string, nin: string) => Promise<{ error: AuthError | null }>;
     // Returns any auth error, and session if immediately available after sign in
     signIn: (email: string, password: string) => Promise<{ error: AuthError | null; session?: Session | null }>;
     signOut: () => Promise<void>;
@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return () => subscription.unsubscribe();
     }, []);
 
-    const signUp = async (email: string, password: string, fullName: string, phone: string) => {
+    const signUp = async (email: string, password: string, fullName: string, phone: string, nin: string) => {
         if (!isSupabaseConfigured) {
             console.warn('Attempted signUp while Supabase is not configured. Aborting network call.');
             return { error: { message: 'Supabase not configured', name: 'ConfigurationError' } as any };
@@ -65,11 +65,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 email,
                 password,
                 options: {
-                    // Ensure the email verification link redirects back to the current origin (useful for local dev)
                     emailRedirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/callback` : undefined,
                     data: {
                         full_name: fullName,
                         phone: phone,
+                        nin: nin,
                     },
                 },
             });
@@ -81,6 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     email: email,
                     full_name: fullName,
                     phone: phone,
+                    nin: nin,
                 });
             }
 
