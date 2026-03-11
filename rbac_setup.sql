@@ -20,22 +20,45 @@ ADD COLUMN IF NOT EXISTS issuer_id UUID REFERENCES auth.users(id);
 DROP POLICY IF EXISTS "Users can view own profile" ON profiles;
 DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
 
--- 1. View Profile: Users see own, Admins see all
+-- Helper Functions (SECURITY DEFINER to bypass RLS recursion)
+CREATE OR REPLACE FUNCTION is_admin()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM profiles
+    WHERE id = auth.uid() AND role = 'admin'
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION is_issuer()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM profiles
+    WHERE id = auth.uid() AND role = 'issuer'
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION is_verifier()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM profiles
+    WHERE id = auth.uid() AND role = 'verifier'
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 1. View Profile: Users see own, Admins and Issuers see others
 CREATE POLICY "Profiles visibility" ON profiles
 FOR SELECT USING (
     auth.uid() = id -- User sees own
     OR 
-    EXISTS ( -- Admin sees all
-        SELECT 1 FROM profiles 
-        WHERE id = auth.uid() AND role = 'admin'
-    )
+    is_admin() -- Admin sees all
     OR
-    EXISTS ( -- Issuer needs to see profiles to find recipients by email? 
-             -- Alternatively, we can make a secure RPC for looking up users. 
-             -- For now, let's restrict strict listing to Admins.
-        SELECT 1 FROM profiles
-        WHERE id = auth.uid() AND role = 'issuer'
-    )
+    is_issuer() -- Issuer sees all (to find recipients)
 );
 
 -- 2. Update Profile: Users update own, Admins update all
@@ -43,10 +66,7 @@ CREATE POLICY "Profiles update" ON profiles
 FOR UPDATE USING (
     auth.uid() = id 
     OR 
-    EXISTS (
-        SELECT 1 FROM profiles 
-        WHERE id = auth.uid() AND role = 'admin'
-    )
+    is_admin()
 );
 
 -- Update RLS Policies for Documents
@@ -63,10 +83,7 @@ FOR SELECT USING (
     OR 
     issuer_id = auth.uid() -- Issuer
     OR
-    EXISTS ( -- Admin
-        SELECT 1 FROM profiles 
-        WHERE id = auth.uid() AND role = 'admin'
-    )
+    is_admin() -- Admin
 );
 
 -- 2. Insert Documents
@@ -77,18 +94,12 @@ FOR INSERT WITH CHECK (
     OR
     -- Issuer uploading for others
     (
-        EXISTS (
-            SELECT 1 FROM profiles 
-            WHERE id = auth.uid() AND role = 'issuer'
-        )
+        is_issuer()
         AND issuer_id = auth.uid()
     )
     OR
     -- Admin
-    EXISTS (
-        SELECT 1 FROM profiles 
-        WHERE id = auth.uid() AND role = 'admin'
-    )
+    is_admin()
 );
 
 -- 3. Update/Delete Documents
@@ -96,19 +107,5 @@ CREATE POLICY "Documents modify" ON documents
 FOR ALL USING (
     user_id = auth.uid() -- Owner
     OR
-    EXISTS ( -- Admin
-        SELECT 1 FROM profiles 
-        WHERE id = auth.uid() AND role = 'admin'
-    )
+    is_admin() -- Admin
 );
-
--- Create a function to check if user is admin (helper for UI/RPC)
-CREATE OR REPLACE FUNCTION is_admin()
-RETURNS BOOLEAN AS $$
-BEGIN
-  RETURN EXISTS (
-    SELECT 1 FROM profiles
-    WHERE id = auth.uid() AND role = 'admin'
-  );
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
