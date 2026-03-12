@@ -34,6 +34,13 @@ BEGIN
     
     -- Ensure RLS is enabled
     ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+    -- Update NIN constraint to allow alphanumeric (Sierra Leone standard)
+    -- First, drop the old constraint if it exists
+    ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS chk_nin_format;
+    -- Optional: Add a more relaxed constraint or keep it free-text
+    -- For now, we allow alphanumeric strings of 4-15 characters as a safety measure
+    -- ALTER TABLE public.profiles ADD CONSTRAINT chk_nin_format CHECK (nin ~ '^[A-Z0-9]{4,15}$');
 END $$;
 
 -- 2. Create/Update Profile Creation Trigger

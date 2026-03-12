@@ -46,8 +46,8 @@ export function Signup() {
             setError("You must agree to the Terms and Privacy Policy");
             return false;
         }
-        if (!formData.nin.match(/^[0-9]{8}$/)) {
-            setError("NIN must be exactly 8 digits");
+        if (!formData.nin.match(/^[a-zA-Z0-9]{4,15}$/)) {
+            setError("Please enter a valid NIN (alphanumeric, 4-15 characters)");
             return false;
         }
         return true;
@@ -178,14 +178,14 @@ export function Signup() {
                                         </div>
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">NIN (8-digits)</label>
+                                        <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">NIN (Alphanumeric)</label>
                                         <input
                                             type="text"
                                             name="nin"
                                             required
-                                            maxLength={8}
-                                            className="w-full px-4 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:ring-4 focus:ring-[#2EAF7D]/10 focus:border-[#2EAF7D] focus:bg-white outline-none transition-all font-bold text-slate-700 text-sm"
-                                            placeholder="12345678"
+                                            maxLength={15}
+                                            className="w-full px-4 py-3.5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:ring-4 focus:ring-[#2EAF7D]/10 focus:border-[#2EAF7D] focus:bg-white outline-none transition-all font-bold text-slate-700 text-sm uppercase"
+                                            placeholder="e.g. SL123456"
                                             value={formData.nin}
                                             onChange={handleChange}
                                         />
