@@ -571,3 +571,41 @@ export async function getSharedWithMeFolders(userId: string) {
         };
     });
 }
+// --- User Profile Management ---
+
+export async function getUserProfile(userId: string) {
+    const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+    if (error) throw error;
+    return data;
+}
+
+export async function updateUserProfile(userId: string, updates: { full_name?: string; phone?: string; nin?: string }) {
+    const { data, error } = await supabase
+        .from('profiles')
+        .update({
+            ...updates,
+            updated_at: new Date().toISOString()
+        })
+        .eq('id', userId)
+        .select()
+        .single();
+
+    if (error) throw error;
+
+    // Also update auth metadata to keep it in sync for display
+    if (updates.full_name || updates.phone) {
+        await supabase.auth.updateUser({
+            data: {
+                full_name: updates.full_name,
+                phone: updates.phone
+            }
+        });
+    }
+
+    return data;
+}

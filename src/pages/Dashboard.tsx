@@ -15,6 +15,7 @@ import { DebugPanel } from '../components/DebugPanel';
 import { useSelection } from '../hooks/useSelection';
 import { FolderGridView } from '../components/FolderGridView';
 import { Toast } from '../components/Toast';
+import { ProfileView } from '../components/ProfileView';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import {
@@ -140,7 +141,7 @@ export function Dashboard() {
     }, [activeSharedFolderId, activeSharedAlbumId, location.pathname]);
 
     // Navigation state
-    const [activeTab, setActiveTab] = useState<'documents' | 'folders' | 'shared'>('documents');
+    const [activeTab, setActiveTab] = useState<'documents' | 'folders' | 'shared' | 'profile'>('documents');
     const [isSharedCollapsed, setIsSharedCollapsed] = useState(false);
 
     // Shared albums list
@@ -784,168 +785,432 @@ export function Dashboard() {
                                 )}
                             </div>
                         )}
+
+                        <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 mt-6">
+                            <button
+                                onClick={() => setActiveTab('profile')}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all text-sm font-medium ${activeTab === 'profile'
+                                    ? 'bg-[#2EAF7D]/10 text-[#2EAF7D]'
+                                    : 'text-gray-600 hover:bg-gray-50'
+                                    }`}
+                            >
+                                <Settings size={18} className={activeTab === 'profile' ? 'text-[#2EAF7D]' : 'text-gray-400'} />
+                                <span>Profile Settings</span>
+                            </button>
+                        </div>
                     </aside>
 
                     {/* Main Content */}
                     <div className="flex-1 min-w-0">
-                        {/* Global Header (Always Visible) */}
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                            <div>
-                                <h1 className="text-2xl font-bold text-slate-900 mb-1">
-                                    {getWelcomeMessage()}
-                                </h1>
-                                <p className="text-slate-500 text-sm">
-                                    Manage and protect your essential documents.
-                                </p>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <button
-                                    onClick={() => navigate('/activity-logs')}
-                                    className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm"
-                                >
-                                    <Activity size={16} />
-                                    Activity Logs
-                                </button>
-
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    className="hidden"
-                                    accept=".pdf,.jpg,.jpeg,.png"
-                                    onChange={handleFileUpload}
-                                    disabled={isUploading}
-                                />
-                                <button
-                                    onClick={handleUploadClick}
-                                    className="px-4 py-2 bg-[#2EAF7D] hover:bg-[#258f66] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm"
-                                    disabled={isUploading}
-                                >
-                                    <Plus size={16} />
-                                    Upload Document
-                                </button>
-                            </div>
-                        </div>
-
-                        {error && (
-                            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg flex items-start gap-3">
-                                <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
-                                <p className="text-sm text-red-700">{error}</p>
-                            </div>
-                        )}
-
-                        {/* Global Stats Cards (Always Visible) */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-                            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                                <div className="flex justify-between items-start mb-2">
-                                    <span className="text-sm font-medium text-slate-500">Total Documents</span>
-                                    <FileText size={18} className="text-[#02353C]" />
-                                </div>
-                                <div className="text-3xl font-bold text-slate-900">{documents.length}</div>
-                            </div>
-
-                            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                                <div className="flex justify-between items-start mb-2">
-                                    <span className="text-sm font-medium text-slate-500">Verified</span>
-                                    <CheckCircle size={18} className="text-[#2EAF7D]" />
-                                </div>
-                                <div className="text-3xl font-bold text-slate-900">
-                                    {documents.filter(d => d.status === 'verified').length}
-                                </div>
-                            </div>
-
-                            <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-                                <div className="flex justify-between items-start mb-2">
-                                    <span className="text-sm font-medium text-slate-500">Pending</span>
-                                    <div className="w-4 h-4" />
-                                </div>
-                                <div className="text-3xl font-bold text-slate-900">
-                                    {documents.filter(d => d.status === 'pending').length}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* View Content Area */}
-                        {(!activeSharedFolderId && !activeSharedAlbumId) ? (
+                        {/* Profile View (Full Page Replacement) */}
+                        {activeTab === 'profile' ? (
                             <div className="space-y-6">
-                                {/* Tabs Navigation */}
-                                <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-gray-100 shadow-sm w-fit">
+                                <div className="flex items-center gap-4 mb-8">
                                     <button
-                                        onClick={() => setActiveTab('documents')}
-                                        className={`px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'documents'
-                                            ? 'bg-[#2EAF7D] text-white shadow-md'
-                                            : 'text-slate-500 hover:text-slate-700 hover:bg-gray-50'
-                                            }`}
+                                        onClick={() => {
+                                            setActiveTab('documents');
+                                            navigate('/dashboard');
+                                        }}
+                                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-slate-500"
+                                        title="Back to Dashboard"
                                     >
-                                        <FileText size={18} />
-                                        Documents
+                                        <ArrowLeft size={20} />
                                     </button>
-                                    <button
-                                        onClick={() => setActiveTab('folders')}
-                                        className={`px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'folders'
-                                            ? 'bg-[#2EAF7D] text-white shadow-md'
-                                            : 'text-slate-500 hover:text-slate-700 hover:bg-gray-50'
-                                            }`}
-                                    >
-                                        <FolderInput size={18} />
-                                        Folders
-                                    </button>
-                                    <button
-                                        onClick={() => setActiveTab('shared')}
-                                        className={`px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'shared'
-                                            ? 'bg-[#2EAF7D] text-white shadow-md'
-                                            : 'text-slate-500 hover:text-slate-700 hover:bg-gray-50'
-                                            }`}
-                                    >
-                                        <Users size={18} />
-                                        Shared
-                                    </button>
+                                    <h1 className="text-2xl font-bold text-slate-900">User Settings</h1>
+                                </div>
+                                <ProfileView userId={user!.id} onUpdate={loadDocuments} />
+                            </div>
+                        ) : (
+                            <>
+                                {/* Global Header (Always Visible) */}
+                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                                    <div>
+                                        <h1 className="text-2xl font-bold text-slate-900 mb-1">
+                                            {getWelcomeMessage()}
+                                        </h1>
+                                        <p className="text-slate-500 text-sm">
+                                            Manage and protect your essential documents.
+                                        </p>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            onClick={() => navigate('/activity-logs')}
+                                            className="px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm"
+                                        >
+                                            <Activity size={16} />
+                                            Activity Logs
+                                        </button>
+
+                                        <input
+                                            ref={fileInputRef}
+                                            type="file"
+                                            className="hidden"
+                                            accept=".pdf,.jpg,.jpeg,.png"
+                                            onChange={handleFileUpload}
+                                            disabled={isUploading}
+                                        />
+                                        <button
+                                            onClick={handleUploadClick}
+                                            className="px-4 py-2 bg-[#2EAF7D] hover:bg-[#258f66] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm"
+                                            disabled={isUploading}
+                                        >
+                                            <Plus size={16} />
+                                            Upload Document
+                                        </button>
+                                    </div>
                                 </div>
 
-                                {/* Document/Folder Section */}
-                                <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-                                    <div className="p-6 border-b border-gray-100 flex flex-col gap-4">
-                                        {selectedFolderId ? (
-                                            (() => {
-                                                const currentFolder = (folders.find(f => f.id === selectedFolderId) || sharedWithMeFolders.find(f => f.id === selectedFolderId)) as FolderWithMetadata;
-                                                return (
-                                                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                                                        <div className="flex items-center gap-3">
-                                                            <button
-                                                                onClick={() => {
-                                                                    navigate('/dashboard');
-                                                                    setSelectedFolderId(null);
-                                                                    setActiveTab('folders');
-                                                                    setSearchQuery('');
-                                                                }}
-                                                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-slate-500"
-                                                                title="Back to Folders"
-                                                            >
-                                                                <ArrowLeft size={20} />
-                                                            </button>
-                                                            <div>
-                                                                <div className="flex items-center gap-2">
-                                                                    <h2 className="text-xl font-bold text-slate-900">{currentFolder?.name}</h2>
-                                                                    {currentFolder?.is_shared && (
-                                                                        <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">
-                                                                            Shared
-                                                                        </span>
-                                                                    )}
-                                                                </div>
-                                                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
-                                                                    <div className="flex items-center gap-1.5 text-sm text-slate-500">
-                                                                        <UserIcon size={14} className="text-[#2EAF7D]" />
-                                                                        <span>{currentFolder?.is_shared ? `Shared by: ${currentFolder.owner_name}` : 'Owned by me'}</span>
-                                                                    </div>
-                                                                    {currentFolder?.is_shared && (
-                                                                        <div className="flex items-center gap-1.5 text-sm text-slate-500">
-                                                                            <Shield size={14} className="text-[#2EAF7D]" />
-                                                                            <span className="capitalize">{currentFolder.permission_level?.replace('_', ' ')}</span>
+                                {error && (
+                                    <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg flex items-start gap-3">
+                                        <AlertCircle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+                                        <p className="text-sm text-red-700">{error}</p>
+                                    </div>
+                                )}
+
+                                {/* Global Stats Cards (Always Visible) */}
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+                                    <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <span className="text-sm font-medium text-slate-500">Total Documents</span>
+                                            <FileText size={18} className="text-[#02353C]" />
+                                        </div>
+                                        <div className="text-3xl font-bold text-slate-900">{documents.length}</div>
+                                    </div>
+
+                                    <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <span className="text-sm font-medium text-slate-500">Verified</span>
+                                            <CheckCircle size={18} className="text-[#2EAF7D]" />
+                                        </div>
+                                        <div className="text-3xl font-bold text-slate-900">
+                                            {documents.filter(d => d.status === 'verified').length}
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <span className="text-sm font-medium text-slate-500">Pending</span>
+                                            <div className="w-4 h-4" />
+                                        </div>
+                                        <div className="text-3xl font-bold text-slate-900">
+                                            {documents.filter(d => d.status === 'pending').length}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* View Content Area */}
+                                {(!activeSharedFolderId && !activeSharedAlbumId) ? (
+                                    <div className="space-y-6">
+                                        {/* Tabs Navigation */}
+                                        <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-gray-100 shadow-sm w-fit">
+                                            <button
+                                                onClick={() => setActiveTab('documents')}
+                                                className={`px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'documents'
+                                                    ? 'bg-[#2EAF7D] text-white shadow-md'
+                                                    : 'text-slate-500 hover:text-slate-700 hover:bg-gray-50'
+                                                    }`}
+                                            >
+                                                <FileText size={18} />
+                                                Documents
+                                            </button>
+                                            <button
+                                                onClick={() => setActiveTab('folders')}
+                                                className={`px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'folders'
+                                                    ? 'bg-[#2EAF7D] text-white shadow-md'
+                                                    : 'text-slate-500 hover:text-slate-700 hover:bg-gray-50'
+                                                    }`}
+                                            >
+                                                <FolderInput size={18} />
+                                                Folders
+                                            </button>
+                                            <button
+                                                onClick={() => setActiveTab('shared')}
+                                                className={`px-6 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2 ${activeTab === 'shared'
+                                                    ? 'bg-[#2EAF7D] text-white shadow-md'
+                                                    : 'text-slate-500 hover:text-slate-700 hover:bg-gray-50'
+                                                    }`}
+                                            >
+                                                <Users size={18} />
+                                                Shared
+                                            </button>
+                                        </div>
+
+                                        {/* Document/Folder Section */}
+                                        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                                            <div className="p-6 border-b border-gray-100 flex flex-col gap-4">
+                                                {selectedFolderId ? (
+                                                    (() => {
+                                                        const currentFolder = (folders.find(f => f.id === selectedFolderId) || sharedWithMeFolders.find(f => f.id === selectedFolderId)) as FolderWithMetadata;
+                                                        return (
+                                                            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                                                <div className="flex items-center gap-3">
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            navigate('/dashboard');
+                                                                            setSelectedFolderId(null);
+                                                                            setActiveTab('folders');
+                                                                            setSearchQuery('');
+                                                                        }}
+                                                                        className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-slate-500"
+                                                                        title="Back to Folders"
+                                                                    >
+                                                                        <ArrowLeft size={20} />
+                                                                    </button>
+                                                                    <div>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <h2 className="text-xl font-bold text-slate-900">{currentFolder?.name}</h2>
+                                                                            {currentFolder?.is_shared && (
+                                                                                <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">
+                                                                                    Shared
+                                                                                </span>
+                                                                            )}
                                                                         </div>
-                                                                    )}
+                                                                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
+                                                                            <div className="flex items-center gap-1.5 text-sm text-slate-500">
+                                                                                <UserIcon size={14} className="text-[#2EAF7D]" />
+                                                                                <span>{currentFolder?.is_shared ? `Shared by: ${currentFolder.owner_name}` : 'Owned by me'}</span>
+                                                                            </div>
+                                                                            {currentFolder?.is_shared && (
+                                                                                <div className="flex items-center gap-1.5 text-sm text-slate-500">
+                                                                                    <Shield size={14} className="text-[#2EAF7D]" />
+                                                                                    <span className="capitalize">{currentFolder.permission_level?.replace('_', ' ')}</span>
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="relative w-full sm:w-64">
+                                                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                                                    <input
+                                                                        type="text"
+                                                                        placeholder="Search in folder..."
+                                                                        value={searchQuery}
+                                                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                                                        className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2EAF7D]/20 focus:border-[#2EAF7D] transition-all"
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })()
+                                                ) : (
+                                                    <div className="p-0 border-none flex flex-col sm:flex-row justify-between items-center gap-4">
+                                                        <h2 className="text-lg font-bold text-slate-900">
+                                                            {activeTab === 'folders' ? 'All Folders' : activeTab === 'shared' ? 'Shared Albums & Folders' : 'All Documents'}
+                                                        </h2>
+
+                                                        <div className="relative w-full sm:w-64">
+                                                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                                            <input
+                                                                type="text"
+                                                                placeholder={`Search ${activeTab === 'shared' ? 'albums' : activeTab}...`}
+                                                                value={searchQuery}
+                                                                onChange={(e) => setSearchQuery(e.target.value)}
+                                                                className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2EAF7D]/20 focus:border-[#2EAF7D] transition-all"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="p-0">
+                                                {activeTab === 'documents' ? (
+                                                    <DocumentsTable
+                                                        documents={(sharedWithMeFolders.find(f => f.id === selectedFolderId)?.permission_level === 'upload_only') ? [] : filteredDocuments}
+                                                        folders={folders}
+                                                        selectedIds={selectedDocIds}
+                                                        onToggleSelect={toggleSelect}
+                                                        onSelectAll={selectAll}
+                                                        onDeselectAll={deselectAll}
+                                                        onView={handleViewDocument}
+                                                        onDelete={handleDeleteDocument}
+                                                        onShare={openShareModal}
+                                                        searchQuery={searchQuery}
+                                                        hideDelete={!!sharedWithMeFolders.some(f => f.id === selectedFolderId)}
+                                                        hideShare={sharedWithMeFolders.find(f => f.id === selectedFolderId)?.permission_level === 'view_only'}
+                                                        emptyMessage={selectedFolderId ? "No documents in this folder yet." : "No documents found"}
+                                                    />
+                                                ) : activeTab === 'folders' ? (
+                                                    <FolderGridView
+                                                        folders={[...folders, ...sharedWithMeFolders].map(f => {
+                                                            const folderDocs = documents.filter(d => d.folder_id === f.id);
+                                                            const latestTimestamp = folderDocs.length > 0
+                                                                ? Math.max(...folderDocs.map(d => new Date(d.updated_at).getTime()))
+                                                                : new Date(f.updated_at).getTime();
+
+                                                            return {
+                                                                ...f,
+                                                                document_count: folderDocs.length,
+                                                                last_updated: new Date(latestTimestamp).toISOString(),
+                                                                is_shared: sharedWithMeFolders.some(sf => sf.id === f.id)
+                                                            };
+                                                        }).filter(f =>
+                                                            f.name.toLowerCase().includes(searchQuery.toLowerCase())
+                                                        )}
+                                                        onSelect={(id) => {
+                                                            const isShared = sharedWithMeFolders.some(sf => sf.id === id);
+                                                            if (isShared) {
+                                                                navigate(`/dashboard/sharedfolder/${id}`);
+                                                            } else {
+                                                                setSelectedFolderId(id);
+                                                                setActiveTab('documents');
+                                                            }
+                                                        }}
+                                                        onEdit={(id, name) => handleUpdateFolder(id, name, 'green')}
+                                                        onDelete={(id, name) => handleDeleteFolder(id)}
+                                                        onShare={(id) => { setShareFolderId(id); setShareFolderModalOpen(true); }}
+                                                    />
+                                                ) : (
+                                                    /* Shared Albums View */
+                                                    <div className="p-6">
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                            {/* Owned Shared Albums */}
+                                                            {sharedAlbums.owned.map(album => (
+                                                                <div
+                                                                    key={album.id}
+                                                                    onClick={() => {
+                                                                        if (album.folder_id) navigate(`/dashboard/sharedfolder/${album.folder_id}`);
+                                                                        else navigate(`/dashboard/sharedalbum/${album.id}`);
+                                                                    }}
+                                                                    className="bg-white border border-gray-100 rounded-xl p-5 hover:shadow-lg transition-all group relative cursor-pointer"
+                                                                >
+                                                                    <div className="flex items-start justify-between mb-4">
+                                                                        <div className="h-12 w-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                                                            <Users size={24} />
+                                                                        </div>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <button
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    if (album.folder_id) navigate(`/dashboard/sharedfolder/${album.folder_id}`);
+                                                                                    else navigate(`/dashboard/sharedalbum/${album.id}`);
+                                                                                }}
+                                                                                className="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                                                                            >
+                                                                                View
+                                                                            </button>
+                                                                            <button
+                                                                                onClick={(e) => {
+                                                                                    e.stopPropagation();
+                                                                                    handleDeleteSharedAlbum(album.id);
+                                                                                }}
+                                                                                className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                                                                title="Delete Album"
+                                                                            >
+                                                                                <Trash2 size={16} />
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="mt-2">
+                                                                        <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors truncate">{album.name}</h3>
+                                                                        <p className="text-sm text-slate-500 mt-1">
+                                                                            {album.folder_id ? 'Linked Folder' : 'Custom Album'}
+                                                                        </p>
+                                                                    </div>
+                                                                    <div className="mt-4 flex flex-wrap gap-2">
+                                                                        <span className="text-[10px] font-bold px-2 py-1 bg-slate-100 text-slate-600 rounded uppercase tracking-wider">
+                                                                            Owner
+                                                                        </span>
+                                                                        <span className="text-[10px] font-bold px-2 py-1 bg-blue-100 text-blue-700 rounded uppercase tracking-wider">
+                                                                            Full Access
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                            {/* Shared With Me Albums */}
+                                                            {sharedAlbums.shared.map(album => (
+                                                                <div
+                                                                    key={album.id}
+                                                                    onClick={() => {
+                                                                        if (album.folder_id) navigate(`/dashboard/sharedfolder/${album.folder_id}`);
+                                                                        else navigate(`/dashboard/sharedalbum/${album.id}`);
+                                                                    }}
+                                                                    className="bg-white border border-gray-100 rounded-xl p-5 hover:shadow-lg transition-all group relative cursor-pointer"
+                                                                >
+                                                                    <div className="flex items-start justify-between mb-4">
+                                                                        <div className="h-12 w-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center group-hover:bg-green-600 group-hover:text-white transition-colors">
+                                                                            <Users size={24} />
+                                                                        </div>
+                                                                        <button
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                if (album.folder_id) navigate(`/dashboard/sharedfolder/${album.folder_id}`);
+                                                                                else navigate(`/dashboard/sharedalbum/${album.id}`);
+                                                                            }}
+                                                                            className="px-3 py-1.5 bg-gray-50 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-100 transition-colors"
+                                                                        >
+                                                                            View
+                                                                        </button>
+                                                                    </div>
+                                                                    <h3 className="font-bold text-slate-900 mb-1">{album.name}</h3>
+                                                                    <p className="text-xs text-slate-500 mb-4 truncate">Shared by others</p>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <span className="text-[10px] font-bold uppercase tracking-wider text-green-600 bg-green-50 px-2 py-0.5 rounded">Guest</span>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                            {sharedAlbums.owned.length === 0 && sharedAlbums.shared.length === 0 && (
+                                                                <div className="col-span-full py-12 flex flex-col items-center justify-center text-slate-400">
+                                                                    <Users size={48} className="mb-4 opacity-20" />
+                                                                    <p className="font-medium text-lg">No shared albums yet</p>
+                                                                    <p className="text-sm">Shared folders and albums will appear here.</p>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-6">
+                                        {/* Shared Folder Content Area */}
+                                        <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden min-h-[500px]">
+                                            <div className="p-6 border-b border-gray-100 flex flex-col gap-4">
+                                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <button
+                                                            onClick={() => {
+                                                                navigate('/dashboard');
+                                                                setActiveTab('folders');
+                                                                setSelectedFolderId(null);
+                                                            }}
+                                                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-slate-500"
+                                                            title="Back to Shared Folders"
+                                                        >
+                                                            <ArrowLeft size={20} />
+                                                        </button>
+                                                        <div>
+                                                            <div className="flex items-center gap-2">
+                                                                <h2 className="text-xl font-bold text-slate-900">
+                                                                    {activeSharedFolderId ? currentSharedFolder?.name : viewingSharedAlbum?.name}
+                                                                </h2>
+                                                                <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">
+                                                                    {activeSharedFolderId ? 'Shared Folder' : 'Shared Album'}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
+                                                                <div className="flex items-center gap-1.5 text-sm text-slate-500">
+                                                                    <UserIcon size={14} className="text-[#2EAF7D]" />
+                                                                    <span>
+                                                                        {activeSharedFolderId
+                                                                            ? `Shared by: ${currentSharedFolder?.owner_name || 'Unknown'}`
+                                                                            : `Owner ID: ${viewingSharedAlbum?.owner_id?.split('-')[0]}...`
+                                                                        }
+                                                                    </span>
+                                                                </div>
+                                                                <div className="flex items-center gap-1.5 text-sm text-slate-500">
+                                                                    <Shield size={14} className="text-[#2EAF7D]" />
+                                                                    <span className="capitalize">
+                                                                        {activeSharedFolderId
+                                                                            ? currentSharedFolder?.permission_level?.replace('_', ' ')
+                                                                            : 'Full Access'}
+                                                                    </span>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        <div className="relative w-full sm:w-64">
+                                                    </div>
+                                                    <div className="flex items-center gap-3 w-full sm:w-auto">
+                                                        <div className="relative flex-1 sm:w-64">
                                                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                                                             <input
                                                                 type="text"
@@ -955,278 +1220,49 @@ export function Dashboard() {
                                                                 className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2EAF7D]/20 focus:border-[#2EAF7D] transition-all"
                                                             />
                                                         </div>
+                                                        {(activeSharedAlbumId || currentSharedFolder?.permission_level === 'upload_only' || currentSharedFolder?.permission_level === 'full_access') && (
+                                                            <button
+                                                                onClick={() => {
+                                                                    if (activeSharedFolderId) {
+                                                                        setUploadSelectedFolderId(activeSharedFolderId);
+                                                                    } else {
+                                                                        setUploadSelectedFolderId('');
+                                                                    }
+                                                                    handleUploadClick();
+                                                                }}
+                                                                className="px-4 py-2 bg-[#2EAF7D] hover:bg-[#258f66] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm whitespace-nowrap"
+                                                            >
+                                                                <Plus size={16} />
+                                                                <span className="hidden sm:inline">Upload Document</span>
+                                                            </button>
+                                                        )}
                                                     </div>
-                                                );
-                                            })()
-                                        ) : (
-                                            <div className="p-0 border-none flex flex-col sm:flex-row justify-between items-center gap-4">
-                                                <h2 className="text-lg font-bold text-slate-900">
-                                                    {activeTab === 'folders' ? 'All Folders' : activeTab === 'shared' ? 'Shared Albums & Folders' : 'All Documents'}
-                                                </h2>
-
-                                                <div className="relative w-full sm:w-64">
-                                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                                    <input
-                                                        type="text"
-                                                        placeholder={`Search ${activeTab === 'shared' ? 'albums' : activeTab}...`}
-                                                        value={searchQuery}
-                                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                                        className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2EAF7D]/20 focus:border-[#2EAF7D] transition-all"
-                                                    />
                                                 </div>
                                             </div>
-                                        )}
-                                    </div>
 
-                                    <div className="p-0">
-                                        {activeTab === 'documents' ? (
-                                            <DocumentsTable
-                                                documents={(sharedWithMeFolders.find(f => f.id === selectedFolderId)?.permission_level === 'upload_only') ? [] : filteredDocuments}
-                                                folders={folders}
-                                                selectedIds={selectedDocIds}
-                                                onToggleSelect={toggleSelect}
-                                                onSelectAll={selectAll}
-                                                onDeselectAll={deselectAll}
-                                                onView={handleViewDocument}
-                                                onDelete={handleDeleteDocument}
-                                                onShare={openShareModal}
-                                                searchQuery={searchQuery}
-                                                hideDelete={!!sharedWithMeFolders.some(f => f.id === selectedFolderId)}
-                                                hideShare={sharedWithMeFolders.find(f => f.id === selectedFolderId)?.permission_level === 'view_only'}
-                                                emptyMessage={selectedFolderId ? "No documents in this folder yet." : "No documents found"}
-                                            />
-                                        ) : activeTab === 'folders' ? (
-                                            <FolderGridView
-                                                folders={[...folders, ...sharedWithMeFolders].map(f => {
-                                                    const folderDocs = documents.filter(d => d.folder_id === f.id);
-                                                    const latestTimestamp = folderDocs.length > 0
-                                                        ? Math.max(...folderDocs.map(d => new Date(d.updated_at).getTime()))
-                                                        : new Date(f.updated_at).getTime();
-
-                                                    return {
-                                                        ...f,
-                                                        document_count: folderDocs.length,
-                                                        last_updated: new Date(latestTimestamp).toISOString(),
-                                                        is_shared: sharedWithMeFolders.some(sf => sf.id === f.id)
-                                                    };
-                                                }).filter(f =>
-                                                    f.name.toLowerCase().includes(searchQuery.toLowerCase())
-                                                )}
-                                                onSelect={(id) => {
-                                                    const isShared = sharedWithMeFolders.some(sf => sf.id === id);
-                                                    if (isShared) {
-                                                        navigate(`/dashboard/sharedfolder/${id}`);
-                                                    } else {
-                                                        setSelectedFolderId(id);
-                                                        setActiveTab('documents');
-                                                    }
-                                                }}
-                                                onEdit={(id, name) => handleUpdateFolder(id, name, 'green')}
-                                                onDelete={(id, name) => handleDeleteFolder(id)}
-                                                onShare={(id) => { setShareFolderId(id); setShareFolderModalOpen(true); }}
-                                            />
-                                        ) : (
-                                            /* Shared Albums View */
-                                            <div className="p-6">
-                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                                    {/* Owned Shared Albums */}
-                                                    {sharedAlbums.owned.map(album => (
-                                                        <div
-                                                            key={album.id}
-                                                            onClick={() => {
-                                                                if (album.folder_id) navigate(`/dashboard/sharedfolder/${album.folder_id}`);
-                                                                else navigate(`/dashboard/sharedalbum/${album.id}`);
-                                                            }}
-                                                            className="bg-white border border-gray-100 rounded-xl p-5 hover:shadow-lg transition-all group relative cursor-pointer"
-                                                        >
-                                                            <div className="flex items-start justify-between mb-4">
-                                                                <div className="h-12 w-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                                                                    <Users size={24} />
-                                                                </div>
-                                                                <div className="flex items-center gap-2">
-                                                                    <button
-                                                                        onClick={(e) => {
-                                                                            e.stopPropagation();
-                                                                            if (album.folder_id) navigate(`/dashboard/sharedfolder/${album.folder_id}`);
-                                                                            else navigate(`/dashboard/sharedalbum/${album.id}`);
-                                                                        }}
-                                                                        className="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-600 hover:text-white transition-all shadow-sm"
-                                                                    >
-                                                                        View
-                                                                    </button>
-                                                                    <button
-                                                                        onClick={(e) => {
-                                                                            e.stopPropagation();
-                                                                            handleDeleteSharedAlbum(album.id);
-                                                                        }}
-                                                                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                                                                        title="Delete Album"
-                                                                    >
-                                                                        <Trash2 size={16} />
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                            <div className="mt-2">
-                                                                <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors truncate">{album.name}</h3>
-                                                                <p className="text-sm text-slate-500 mt-1">
-                                                                    {album.folder_id ? 'Linked Folder' : 'Custom Album'}
-                                                                </p>
-                                                            </div>
-                                                            <div className="mt-4 flex flex-wrap gap-2">
-                                                                <span className="text-[10px] font-bold px-2 py-1 bg-slate-100 text-slate-600 rounded uppercase tracking-wider">
-                                                                    Owner
-                                                                </span>
-                                                                <span className="text-[10px] font-bold px-2 py-1 bg-blue-100 text-blue-700 rounded uppercase tracking-wider">
-                                                                    Full Access
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                    {/* Shared With Me Albums */}
-                                                    {sharedAlbums.shared.map(album => (
-                                                        <div
-                                                            key={album.id}
-                                                            onClick={() => {
-                                                                if (album.folder_id) navigate(`/dashboard/sharedfolder/${album.folder_id}`);
-                                                                else navigate(`/dashboard/sharedalbum/${album.id}`);
-                                                            }}
-                                                            className="bg-white border border-gray-100 rounded-xl p-5 hover:shadow-lg transition-all group relative cursor-pointer"
-                                                        >
-                                                            <div className="flex items-start justify-between mb-4">
-                                                                <div className="h-12 w-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center group-hover:bg-green-600 group-hover:text-white transition-colors">
-                                                                    <Users size={24} />
-                                                                </div>
-                                                                <button
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        if (album.folder_id) navigate(`/dashboard/sharedfolder/${album.folder_id}`);
-                                                                        else navigate(`/dashboard/sharedalbum/${album.id}`);
-                                                                    }}
-                                                                    className="px-3 py-1.5 bg-gray-50 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-100 transition-colors"
-                                                                >
-                                                                    View
-                                                                </button>
-                                                            </div>
-                                                            <h3 className="font-bold text-slate-900 mb-1">{album.name}</h3>
-                                                            <p className="text-xs text-slate-500 mb-4 truncate">Shared by others</p>
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="text-[10px] font-bold uppercase tracking-wider text-green-600 bg-green-50 px-2 py-0.5 rounded">Guest</span>
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                    {sharedAlbums.owned.length === 0 && sharedAlbums.shared.length === 0 && (
-                                                        <div className="col-span-full py-12 flex flex-col items-center justify-center text-slate-400">
-                                                            <Users size={48} className="mb-4 opacity-20" />
-                                                            <p className="font-medium text-lg">No shared albums yet</p>
-                                                            <p className="text-sm">Shared folders and albums will appear here.</p>
-                                                        </div>
+                                            <div className="p-0">
+                                                <DocumentsTable
+                                                    documents={currentSharedFolder?.permission_level === 'upload_only' ? [] : documents.filter(d =>
+                                                        (activeSharedFolderId ? d.folder_id === activeSharedFolderId : true) &&
+                                                        d.name.toLowerCase().includes(searchQuery.toLowerCase())
                                                     )}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="space-y-6">
-                                {/* Shared Folder Content Area */}
-                                <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden min-h-[500px]">
-                                    <div className="p-6 border-b border-gray-100 flex flex-col gap-4">
-                                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                                            <div className="flex items-center gap-3">
-                                                <button
-                                                    onClick={() => {
-                                                        navigate('/dashboard');
-                                                        setActiveTab('folders');
-                                                        setSelectedFolderId(null);
-                                                    }}
-                                                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-slate-500"
-                                                    title="Back to Shared Folders"
-                                                >
-                                                    <ArrowLeft size={20} />
-                                                </button>
-                                                <div>
-                                                    <div className="flex items-center gap-2">
-                                                        <h2 className="text-xl font-bold text-slate-900">
-                                                            {activeSharedFolderId ? currentSharedFolder?.name : viewingSharedAlbum?.name}
-                                                        </h2>
-                                                        <span className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">
-                                                            {activeSharedFolderId ? 'Shared Folder' : 'Shared Album'}
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
-                                                        <div className="flex items-center gap-1.5 text-sm text-slate-500">
-                                                            <UserIcon size={14} className="text-[#2EAF7D]" />
-                                                            <span>
-                                                                {activeSharedFolderId
-                                                                    ? `Shared by: ${currentSharedFolder?.owner_name || 'Unknown'}`
-                                                                    : `Owner ID: ${viewingSharedAlbum?.owner_id?.split('-')[0]}...`
-                                                                }
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex items-center gap-1.5 text-sm text-slate-500">
-                                                            <Shield size={14} className="text-[#2EAF7D]" />
-                                                            <span className="capitalize">
-                                                                {activeSharedFolderId
-                                                                    ? currentSharedFolder?.permission_level?.replace('_', ' ')
-                                                                    : 'Full Access'}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-3 w-full sm:w-auto">
-                                                <div className="relative flex-1 sm:w-64">
-                                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Search in folder..."
-                                                        value={searchQuery}
-                                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                                        className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2EAF7D]/20 focus:border-[#2EAF7D] transition-all"
-                                                    />
-                                                </div>
-                                                {(activeSharedAlbumId || currentSharedFolder?.permission_level === 'upload_only' || currentSharedFolder?.permission_level === 'full_access') && (
-                                                    <button
-                                                        onClick={() => {
-                                                            if (activeSharedFolderId) {
-                                                                setUploadSelectedFolderId(activeSharedFolderId);
-                                                            } else {
-                                                                setUploadSelectedFolderId('');
-                                                            }
-                                                            handleUploadClick();
-                                                        }}
-                                                        className="px-4 py-2 bg-[#2EAF7D] hover:bg-[#258f66] text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-sm whitespace-nowrap"
-                                                    >
-                                                        <Plus size={16} />
-                                                        <span className="hidden sm:inline">Upload Document</span>
-                                                    </button>
-                                                )}
+                                                    folders={folders}
+                                                    selectedIds={selectedDocIds}
+                                                    onToggleSelect={toggleSelect}
+                                                    onSelectAll={selectAll}
+                                                    onDeselectAll={deselectAll}
+                                                    onView={handleViewDocument}
+                                                    onDelete={handleDeleteDocument}
+                                                    onShare={openShareModal}
+                                                    hideDelete={activeSharedFolderId ? true : false} // Owner can delete from album
+                                                    hideShare={activeSharedFolderId ? currentSharedFolder?.permission_level === 'view_only' : false}
+                                                    emptyMessage={activeSharedFolderId ? "No documents in this folder yet." : "No documents in this album yet."}
+                                                />
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div className="p-0">
-                                        <DocumentsTable
-                                            documents={currentSharedFolder?.permission_level === 'upload_only' ? [] : documents.filter(d =>
-                                                (activeSharedFolderId ? d.folder_id === activeSharedFolderId : true) &&
-                                                d.name.toLowerCase().includes(searchQuery.toLowerCase())
-                                            )}
-                                            folders={folders}
-                                            selectedIds={selectedDocIds}
-                                            onToggleSelect={toggleSelect}
-                                            onSelectAll={selectAll}
-                                            onDeselectAll={deselectAll}
-                                            onView={handleViewDocument}
-                                            onDelete={handleDeleteDocument}
-                                            onShare={openShareModal}
-                                            hideDelete={activeSharedFolderId ? true : false} // Owner can delete from album
-                                            hideShare={activeSharedFolderId ? currentSharedFolder?.permission_level === 'view_only' : false}
-                                            emptyMessage={activeSharedFolderId ? "No documents in this folder yet." : "No documents in this album yet."}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
+                                )}
+                            </>
                         )}
                     </div>
 
