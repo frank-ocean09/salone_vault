@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, LogOut } from 'lucide-react';
+import { Menu, X, LogOut, User } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export function Navbar() {
@@ -74,8 +74,11 @@ export function Navbar() {
                                 <>
                                     <Link
                                         to="/dashboard"
-                                        className="px-4 py-2 text-sm font-medium text-white hover:text-[#3FD0C9] transition-colors"
+                                        className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white hover:text-[#3FD0C9] transition-colors group"
                                     >
+                                        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-[#3FD0C9]/20 transition-all border border-white/20">
+                                            <User size={18} />
+                                        </div>
                                         Dashboard
                                     </Link>
                                     <button

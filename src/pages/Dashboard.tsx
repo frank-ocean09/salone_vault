@@ -824,13 +824,22 @@ export function Dashboard() {
                             <>
                                 {/* Global Header (Always Visible) */}
                                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                                    <div>
-                                        <h1 className="text-2xl font-bold text-slate-900 mb-1">
-                                            {getWelcomeMessage()}
-                                        </h1>
-                                        <p className="text-slate-500 text-sm">
-                                            Manage and protect your essential documents.
-                                        </p>
+                                    <div className="flex items-center gap-4">
+                                        <button
+                                            onClick={() => setActiveTab('profile')}
+                                            className="w-12 h-12 rounded-2xl bg-[#2EAF7D]/10 flex items-center justify-center border border-[#2EAF7D]/20 text-[#2EAF7D] shadow-sm hover:bg-[#2EAF7D]/20 transition-all group"
+                                            title="View Profile"
+                                        >
+                                            <User size={24} className="group-hover:scale-110 transition-transform" />
+                                        </button>
+                                        <div>
+                                            <h1 className="text-2xl font-bold text-slate-900 mb-1">
+                                                {getWelcomeMessage()}
+                                            </h1>
+                                            <p className="text-slate-500 text-sm">
+                                                Manage and protect your essential documents.
+                                            </p>
+                                        </div>
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <button
