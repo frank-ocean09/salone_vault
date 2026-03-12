@@ -3,6 +3,8 @@ import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { Landing } from './pages/Landing';
 import { Auth } from './pages/Auth';
+import { Login } from './pages/Login';
+import { Signup } from './pages/Signup';
 import { Dashboard } from './pages/Dashboard';
 import { Verify } from './pages/Verify';
 import { PasswordResetRequest } from './pages/PasswordResetRequest';
@@ -23,6 +25,8 @@ function App() {
                     <Routes>
                         <Route path="/" element={<Landing />} />
                         <Route path="/auth" element={<Auth />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/signup" element={<Signup />} />
                         <Route path="/auth/forgot-password" element={<PasswordResetRequest />} />
                         <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
                         <Route path="/auth/callback" element={<AuthCallback />} />

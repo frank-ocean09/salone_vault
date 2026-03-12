@@ -37,7 +37,7 @@ export function Landing() {
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-6 animate-in fade-in slide-in-from-bottom-10 duration-1000">
-                            <Link to="/auth?mode=signup">
+                            <Link to="/signup">
                                 <Button
                                     variant="primary"
                                     className="bg-[#2EAF7D] hover:bg-[#2EAF7D]/90 text-white px-10 py-5 h-auto text-sm font-black uppercase tracking-widest rounded-2xl shadow-2xl shadow-[#2EAF7D]/30 transition-all hover:scale-105 active:scale-95 flex items-center gap-3 border-none"
@@ -270,7 +270,7 @@ export function Landing() {
                             <p className="text-[#C1F6ED]/60 text-lg font-bold mb-12">
                                 Join the thousands of citizens securing their document future on the official SaloneVault platform.
                             </p>
-                            <Link to="/auth?mode=signup">
+                            <Link to="/signup">
                                 <Button
                                     variant="primary"
                                     className="bg-[#2EAF7D] hover:bg-[#2EAF7D]/90 text-white px-12 py-6 h-auto text-sm font-black uppercase tracking-widest rounded-2xl shadow-2xl shadow-[#2EAF7D]/30 transition-all hover:scale-105 border-none"
