@@ -168,24 +168,34 @@ export async function logActivity(
     token?: string,
     meta?: Record<string, any>
 ) {
-    const activityMeta: Record<string, any> = {
-        ...meta,
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent,
-    };
+    // If Supabase is not configured, don't attempt to log
+    if (!isSupabaseConfigured) return;
 
-    const { error } = await supabase
-        .from('activity_logs')
-        .insert({
-            user_id: userId,
-            action,
-            document_id: documentId || null,
-            token: token || null,
-            meta: activityMeta,
-        });
+    try {
+        const activityMeta: Record<string, any> = {
+            ...meta,
+            timestamp: new Date().toISOString(),
+            userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'Server',
+        };
 
-    if (error) {
-        console.error('Failed to log activity:', error);
+        // If userId is provided but no session is active, the call might fail with 401.
+        // We ensure we don't crash the app if logging fails.
+        const { error } = await supabase
+            .from('activity_logs')
+            .insert({
+                user_id: userId,
+                action,
+                document_id: documentId || null,
+                token: token || null,
+                meta: activityMeta,
+            });
+
+        if (error) {
+            // Log to console but don't throw to avoid breaking the caller's flow
+            console.warn(`[Activity Log] Failed: ${error.message}`, { action, userId });
+        }
+    } catch (err) {
+        console.error('[Activity Log] Unexpected error:', err);
     }
 }
 
