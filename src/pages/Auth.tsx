@@ -87,6 +87,13 @@ export function Auth() {
                     navigate('/dashboard');
                 }
             } else {
+                console.log('[Auth] Attempting signup with data:', {
+                    email: formData.email,
+                    name: formData.name,
+                    phone: formData.phone,
+                    nin: formData.nin
+                });
+
                 const { error: signUpError } = await signUp(
                     formData.email,
                     formData.password,
@@ -96,12 +103,14 @@ export function Auth() {
                 );
 
                 if (signUpError) {
+                    console.error('[Auth] signUpError caught in component:', signUpError);
                     if (signUpError.message.includes("User already registered")) {
                         setError("An account with this email already exists.");
                     } else {
                         throw signUpError;
                     }
                 } else {
+                    console.log('[Auth] signUp success triggered in component');
                     setSuccess('Account created successfully! A confirmation link has been sent to your email. You must click it before you can sign in.');
                     // Switch to login mode after a delay or just let them read it
                     setTimeout(() => {

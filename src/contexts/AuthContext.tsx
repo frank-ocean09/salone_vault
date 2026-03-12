@@ -61,6 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         try {
+            console.log('[AuthContext] Attempting signUp for:', email);
             const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
@@ -74,9 +75,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 },
             });
 
+            if (error) {
+                console.error('[AuthContext] signUp error:', error);
+            } else {
+                console.log('[AuthContext] signUp success:', data.user?.id);
+            }
+
             // Profile creation is now handled by a database trigger on signup
             return { error };
         } catch (err: any) {
+            console.error('[AuthContext] signUp exception:', err);
             return { error: err };
         }
     };
