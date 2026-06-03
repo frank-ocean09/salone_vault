@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Search, Shield, User, MapPin, Phone, Mail, FileText, CheckCircle, XCircle, CreditCard, ExternalLink } from 'lucide-react';
 
+import { searchCitizenByNin } from '../../lib/api';
+
 interface SlraCitizenSearchProps {
     setActiveTab: (tab: any) => void;
 }
@@ -11,29 +13,41 @@ export function SlraCitizenSearch({ setActiveTab }: SlraCitizenSearchProps) {
     const [citizen, setCitizen] = useState<any>(null);
     const [searched, setSearched] = useState(false);
 
-    const handleSearch = (e: React.FormEvent) => {
+    const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSearching(true);
-        // Simulation of search logic
-        setTimeout(() => {
-            setIsSearching(false);
-            setSearched(true);
-            if (nin === '12345678') {
+        setSearched(false);
+
+        try {
+            const result = await searchCitizenByNin(nin);
+
+            if (result) {
+                // Map real DB fields to the UI state
                 setCitizen({
-                    name: 'Abu Bakarr Bangura',
-                    nin: '12345678',
+                    name: result.full_name || 'Anonymous User',
+                    nin: result.nin,
                     registered: true,
                     status: 'Active',
-                    address: '12 Circular Rd, Freetown',
-                    email: 'abu.bangura@gmail.com',
-                    licenses: [
-                        { type: 'Driver License', class: 'Class A', expiry: '2026-05-12' }
-                    ]
+                    address: result.address || 'Address Not Provided',
+                    email: result.email,
+                    licenses: (result.documents || []).filter((doc: any) =>
+                        doc.type === 'Driver License' || doc.type === "Driver’s License"
+                    ).map((doc: any) => ({
+                        type: doc.name,
+                        class: 'Standard',
+                        expiry: new Date(new Date(doc.created_at).setFullYear(new Date(doc.created_at).getFullYear() + 5)).toISOString().split('T')[0]
+                    }))
                 });
             } else {
                 setCitizen(null);
             }
-        }, 1000);
+        } catch (error) {
+            console.error('Search failed:', error);
+            setCitizen(null);
+        } finally {
+            setIsSearching(false);
+            setSearched(true);
+        }
     };
 
     return (

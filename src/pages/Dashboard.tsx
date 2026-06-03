@@ -830,7 +830,7 @@ export function Dashboard() {
                                             className="w-12 h-12 rounded-2xl bg-[#2EAF7D]/10 flex items-center justify-center border border-[#2EAF7D]/20 text-[#2EAF7D] shadow-sm hover:bg-[#2EAF7D]/20 transition-all group"
                                             title="View Profile"
                                         >
-                                            <User size={24} className="group-hover:scale-110 transition-transform" />
+                                            <UserIcon size={24} className="group-hover:scale-110 transition-transform" />
                                         </button>
                                         <div>
                                             <h1 className="text-2xl font-bold text-slate-900 mb-1">

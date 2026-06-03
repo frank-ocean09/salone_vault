@@ -609,3 +609,34 @@ export async function updateUserProfile(userId: string, updates: { full_name?: s
 
     return data;
 }
+
+// --- Citizen Search (for Issuers/Gov) ---
+
+/**
+ * Searches for a citizen profile by their National Identification Number (NIN).
+ * This requires the user to have 'issuer' or 'admin' role permissions (enforced by RLS).
+ */
+export async function searchCitizenByNin(nin: string) {
+    const { data, error } = await supabase
+        .from('profiles')
+        .select(`
+            *,
+            documents (
+                id,
+                name,
+                type,
+                status,
+                created_at,
+                hash
+            )
+        `)
+        .eq('nin', nin)
+        .maybeSingle();
+
+    if (error) {
+        console.error('Error searching citizen by NIN:', error);
+        throw error;
+    }
+
+    return data;
+}
