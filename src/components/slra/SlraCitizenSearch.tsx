@@ -65,10 +65,10 @@ export function SlraCitizenSearch({ setActiveTab }: SlraCitizenSearchProps) {
                         <input
                             type="text"
                             required
-                            placeholder="Enter 8-digit NIN"
-                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:border-[#006D77] focus:bg-white transition-all font-bold text-slate-900 tracking-wider placeholder:tracking-normal"
+                            placeholder="Enter Alphanumeric NIN"
+                            className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:border-[#006D77] focus:bg-white transition-all font-bold text-slate-900 tracking-wider placeholder:tracking-normal uppercase"
                             value={nin}
-                            onChange={(e) => setNin(e.target.value)}
+                            onChange={(e) => setNin(e.target.value.toUpperCase())}
                         />
                     </div>
                     <button

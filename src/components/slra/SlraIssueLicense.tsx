@@ -72,11 +72,11 @@ export function SlraIssueLicense() {
                                 <input
                                     type="text"
                                     required
-                                    placeholder="12345678"
-                                    pattern="[0-9]{8,}"
-                                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:border-[#006D77] focus:bg-white transition-all font-medium text-slate-900"
+                                    placeholder="e.g. SL123456"
+                                    pattern="[a-zA-Z0-9]{4,15}"
+                                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:border-[#006D77] focus:bg-white transition-all font-medium text-slate-900 uppercase"
                                     value={formData.nin}
-                                    onChange={(e) => setFormData({ ...formData, nin: e.target.value })}
+                                    onChange={(e) => setFormData({ ...formData, nin: e.target.value.toUpperCase() })}
                                 />
                             </div>
                         </div>

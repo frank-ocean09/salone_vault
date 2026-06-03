@@ -231,10 +231,10 @@ export function SlraHome({ setActiveTab }: SlraHomeProps) {
                                             <input
                                                 type="text"
                                                 autoFocus
-                                                placeholder="Enter 8-digit NIN"
-                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-3.5 pl-11 pr-4 focus:outline-none focus:border-[#006D77] focus:bg-white transition-all font-bold text-slate-900"
+                                                placeholder="Enter Alphanumeric NIN"
+                                                className="w-full bg-slate-50 border-2 border-slate-100 rounded-xl py-3.5 pl-11 pr-4 focus:outline-none focus:border-[#006D77] focus:bg-white transition-all font-bold text-slate-900 uppercase"
                                                 value={nin}
-                                                onChange={(e) => setNin(e.target.value)}
+                                                onChange={(e) => setNin(e.target.value.toUpperCase())}
                                             />
                                         </div>
                                         <button
@@ -247,7 +247,7 @@ export function SlraHome({ setActiveTab }: SlraHomeProps) {
                                                     }
                                                 }, 800);
                                             }}
-                                            disabled={isValidating || nin.length < 8}
+                                            disabled={isValidating || nin.length < 4}
                                             className="px-6 bg-[#006D77] text-white font-black rounded-xl shadow-lg shadow-[#006D77]/20 hover:bg-[#005a62] disabled:opacity-50 transition-all font-bold"
                                         >
                                             {isValidating ? '...' : 'Verify'}
@@ -310,7 +310,7 @@ export function SlraHome({ setActiveTab }: SlraHomeProps) {
                                 </div>
                             )}
 
-                            {!recipient && nin.length >= 8 && !isValidating && nin !== '12345678' && (
+                            {!recipient && nin.length >= 4 && !isValidating && nin !== '12345678' && (
                                 <p className="text-xs text-rose-500 font-bold text-center bg-rose-50 py-2 rounded-lg border border-rose-100">NIN not found in SaloneVault registry.</p>
                             )}
                         </div>
